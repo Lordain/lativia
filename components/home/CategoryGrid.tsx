@@ -13,6 +13,7 @@ export default function CategoryGrid() {
               icon={service.icon}
               title={service.title}
               description={service.description}
+              href={`/services/${service.id}`}
             />
           ))}
         </div>

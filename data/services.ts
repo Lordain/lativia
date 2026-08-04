@@ -9,6 +9,7 @@ export interface Service {
     popular: boolean;
     price?: string;
     duration?: string;
+    requirements?: string[];
   }
   
   export const services: Service[] = [
@@ -23,7 +24,8 @@ export interface Service {
         category: "Tax",
         popular: true,
         price: "MX$800",
-        duration: "1~3 個工作天"
+        duration: "1~3 個工作天",
+        requirements: ["护照", "居留卡", "CURP"]
     },
     {
         id: "2",

@@ -7,8 +7,8 @@ export interface Service {
     icon: string;
     category: string;
     popular: boolean;
-    price?: string;
-    duration?: string;
+    price: string;
+    duration: string;
     requirements?: string[];
   }
   
@@ -38,30 +38,7 @@ export interface Service {
         category: "Identity",
         popular: true,
         price: "MX$400",
-        duration: "1~3 個工作天"
-    },
-    {
-      id: "sat",
-      title: "SAT",
-      description: "SAT 稅務服務",
-      icon: "🏦",
-    },
-    {
-      id: "bank",
-      title: "銀行開戶",
-      description: "協助辦理銀行帳戶",
-      icon: "💳",
-    },
-    {
-      id: "company",
-      title: "公司註冊",
-      description: "墨西哥公司成立",
-      icon: "🏢",
-    },
-    {
-      id: "visa",
-      title: "簽證代辦",
-      description: "簽證與居留申請",
-      icon: "🛂",
+        duration: "1~3 個工作天",
+        requirements: ["护照", "居留卡"]
     },
   ];

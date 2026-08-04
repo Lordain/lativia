@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import ServiceInfo from "@/components/service/ServiceInfo";
 import RequirementList from "@/components/service/RequirementList";
 import ContactButton from "@/components/service/ContactButton";
+import { Metadata } from "next";
 
 interface Props {
   params: Promise<{
@@ -10,12 +11,36 @@ interface Props {
   }>;
 }
 
+function getService(slug: string) {
+    return services.find(
+      (item) => item.slug === slug
+    );
+  }
+
+export async function generateMetadata({
+    params,
+  }: Props): Promise<Metadata> {
+  
+    const { slug } = await params;
+
+    const service = getService(slug);
+  
+    if (!service) {
+      return {
+        title: "找不到服务",
+      };
+    }
+  
+    return {
+      title: `${service.title} 中文代办 | 墨西哥华人办事平台`,
+      description: service.description,
+    };
+  }
+
 export default async function ServicePage({ params }: Props) {
   const { slug } = await params;
 
-  const service = services.find(
-    (item) => item.slug === slug
-  );
+  const service = getService(slug);
 
   if (!service) {
     notFound();

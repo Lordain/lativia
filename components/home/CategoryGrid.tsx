@@ -9,12 +9,9 @@ export default function CategoryGrid() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
             <ServiceCard
-              key={service.id}
-              icon={service.icon}
-              title={service.title}
-              description={service.description}
-              href={`/services/${service.id}`}
-            />
+            key={service.id}
+            service={service}
+          />
           ))}
         </div>
       </div>

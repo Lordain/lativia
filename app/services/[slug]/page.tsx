@@ -2,6 +2,7 @@ import { services } from "@/data/services";
 import { notFound } from "next/navigation";
 import ServiceInfo from "@/components/service/ServiceInfo";
 import RequirementList from "@/components/service/RequirementList";
+import ContactButton from "@/components/service/ContactButton";
 
 interface Props {
   params: Promise<{
@@ -32,8 +33,9 @@ export default async function ServicePage({ params }: Props) {
 
       <ServiceInfo price={service.price} duration={service.duration} />
 
-      <RequirementList requirements={service.requirements ?? []}
-/>
+      <RequirementList requirements={service.requirements ?? []}/>
+
+      <ContactButton serviceName={service.title}/>
     </main>
   );
 }

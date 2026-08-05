@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
-
 import SearchBar from "@/components/home/SearchBar";
 import ServiceCard from "@/components/home/ServiceCard";
-import { services } from "@/data/services";
+import type { Service } from "@/types/service";
 
-export default function CategoryGrid() {
+interface CategoryGridProps {
+  services: Service[];
+}
+
+export default function CategoryGrid({ services }: CategoryGridProps) {
 
   const [keyword, setKeyword] = useState("");
 
   const filteredServices = services.filter((service) => {
-    const text = keyword.toLowerCase();
+    const text = keyword.trim().toLowerCase();
 
     return (
       service.title.toLowerCase().includes(text) ||

@@ -1,4 +1,4 @@
-import { services } from "@/data/services";
+import { getService } from "@/lib/services/getService";
 import { notFound } from "next/navigation";
 import ServiceInfo from "@/components/service/ServiceInfo";
 import RequirementList from "@/components/service/RequirementList";
@@ -11,20 +11,21 @@ interface Props {
   }>;
 }
 
-function getService(slug: string) {
-    return services.find(
-      (item) => item.slug === slug
-    );
-  }
-
 export async function generateMetadata({
     params,
   }: Props): Promise<Metadata> {
   
     const { slug } = await params;
 
-    const service = getService(slug);
-  
+    const service = await getService(slug);
+    
+    console.log("Service:", service);
+
+    if (!service) {
+      notFound();
+    }
+
+    
     if (!service) {
       return {
         title: "找不到服务",
@@ -40,7 +41,7 @@ export async function generateMetadata({
 export default async function ServicePage({ params }: Props) {
   const { slug } = await params;
 
-  const service = getService(slug);
+  const service = await getService(slug);
 
   if (!service) {
     notFound();

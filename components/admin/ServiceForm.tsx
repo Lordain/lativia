@@ -3,7 +3,14 @@
 import { useState } from "react";
 
 export default function ServiceForm() {
-    const [title, setTitle] = useState("");
+    const [formData, setFormData] = useState({
+        title: "",
+        shortDescription: "",
+        description: "",
+        price: "",
+        duration: "",
+        requirements: "",
+      });
 
     return (
       <form className="mt-8 space-y-6">
@@ -17,13 +24,10 @@ export default function ServiceForm() {
             type="text"
             className="w-full rounded-lg border p-3"
             placeholder="例如：RFC"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           />
 
-            <p className="text-gray-500">
-            目前輸入：{title}
-            </p>
         </div>
   
         <div>

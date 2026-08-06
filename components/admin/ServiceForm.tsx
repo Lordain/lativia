@@ -4,10 +4,15 @@ import { useState } from "react";
 import { ServiceFormData } from "@/types/service";
 import { createService } from "@/lib/services/createService";
 
-export default function ServiceForm() {
+interface Props {
+    initialData?: ServiceFormData;
+}
 
-    const [formData, setFormData] = useState<ServiceFormData>({
-        title: "",
+export default function ServiceForm({ initialData }: Props) {
+
+    const [formData, setFormData] = useState<ServiceFormData>(
+        initialData ?? {
+        title: initialData?.title || "",
         shortDescription: "",
         description: "",
         price: "",

@@ -1,13 +1,14 @@
 import { getServiceById } from "@/lib/services/getServiceById";
 import { notFound } from "next/navigation";
-
-
+import ServiceForm from "@/components/admin/ServiceForm";
 
 interface Props {
     params: Promise<{ id: string }>;
 }
 
 export default async function EditServicePage({ params }: Props) {
+    
+    
     const { id } = await params;
     const service = await getServiceById(id);
 
@@ -21,17 +22,14 @@ export default async function EditServicePage({ params }: Props) {
             <p className="text-sm text-gray-500">当前Service ID:</p>
             <div className="mt-8 rounded-lg border p-6">
 
-                <h2 className="text-2xl font-bold">
-                    {service.title}
-                </h2>
-
-                <p className="mt-2">
-                    {service.shortDescription}
-                </p>
-
-                <p className="mt-4">
-                    {service.description}
-                </p>
+            <ServiceForm initialData={{
+                title: service.title,
+                shortDescription: service.shortDescription,
+                description: service.description,
+                price: service.price,
+                duration: service.duration,
+                requirements: service.requirements.join(","),
+            }} />
 
             </div>
         </main>

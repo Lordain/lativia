@@ -49,9 +49,6 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
       onSubmit={handleSubmit(submitForm)}
       className="mt-8 space-y-6"
       >
-  
-        
-
         <FormField
           label="服务名称"
           error={errors.title?.message}
@@ -68,11 +65,10 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           />
         </FormField>
   
-        <div>
-          <label className="mb-2 block font-medium">
-            简短描述
-          </label>
-  
+        <FormField
+          label="简短描述"
+          error={errors.shortDescription?.message}
+        >
           <input
             type="text"
             placeholder="例如：墨西哥税号申请"  
@@ -83,18 +79,12 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
                 : "border-gray-300"
             }`}
           />
-          {errors.shortDescription && (
-            <p className="mt-1 text-sm text-red-500">
-            {errors.shortDescription.message}
-            </p>
-          )}
-        </div>
+        </FormField>
   
-        <div>
-          <label className="mb-2 block font-medium">
-            详细介绍
-          </label>
-  
+        <FormField
+          label="详细介绍"
+          error={errors.description?.message}
+        >
           <textarea
             rows={5}
             {...register("description")}
@@ -104,41 +94,29 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
                 : "border-gray-300"
             }`}
           />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-500">
-            {errors.description.message}
-            </p>
-          )}
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-2 block font-medium">
-            价格
-        </label>
-
-            <input
-                type="text"
-                placeholder="例如：MX$800"
-                {...register("price")}
-                className={`w-full rounded-lg border p-3 ${
-                  errors.price
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-            />
-            {errors.price && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.price.message}
-              </p>
-            )}
-        </div>
-
-        <div>
-        <label className="mb-2 block font-medium">
-            办理时间
-        </label>
-
-        <input
+        <FormField
+          label="价格"
+          error={errors.price?.message}
+        >
+          <input
+            type="text"
+            placeholder="例如：MX$800"
+            {...register("price")}
+            className={`w-full rounded-lg border p-3 ${
+              errors.price
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+          />
+        </FormField>
+        
+        <FormField
+          label="办理时间"
+          error={errors.duration?.message}
+        >
+          <input
             type="text"
             placeholder="1~3 个工作日"
             {...register("duration")}
@@ -147,35 +125,24 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
                 ? "border-red-500"
                 : "border-gray-300"
             }`}
-        />
-        {errors.duration && (
-          <p className="mt-1 text-sm text-red-500">
-            {errors.duration.message}
-          </p>
-        )}
-        </div>
+          />
+        </FormField>
 
-        <div>
-            <label className="mb-2 block font-medium">
-            所需文件
-            </label>
-
-            <textarea
-                rows={3}
-                placeholder="护照, 居留卡, CURP"
-                {...register("requirements")}
-                className={`w-full rounded-lg border p-3 ${
-                  errors.requirements
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-            />
-            {errors.requirements && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.requirements.message}
-              </p>
-            )}
-        </div>
+        <FormField
+          label="所需文件"
+          error={errors.requirements?.message}
+        >
+          <textarea
+            rows={3}
+            placeholder="护照, 居留卡, CURP"
+            {...register("requirements")}
+            className={`w-full rounded-lg border p-3 ${
+              errors.requirements
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+          />
+        </FormField>
   
         <button
           type="submit"

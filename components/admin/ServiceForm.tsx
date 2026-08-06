@@ -5,6 +5,7 @@ import { ServiceFormData } from "@/types/service";
 import { useForm } from "react-hook-form";
 import { serviceSchema } from "@/lib/validation/serviceSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import FormField from "@/components/ui/FormField";
 
 interface Props {
     initialData?: ServiceFormData;
@@ -51,11 +52,10 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
   
         
 
-        <div>
-          <label className="mb-2 block font-medium">
-            服务名称
-          </label>
-  
+        <FormField
+          label="服务名称"
+          error={errors.title?.message}
+        >
           <input
             type="text"
             placeholder="例如：RFC"
@@ -66,14 +66,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
                 : "border-gray-300"
             }`}
           />
-          
-          {errors.title && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.title.message}
-            </p>
-          )}
-
-        </div>
+        </FormField>
   
         <div>
           <label className="mb-2 block font-medium">

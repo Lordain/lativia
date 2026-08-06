@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ServiceFormData } from "@/types/service";
+import { createService } from "@/lib/services/createService";
 
 export default function ServiceForm() {
 
@@ -25,9 +26,26 @@ export default function ServiceForm() {
         }));
       }
 
+      async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        try {
+          await createService(formData);
+
+          alert("新增成功！");
+        } catch (error) {
+          console.error(error);
+          alert("新增失败！");
+        }
+      }
+
     return (
-      <form className="mt-8 space-y-6">
+      <form 
+      onSubmit={handleSubmit}
+      className="mt-8 space-y-6"
+      >
   
+        
+
         <div>
           <label className="mb-2 block font-medium">
             服务名称

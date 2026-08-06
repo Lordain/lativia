@@ -4,6 +4,7 @@ import type { Service } from "@/types/service";
 function normalizeService(data: any): Service {
     return {
       ...data,
+      shortDescription: data.short_description,
       requirements: data.requirements
         ? data.requirements
             .split(",")

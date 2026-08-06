@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { ServiceFormData } from "@/types/service";
 import { useForm } from "react-hook-form";
+import { serviceSchema } from "@/lib/validation/serviceSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface Props {
     initialData?: ServiceFormData;
@@ -19,6 +21,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
       handleSubmit,
       formState: { errors },
     } = useForm<ServiceFormData>({
+      resolver: zodResolver(serviceSchema),
       defaultValues: initialData ?? {
         title: "",
         shortDescription: "",

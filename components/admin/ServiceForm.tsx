@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { serviceSchema } from "@/lib/validation/serviceSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormField from "@/components/ui/FormField";
+import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 
 interface Props {
     initialData?: ServiceFormData;
@@ -53,15 +55,11 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           label="服务名称"
           error={errors.title?.message}
         >
-          <input
-            type="text"
-            placeholder="例如：RFC"
-            {...register("title")}
-            className={`w-full rounded-lg border p-3 ${
-              errors.title
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
+          <Input
+              type="text"
+              placeholder="例如：RFC"
+              error={!!errors.title}
+              {...register("title")}
           />
         </FormField>
   
@@ -69,15 +67,11 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           label="简短描述"
           error={errors.shortDescription?.message}
         >
-          <input
+          <Input
             type="text"
-            placeholder="例如：墨西哥税号申请"  
+            placeholder="例如：墨西哥税号申请"
+            error={!!errors.shortDescription}
             {...register("shortDescription")}
-            className={`w-full rounded-lg border p-3 ${
-              errors.shortDescription
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
           />
         </FormField>
   
@@ -85,14 +79,11 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           label="详细介绍"
           error={errors.description?.message}
         >
-          <textarea
+
+          <Textarea
             rows={5}
+            error={!!errors.description}
             {...register("description")}
-            className={`w-full rounded-lg border p-3 ${
-              errors.description
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
           />
         </FormField>
 
@@ -100,15 +91,11 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           label="价格"
           error={errors.price?.message}
         >
-          <input
+          <Input 
             type="text"
             placeholder="例如：MX$800"
+            error={!!errors.price}
             {...register("price")}
-            className={`w-full rounded-lg border p-3 ${
-              errors.price
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
           />
         </FormField>
         
@@ -116,15 +103,11 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           label="办理时间"
           error={errors.duration?.message}
         >
-          <input
+          <Input  
             type="text"
             placeholder="1~3 个工作日"
+            error={!!errors.duration}
             {...register("duration")}
-            className={`w-full rounded-lg border p-3 ${
-              errors.duration
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
           />
         </FormField>
 
@@ -132,15 +115,11 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           label="所需文件"
           error={errors.requirements?.message}
         >
-          <textarea
+          <Textarea
             rows={3}
             placeholder="护照, 居留卡, CURP"
+            error={!!errors.requirements}
             {...register("requirements")}
-            className={`w-full rounded-lg border p-3 ${
-              errors.requirements
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
           />
         </FormField>
   

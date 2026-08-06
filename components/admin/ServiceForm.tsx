@@ -12,6 +12,7 @@ interface Props {
 
 export default function ServiceForm({ initialData, onSubmit }: Props) {
 
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<ServiceFormData>(
         initialData ?? {
         title: initialData?.title || "",
@@ -33,16 +34,19 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
         }));
       }
 
-      async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+      async function handleSubmit(
+        e: React.FormEvent<HTMLFormElement>
+      ) {
         e.preventDefault();
+
+        setLoading(true);
+
         try {
           await onSubmit(formData);
-
-          alert("保存成功！");
-        } catch (error) {
-          console.error(error);
-          alert("保存失败！");
+        }  finally {
+          setLoading(false);
         }
+      
       }
 
     return (
@@ -144,11 +148,27 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
         </div>
   
         <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 text-white transition hover:bg-blue-700"
-        >
-            新增服务
-        </button>
+  type="submit"
+  disabled={loading}
+  className="
+    w-full
+    rounded-lg
+    bg-blue-600
+    px-6
+    py-3
+    text-white
+    transition
+    hover:bg-blue-700
+    disabled:bg-gray-400
+    disabled:cursor-not-allowed
+  "
+>
+  {loading
+    ? "保存中..."
+    : initialData
+      ? "更新服务"
+      : "新增服务"}
+</button>
 
         
     </form>

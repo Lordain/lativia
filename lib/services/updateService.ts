@@ -1,29 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import type { ServiceFormData } from "@/types/service";
+import { toDatabase } from "./toDatabase";
 
 export async function updateService(
   id: string,
   formData: ServiceFormData
 ) {
-  const service = {
-    title: formData.title,
-
-    short_description:
-      formData.shortDescription,
-
-    description: formData.description,
-
-    price: formData.price,
-
-    duration: formData.duration,
-
-    requirements: formData.requirements,
-
-    slug: formData.title
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "-"),
-  };
+  const service = toDatabase(formData);
 
   const { error } = await supabase
     .from("services")

@@ -1,7 +1,6 @@
 import { getServiceById } from "@/lib/services/getServiceById";
 import { notFound } from "next/navigation";
-import ServiceForm from "@/components/admin/ServiceForm";
-import { updateService } from "@/lib/services/updateService";
+import EditServiceContainer from "@/components/admin/EditServiceContainer";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -23,14 +22,17 @@ export default async function EditServicePage({ params }: Props) {
             <p className="text-sm text-gray-500">当前Service ID:</p>
             <div className="mt-8 rounded-lg border p-6">
 
-            <ServiceForm initialData={{
-                title: service.title,
-                shortDescription: service.shortDescription,
-                description: service.description,
-                price: service.price,
-                duration: service.duration,
-                requirements: service.requirements.join(","),
-            }} onSubmit={(data) => updateService(id, data)} />
+            <EditServiceContainer
+                id={id}
+                initialData={{
+                    title: service.title,
+                    shortDescription: service.shortDescription,
+                    description: service.description,
+                    price: service.price,
+                    duration: service.duration,
+                    requirements: service.requirements.join(", "),
+                }}
+                />
 
             </div>
         </main>

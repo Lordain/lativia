@@ -58,10 +58,20 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
   
           <input
             type="text"
-            className="w-full rounded-lg border p-3"
             placeholder="例如：RFC"
             {...register("title")}
+            className={`w-full rounded-lg border p-3 ${
+              errors.title
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
           />
+          
+          {errors.title && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.title.message}
+            </p>
+          )}
 
         </div>
   
@@ -72,10 +82,19 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
   
           <input
             type="text"
-            className="w-full rounded-lg border p-3"
             placeholder="例如：墨西哥税号申请"  
             {...register("shortDescription")}
+            className={`w-full rounded-lg border p-3 ${
+              errors.shortDescription
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
           />
+          {errors.shortDescription && (
+            <p className="mt-1 text-sm text-red-500">
+            {errors.shortDescription.message}
+            </p>
+          )}
         </div>
   
         <div>
@@ -85,9 +104,18 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
   
           <textarea
             rows={5}
-            className="w-full rounded-lg border p-3"
             {...register("description")}
+            className={`w-full rounded-lg border p-3 ${
+              errors.description
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-500">
+            {errors.description.message}
+            </p>
+          )}
         </div>
 
         <div>
@@ -97,10 +125,19 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
 
             <input
                 type="text"
-                className="w-full rounded-lg border p-3"
                 placeholder="例如：MX$800"
                 {...register("price")}
+                className={`w-full rounded-lg border p-3 ${
+                  errors.price
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
             />
+            {errors.price && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.price.message}
+              </p>
+            )}
         </div>
 
         <div>
@@ -110,10 +147,19 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
 
         <input
             type="text"
-            className="w-full rounded-lg border p-3"
             placeholder="1~3 个工作日"
             {...register("duration")}
+            className={`w-full rounded-lg border p-3 ${
+              errors.duration
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
         />
+        {errors.duration && (
+          <p className="mt-1 text-sm text-red-500">
+            {errors.duration.message}
+          </p>
+        )}
         </div>
 
         <div>
@@ -123,28 +169,37 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
 
             <textarea
                 rows={3}
-                className="w-full rounded-lg border p-3"
                 placeholder="护照, 居留卡, CURP"
                 {...register("requirements")}
+                className={`w-full rounded-lg border p-3 ${
+                  errors.requirements
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
             />
+            {errors.requirements && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.requirements.message}
+              </p>
+            )}
         </div>
   
         <button
-  type="submit"
-  disabled={loading}
-  className="
-    w-full
-    rounded-lg
-    bg-blue-600
-    px-6
-    py-3
-    text-white
-    transition
-    hover:bg-blue-700
-    disabled:bg-gray-400
-    disabled:cursor-not-allowed
-  "
->
+          type="submit"
+          disabled={loading}
+          className="
+            w-full
+            rounded-lg
+            bg-blue-600
+            px-6
+            py-3
+            text-white
+            transition
+            hover:bg-blue-700
+            disabled:bg-gray-400
+            disabled:opacity-60
+            disabled:cursor-not-allowed
+          ">
   {loading
     ? "保存中..."
     : initialData

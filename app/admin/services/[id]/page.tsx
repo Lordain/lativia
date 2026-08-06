@@ -1,6 +1,7 @@
 import { getServiceById } from "@/lib/services/getServiceById";
 import { notFound } from "next/navigation";
 import ServiceForm from "@/components/admin/ServiceForm";
+import { updateService } from "@/lib/services/updateService";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -29,7 +30,7 @@ export default async function EditServicePage({ params }: Props) {
                 price: service.price,
                 duration: service.duration,
                 requirements: service.requirements.join(","),
-            }} />
+            }} onSubmit={(data) => updateService(id, data)} />
 
             </div>
         </main>

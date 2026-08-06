@@ -1,4 +1,5 @@
 import ServiceForm from "@/components/admin/ServiceForm";
+import { createService } from "@/lib/services/createService";
 
 export default function NewServicePage() {
     return (
@@ -7,7 +8,7 @@ export default function NewServicePage() {
                 新增办理服务
             </h1>
 
-            <ServiceForm />
+            <ServiceForm onSubmit={createService} />
 
         </main>
     );

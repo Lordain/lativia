@@ -6,9 +6,11 @@ import { createService } from "@/lib/services/createService";
 
 interface Props {
     initialData?: ServiceFormData;
+
+    onSubmit: (data: ServiceFormData) => Promise<void>;
 }
 
-export default function ServiceForm({ initialData }: Props) {
+export default function ServiceForm({ initialData, onSubmit }: Props) {
 
     const [formData, setFormData] = useState<ServiceFormData>(
         initialData ?? {
@@ -34,12 +36,12 @@ export default function ServiceForm({ initialData }: Props) {
       async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         try {
-          await createService(formData);
+          await onSubmit(formData);
 
-          alert("新增成功！");
+          alert("保存成功！");
         } catch (error) {
           console.error(error);
-          alert("新增失败！");
+          alert("保存失败！");
         }
       }
 

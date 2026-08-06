@@ -1,4 +1,5 @@
 import type { Service } from "@/types/service";
+import Link from "next/link";
 
 interface Props {
     service: Service;
@@ -12,7 +13,7 @@ export default function ServiceRow({ service }: Props) {
                 <p className="text-sm text-gray-500">{service.shortDescription}</p>
             </div>
             <div className="flex gap-2">
-                <button className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-700">编辑</button>
+                <Link href={`/admin/services/${service.id}`} className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-700">编辑</Link>
                 <button className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-700">删除</button>
             </div>
         </div>

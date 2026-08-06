@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ServiceFormData } from "@/types/service";
-import { createService } from "@/lib/services/createService";
 import { useForm } from "react-hook-form";
 
 interface Props {
@@ -14,45 +13,36 @@ interface Props {
 export default function ServiceForm({ initialData, onSubmit }: Props) {
 
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState<ServiceFormData>(
-        initialData ?? {
-        title: initialData?.title || "",
+        
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+    } = useForm<ServiceFormData>({
+      defaultValues: initialData ?? {
+        title: "",
         shortDescription: "",
         description: "",
         price: "",
         duration: "",
         requirements: "",
-      });
-    
-      function handleChange(
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      ) {
-        const { name, value } = e.target;
-    
-        setFormData((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-      }
+      },
+    });
+      
 
-      async function handleSubmit(
-        e: React.FormEvent<HTMLFormElement>
-      ) {
-        e.preventDefault();
-
+      async function submitForm(data: ServiceFormData) {
         setLoading(true);
-
+      
         try {
-          await onSubmit(formData);
-        }  finally {
+          await onSubmit(data);
+        } finally {
           setLoading(false);
         }
-      
       }
 
     return (
       <form 
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(submitForm)}
       className="mt-8 space-y-6"
       >
   
@@ -65,11 +55,9 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
   
           <input
             type="text"
-            name="title"
             className="w-full rounded-lg border p-3"
             placeholder="例如：RFC"
-            value={formData.title}
-            onChange={handleChange}
+            {...register("title")}
           />
 
         </div>
@@ -83,9 +71,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
             type="text"
             className="w-full rounded-lg border p-3"
             placeholder="例如：墨西哥税号申请"  
-            name="shortDescription"
-            value={formData.shortDescription}
-            onChange={handleChange}
+            {...register("shortDescription")}
           />
         </div>
   
@@ -97,9 +83,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
           <textarea
             rows={5}
             className="w-full rounded-lg border p-3"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
+            {...register("description")}
           />
         </div>
 
@@ -112,9 +96,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
                 type="text"
                 className="w-full rounded-lg border p-3"
                 placeholder="例如：MX$800"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
+                {...register("price")}
             />
         </div>
 
@@ -127,9 +109,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
             type="text"
             className="w-full rounded-lg border p-3"
             placeholder="1~3 个工作日"
-            name="duration"
-            value={formData.duration}
-            onChange={handleChange}
+            {...register("duration")}
         />
         </div>
 
@@ -142,9 +122,7 @@ export default function ServiceForm({ initialData, onSubmit }: Props) {
                 rows={3}
                 className="w-full rounded-lg border p-3"
                 placeholder="护照, 居留卡, CURP"
-                name="requirements"
-                value={formData.requirements}
-                onChange={handleChange}
+                {...register("requirements")}
             />
         </div>
   

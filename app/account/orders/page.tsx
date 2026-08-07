@@ -1,4 +1,5 @@
 import { getMyOrders } from "@/lib/orders/getMyOrders";
+import StatusBadge from "@/components/orders/StatusBadge";
 
 export default async function MyOrdersPage() {
   const orders = await getMyOrders();
@@ -24,9 +25,9 @@ export default async function MyOrdersPage() {
                 {order.services?.title ?? "服务"}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                状态：{order.status}
-              </p>
+              <div className="mt-2">
+                <StatusBadge status={order.status} />
+              </div>
 
               <p className="mt-1 text-sm text-gray-500">
                 创建时间：

@@ -1,21 +1,30 @@
+export type OrderStatus =
+  | "pending"
+  | "processing"
+  | "waiting_documents"
+  | "completed"
+  | "cancelled";
+
 export interface Order {
+  id: string;
 
-    id:string;
+  userId: string;
 
-    userId:string;
+  serviceId: string;
 
-    serviceId:string;
+  status: OrderStatus;
 
-    status:string;
+  formData: Record<string, string>;
 
-    formData:Record<string,string>;
+  adminNote: string | null;
 
-    createdAt:string;
+  createdAt: string;
 
+  updatedAt: string;
 }
 
 export interface CreateOrderInput {
-    serviceId:string;
-    formData:Record<string,string>;
-}
+  serviceId: string;
 
+  formData: Record<string, string>;
+}

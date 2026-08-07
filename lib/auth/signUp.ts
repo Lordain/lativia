@@ -1,12 +1,13 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import type { RegisterFormData } from "@/types/auth";
 
 export async function signUp(data: RegisterFormData) {
+  const supabase = createClient();
+
   const { data: authData, error: authError } =
     await supabase.auth.signUp({
       email: data.email,
       password: data.password,
-
       options: {
         data: {
           name: data.name,

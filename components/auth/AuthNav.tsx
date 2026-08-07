@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import LogoutButton from "./LogoutButton";
 
 export default function AuthNav() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] =
+    useState<User | null>(null);
 
   useEffect(() => {
+    const supabase = createClient();
+
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
     });
@@ -31,11 +34,8 @@ export default function AuthNav() {
   if (user) {
     return (
       <div className="flex items-center gap-4">
-        <Link
-          href="/account"
-          className="text-sm hover:underline"
-        >
-          我的账号
+        <Link href="/account/orders">
+          我的申请
         </Link>
 
         <LogoutButton />
@@ -45,17 +45,11 @@ export default function AuthNav() {
 
   return (
     <div className="flex items-center gap-4">
-      <Link
-        href="/auth/login"
-        className="text-sm hover:underline"
-      >
+      <Link href="/auth/login">
         登录
       </Link>
 
-      <Link
-        href="/auth/register"
-        className="rounded bg-blue-600 px-3 py-2 text-sm text-white"
-      >
+      <Link href="/auth/register">
         注册
       </Link>
     </div>

@@ -1,9 +1,11 @@
-import { supabase } from "@/lib/supabase";
 import type { CreateOrderInput } from "@/types/order";
+import { createClient } from "@/lib/supabase/client";
 
 export async function createOrder(
   input: CreateOrderInput
 ) {
+  const supabase = createClient();
+
   const {
     data: { user },
     error: userError,

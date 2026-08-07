@@ -10,10 +10,21 @@ export async function getService(slug: string): Promise<Service | null> {
     .eq("slug", slug)
     .single();
 
-  if (error || !data) {
-    console.error(error);
-    return null;
-  }
+    if (error) {
+      console.error("getService Supabase error:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
+    
+      return null;
+    }
+    
+    if (!data) {
+      console.error("getService: service not found:", slug);
+      return null;
+    }
 
   return normalizeService(data);
 }

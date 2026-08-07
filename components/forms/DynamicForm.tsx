@@ -15,6 +15,7 @@ export default function DynamicForm({
   const {
     register,
     handleSubmit,
+    formState: { errors },
   } = useForm<DynamicFormData>();
 
   function submitForm(data: DynamicFormData) {
@@ -26,23 +27,55 @@ export default function DynamicForm({
       onSubmit={handleSubmit(submitForm)}
       className="space-y-6"
     >
-      {schema.map((field) => (
+            {schema.map((field) => (
         <div
-          key={field.name}
-          className="space-y-2"
+            key={field.name}
+            className="space-y-2"
         >
-          <label className="font-medium">
+            <label className="font-medium">
             {field.label}
-          </label>
+            </label>
 
-          <input
-            type="text"
-            placeholder={field.placeholder}
-            {...register(field.name)}
-            className="w-full rounded-lg border p-3"
-          />
+            {field.type === "textarea" ? (
+            <textarea
+                placeholder={field.placeholder}
+                {...register(field.name, {
+                required: field.required
+                    ? `${field.label} 为必填`
+                    : false,
+                })}
+                rows={4}
+                className={`w-full rounded-lg border p-3 ${
+                errors[field.name]
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+            />
+            ) : (
+            <input
+                type={field.type}
+                placeholder={field.placeholder}
+                {...register(field.name, {
+                required: field.required
+                    ? `${field.label} 为必填`
+                    : false,
+                })}
+                className={`w-full rounded-lg border p-3 ${
+                errors[field.name]
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+            />
+            )}
+
+            {/* 👇 错误提示就是放这里 */}
+            {errors[field.name] && (
+            <p className="text-sm text-red-500">
+                {errors[field.name]?.message as string}
+            </p>
+            )}
         </div>
-      ))}
+        ))}
 
       <button
         type="submit"

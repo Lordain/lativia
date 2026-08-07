@@ -11,5 +11,7 @@ export function normalizeService(data: any): Service {
           .split(",")
           .map((item: string) => item.trim())
       : [],
+
+    formSchema: data.form_schema ?? [],
   };
 }

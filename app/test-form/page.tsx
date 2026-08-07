@@ -2,16 +2,18 @@ import DynamicForm from "@/components/forms/DynamicForm";
 
 const schema = [
   {
-    type: "text",
+    type: "text" as const,
     name: "curp",
     label: "CURP",
     placeholder: "请输入 CURP",
+    required: true,
   },
   {
-    type: "text",
-    name: "rfc",
-    label: "RFC",
-    placeholder: "请输入 RFC",
+    type: "textarea" as const,
+    name: "notes",
+    label: "备注",
+    placeholder: "请输入备注",
+    required: false,
   },
 ];
 

@@ -2,14 +2,17 @@
 
 import { useForm } from "react-hook-form";
 import type { FormFieldSchema } from "@/types/form";
+import { createOrder } from "@/lib/orders/createOrder";
 
 type DynamicFormData = Record<string, string>;
 
 interface Props {
+  serviceId: string;
   schema: FormFieldSchema[];
 }
 
 export default function DynamicForm({
+  serviceId,
   schema,
 }: Props) {
   const {
@@ -18,64 +21,73 @@ export default function DynamicForm({
     formState: { errors },
   } = useForm<DynamicFormData>();
 
-  function submitForm(data: DynamicFormData) {
-    console.log("Dynamic Form Data:", data);
+  async function submitForm(data: DynamicFormData) {
+    console.log("submitForm triggered:", data);
+
+    await createOrder({
+      serviceId,
+      formData: data,
+    });
   }
 
   return (
     <form
-      onSubmit={handleSubmit(submitForm)}
+      onSubmit={handleSubmit(
+        submitForm,
+        (formErrors) => {
+          console.log("validation errors:", formErrors);
+        }
+      )}
       className="space-y-6"
     >
-            {schema.map((field) => (
+      {schema.map((field) => (
         <div
-            key={field.name}
-            className="space-y-2"
+          key={field.name}
+          className="space-y-2"
         >
-            <label className="font-medium">
+          <label className="font-medium">
             {field.label}
-            </label>
+          </label>
 
-            {field.type === "textarea" ? (
+          {field.type === "textarea" ? (
             <textarea
-                placeholder={field.placeholder}
-                {...register(field.name, {
+              placeholder={field.placeholder}
+              {...register(field.name, {
                 required: field.required
-                    ? `${field.label} 为必填`
-                    : false,
-                })}
-                rows={4}
-                className={`w-full rounded-lg border p-3 ${
+                  ? `${field.label} 为必填`
+                  : false,
+              })}
+              rows={4}
+              className={`w-full rounded-lg border p-3 ${
                 errors[field.name]
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
             />
-            ) : (
+          ) : (
             <input
-                type={field.type}
-                placeholder={field.placeholder}
-                {...register(field.name, {
+              type={field.type}
+              placeholder={field.placeholder}
+              {...register(field.name, {
                 required: field.required
-                    ? `${field.label} 为必填`
-                    : false,
-                })}
-                className={`w-full rounded-lg border p-3 ${
+                  ? `${field.label} 为必填`
+                  : false,
+              })}
+              className={`w-full rounded-lg border p-3 ${
                 errors[field.name]
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
             />
-            )}
+          )}
 
-            {/* 👇 错误提示就是放这里 */}
-            {errors[field.name] && (
+          {errors[field.name] && (
             <p className="text-sm text-red-500">
-                {errors[field.name]?.message as string}
+              {errors[field.name]?.message as string}
             </p>
-            )}
+          )}
         </div>
-        ))}
+      ))}
 
       <button
         type="submit"

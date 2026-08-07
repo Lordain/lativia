@@ -60,7 +60,8 @@ export default async function ServicePage({ params }: Props) {
             开始办理
           </h2>
 
-          <DynamicForm schema={service.formSchema} />
+          <DynamicForm serviceId={service.id} 
+          schema={service.formSchema} />
         </section>
       )}
 

@@ -35,7 +35,7 @@ export default function RegisterForm() {
     try {
       await signUp(data);
 
-      alert("注册成功，请检查 Email 完成验证。");
+      alert("注册成功");
     } catch (error) {
       console.error(error);
 

@@ -10,6 +10,7 @@ export interface Service {
     price: string;
     duration: string;
     requirements: string[];
+    formFields: FormFieldSchema[];
 }
 
 export interface ServiceFormData {
@@ -33,3 +34,11 @@ export interface CreateServiceInput {
     category: string;
     popular: boolean;
   }
+
+export interface FormFieldSchema {
+    type: "text" | "textarea" | "password";
+    name: string;
+    label: string;
+    placeholder?: string;
+    required: boolean;
+}

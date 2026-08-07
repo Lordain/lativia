@@ -1,4 +1,5 @@
 import type { ServiceFormData } from "@/types/service";
+import type { FormFieldSchema } from "@/types/form";
 
 export function toDatabase(
   formData: ServiceFormData
@@ -27,6 +28,8 @@ export function toDatabase(
         .trim()
         .toLowerCase()
         .replace(/\s+/g, "-"),
+
+    form_schema:[]
 
   };
 }

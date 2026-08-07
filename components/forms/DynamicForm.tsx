@@ -22,12 +22,24 @@ export default function DynamicForm({
   } = useForm<DynamicFormData>();
 
   async function submitForm(data: DynamicFormData) {
-    console.log("submitForm triggered:", data);
-
-    await createOrder({
-      serviceId,
-      formData: data,
-    });
+    try {
+      const order = await createOrder({
+        serviceId,
+        formData: data,
+      });
+  
+      console.log("Order created:", order);
+  
+      alert("申请已提交！");
+    } catch (error) {
+      console.error(error);
+  
+      alert(
+        error instanceof Error
+          ? error.message
+          : "提交失败，请稍后再试"
+      );
+    }
   }
 
   return (

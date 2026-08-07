@@ -15,3 +15,8 @@ export const registerSchema = z
       path: ["confirmPassword"],
     }
   );
+
+export const loginSchema = z.object({
+  email: z.email("Email 格式错误"),
+  password: z.string().min(1, "请输入密码"),
+});

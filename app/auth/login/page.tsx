@@ -1,26 +1,26 @@
 import Link from "next/link";
-import RegisterForm from "@/components/auth/RegisterForm";
+import LoginForm from "@/components/auth/LoginForm";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   return (
     <main className="mx-auto max-w-xl p-10">
       <h1 className="mb-2 text-3xl font-bold">
-        创建账号
+        登录
       </h1>
 
       <p className="mb-8 text-gray-500">
-        注册后即可提交办理申请并查看服务进度。
+        登录后即可提交服务申请并查看办理状态。
       </p>
 
-      <RegisterForm />
+      <LoginForm />
 
       <p className="mt-6 text-center text-sm text-gray-500">
-        已有账号？
+        还没有账号？
         <Link
-          href="/auth/login"
+          href="/auth/register"
           className="ml-1 text-blue-600 hover:underline"
         >
-          登录
+          注册
         </Link>
       </p>
     </main>

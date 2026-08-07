@@ -12,7 +12,10 @@ export default async function AdminServicesPage() {
 
       <div className="space-y-4">
         {services.map((service) => (
-          <ServiceRow key={service.id} service={service} />
+          <ServiceRow
+            key={service.id}
+            service={service}
+          />
         ))}
       </div>
     </main>

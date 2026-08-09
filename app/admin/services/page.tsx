@@ -1,7 +1,10 @@
 import { getServices } from "@/lib/services/getServices";
 import ServiceRow from "@/components/admin/ServiceRow";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export default async function AdminServicesPage() {
+  await requireAdmin();
+
   const services = await getServices();
 
   return (

@@ -9,11 +9,11 @@ export default function LogoutButton() {
   async function handleLogout() {
     try {
       await signOut();
-
+  
       router.push("/");
       router.refresh();
     } catch (error) {
-      console.error(error);
+      console.error("Logout failed:", error);
     }
   }
 

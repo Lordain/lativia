@@ -1,5 +1,6 @@
 import { getMyOrders } from "@/lib/orders/getMyOrders";
 import StatusBadge from "@/components/orders/StatusBadge";
+import Link from "next/link";
 
 export default async function MyOrdersPage() {
   const orders = await getMyOrders();
@@ -17,10 +18,11 @@ export default async function MyOrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div
+            <Link 
+              href={`/account/orders/${order.id}`} 
               key={order.id}
-              className="rounded-lg border p-4"
-            >
+              className="block rounded-lg border p-4 transition hover:bg-gray-50">
+            
               <h2 className="font-semibold">
                 {order.services?.title ?? "服务"}
               </h2>
@@ -33,7 +35,7 @@ export default async function MyOrdersPage() {
                 创建时间：
                 {new Date(order.created_at).toLocaleString()}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       )}

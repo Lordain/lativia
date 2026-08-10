@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 
 import { stripe } from "@/lib/payments/stripe";
-import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -34,12 +34,18 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json(
-      { error: "Webhook signature 驗證失敗" },
+      {
+        error:
+          "Webhook signature 驗證失敗",
+      },
       { status: 400 }
     );
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (
+    event.type ===
+    "checkout.session.completed"
+  ) {
     const session = event.data.object;
 
     const orderId =
@@ -52,7 +58,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (session.payment_status !== "paid") {
+    if (
+      session.payment_status !== "paid"
+    ) {
       return NextResponse.json({
         received: true,
       });
@@ -60,28 +68,161 @@ export async function POST(request: Request) {
 
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SECRET_KEY!
     );
 
-    const { error } = await supabaseAdmin
+    const {
+      data: order,
+      error: orderError,
+    } = await supabaseAdmin
       .from("orders")
-      .update({
-        payment_status: "paid",
-        paid_at: new Date().toISOString(),
-      })
-      .eq("id", orderId);
+      .select(`
+        id,
+        amount,
+        currency,
+        payment_status,
+        payment_method,
+        payment_provider
+      `)
+      .eq("id", orderId)
+      .single();
 
-    if (error) {
+    if (orderError || !order) {
       console.error(
-        "Update order payment error:",
-        error
+        "Stripe webhook: order not found",
+        orderError
       );
 
       return NextResponse.json(
-        { error: "更新訂單付款狀態失敗" },
+        { error: "找不到订单" },
+        { status: 404 }
+      );
+    }
+
+    // 防止重复 webhook 重复处理
+    if (
+      order.payment_status === "paid"
+    ) {
+      console.log(
+        `Order ${orderId} already paid`
+      );
+
+      return NextResponse.json({
+        received: true,
+      });
+    }
+
+    // Provider 验证
+    if (
+      order.payment_provider !==
+        "stripe" ||
+      order.payment_method !== "card"
+    ) {
+      console.error(
+        "Stripe webhook: payment provider mismatch",
+        {
+          orderId,
+          paymentProvider:
+            order.payment_provider,
+          paymentMethod:
+            order.payment_method,
+        }
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "订单付款方式不匹配",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 金额验证
+    const expectedAmount =
+      Math.round(
+        Number(order.amount) * 100
+      );
+
+    if (
+      session.amount_total !==
+      expectedAmount
+    ) {
+      console.error(
+        "Stripe webhook: amount mismatch",
+        {
+          orderId,
+          stripeAmount:
+            session.amount_total,
+          expectedAmount,
+        }
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "付款金额不匹配",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 币种验证
+    const expectedCurrency =
+      order.currency.toLowerCase();
+
+    if (
+      session.currency !==
+      expectedCurrency
+    ) {
+      console.error(
+        "Stripe webhook: currency mismatch",
+        {
+          orderId,
+          stripeCurrency:
+            session.currency,
+          expectedCurrency,
+        }
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "付款币种不匹配",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 全部验证通过才更新订单
+    const { error: updateError } =
+      await supabaseAdmin
+        .from("orders")
+        .update({
+          payment_status: "paid",
+          paid_at:
+            new Date().toISOString(),
+        })
+        .eq("id", orderId);
+
+    if (updateError) {
+      console.error(
+        "Update order payment error:",
+        updateError
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "更新订单付款状态失败",
+        },
         { status: 500 }
       );
     }
+
+    console.log(
+      `Order ${orderId} verified and marked as paid`
+    );
   }
 
   return NextResponse.json({

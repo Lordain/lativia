@@ -44,6 +44,6 @@ export interface Order {
 
 export interface CreateOrderInput {
   serviceId: string;
-
+  priceId: string;
   formData: Record<string, string>;
 }

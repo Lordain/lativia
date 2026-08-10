@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import PaymentOptionSelector from "@/components/payments/PaymentOptionSelector";
+import type { ServicePrice } from "@/types/servicePrice";
 import { useForm } from "react-hook-form";
 import type { FormFieldSchema } from "@/types/form";
 import { createOrder } from "@/lib/orders/createOrder";
@@ -9,12 +12,16 @@ type DynamicFormData = Record<string, string>;
 interface Props {
   serviceId: string;
   schema: FormFieldSchema[];
+  prices: ServicePrice[];
 }
 
 export default function DynamicForm({
   serviceId,
   schema,
+  prices,
 }: Props) {
+  const [selectedPriceId, setSelectedPriceId] = useState(prices[0]?.id ?? "");
+
   const {
     register,
     handleSubmit,
@@ -23,8 +30,14 @@ export default function DynamicForm({
 
   async function submitForm(data: DynamicFormData) {
     try {
+      if (!selectedPriceId) {
+        alert("请选择付款方式");
+        return;
+      }
+  
       const order = await createOrder({
         serviceId,
+        priceId: selectedPriceId,
         formData: data,
       });
   
@@ -52,6 +65,18 @@ export default function DynamicForm({
       )}
       className="space-y-6"
     >
+      <div className="space-y-3">
+        <h2 className="text-xl font-semibold">
+          选择付款方式
+        </h2>
+  
+        <PaymentOptionSelector
+          prices={prices}
+          value={selectedPriceId}
+          onChange={setSelectedPriceId}
+        />
+      </div>
+  
       {schema.map((field) => (
         <div
           key={field.name}

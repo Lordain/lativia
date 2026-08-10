@@ -96,8 +96,11 @@ export default async function ServicePage({ params }: Props) {
             </div>
           </section>
 
-          <DynamicForm serviceId={service.id} 
-          schema={service.formSchema} />
+          <DynamicForm
+            serviceId={service.id}
+            schema={service.formSchema}
+            prices={prices}
+          />
         </section>
       )}
 

@@ -10,6 +10,16 @@ import type { FormFieldSchema } from "@/types/form";
 
 import OrderManagementForm from "@/components/admin/OrderManagementForm";
 
+import OrderPaymentInfo from "@/components/admin/OrderPaymentInfo";
+
+import PaymentTransactionList from "@/components/admin/PaymentTransactionList";
+
+import type {
+  PaymentStatus,
+  PaymentMethod,
+  PaymentProvider,
+} from "@/types/payment";
+
 interface Props {
   params: Promise<{
     id: string;
@@ -91,6 +101,31 @@ export default async function AdminOrderDetailPage({
           )}
         </div>
       </section>
+      <OrderPaymentInfo
+        paymentStatus={
+          order.payment_status as PaymentStatus
+        }
+        amount={order.amount}
+        currency={order.currency}
+        paymentMethod={
+          order.payment_method as
+            | PaymentMethod
+            | null
+        }
+        paymentProvider={
+          order.payment_provider as
+            | PaymentProvider
+            | null
+        }
+        paidAt={order.paid_at}
+      />
+
+      <PaymentTransactionList
+        transactions={
+          order.payment_transactions ?? []
+        }
+      />
+      
       <OrderManagementForm
         orderId={order.id}
         initialStatus={order.status as OrderStatus}

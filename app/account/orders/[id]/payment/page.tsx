@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getMyOrder } from "@/lib/orders/getMyOrder";
 import PaymentBadge from "@/components/orders/PaymentBadge";
 import type { PaymentStatus } from "@/types/payment";
+import { getPaymentMethodLabel, getPaymentProviderLabel } from "@/lib/payments/paymentLabel";
+import { PaymentProvider, PaymentMethod } from "@/types/payment";
 
 interface Props {
   params: Promise<{
@@ -63,9 +65,21 @@ export default async function PaymentPage({
             </span>
 
             <span className="ml-2">
-              {order.payment_method === "wechat_pay"
-                ? "微信支付"
-                : "墨西哥本地付款"}
+                {getPaymentMethodLabel(
+                order.payment_method as PaymentMethod
+                )}
+            </span>
+          </p>
+
+          <p>
+            <span className="text-gray-500">
+                支付平台：
+            </span>
+
+            <span className="ml-2">
+                {getPaymentProviderLabel(
+                order.payment_provider as PaymentProvider
+                )}
             </span>
           </p>
         </div>

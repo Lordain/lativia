@@ -24,5 +24,12 @@ export async function getServicePrices(
     throw new Error(error.message);
   }
 
-  return data ?? [];
-}
+  return (data ?? []).map((price) => ({
+    id: price.id,
+    serviceId: price.service_id,
+    currency: price.currency,
+    amount: Number(price.amount),
+    paymentMethod: price.payment_method,
+    paymentProvider: price.payment_provider,
+    active: price.active,
+  }));}

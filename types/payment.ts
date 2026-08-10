@@ -10,6 +10,7 @@ export type Currency =
 
 export type PaymentMethod =
   | "local_payment"
+  | "card"
   | "wechat_pay";
 
 export type PaymentProvider =

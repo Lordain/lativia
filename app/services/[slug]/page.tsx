@@ -55,46 +55,20 @@ export default async function ServicePage({ params }: Props) {
         {service.description}
       </p>
 
-      <ServiceInfo price={service.price} duration={service.duration} />
+      <ServiceInfo
+        price={service.price}
+        duration={service.duration}
+      />
 
-      <RequirementList requirements={service.requirements ?? []}/>
+      <RequirementList
+        requirements={service.requirements ?? []}
+      />
 
       {service.formSchema.length > 0 && (
         <section className="mt-10">
           <h2 className="mb-6 text-2xl font-bold">
             开始办理
           </h2>
-
-          <section className="mt-8 mb-12">
-            <h2 className="text-xl font-semibold">
-              付款方式
-            </h2>
-
-            <p className="mt-2 text-sm text-gray-500">
-              可选择墨西哥本地付款或微信人民币付款。
-            </p>
-
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {prices.map((price) => (
-                <div
-                  key={price.id}
-                  className="rounded-xl border border-gray-200 p-5"
-                >
-                  <p className="font-medium">
-                    {price.currency === "MXN"
-                      ? "墨西哥付款"
-                      : "微信人民币付款"}
-                  </p>
-
-                  <p className="mt-2 text-2xl font-semibold">
-                    {price.currency === "MXN"
-                      ? `MXN $${Number(price.amount).toFixed(2)}`
-                      : `CNY ¥${Number(price.amount).toFixed(2)}`}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
 
           <DynamicForm
             serviceId={service.id}
@@ -104,8 +78,7 @@ export default async function ServicePage({ params }: Props) {
         </section>
       )}
 
-
-      <ContactButton serviceName={service.title}/>
+      <ContactButton serviceName={service.title} />
     </main>
   );
 }

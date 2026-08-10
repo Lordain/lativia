@@ -8,6 +8,21 @@ interface Props {
   onChange: (priceId: string) => void;
 }
 
+function getPaymentLabel(
+  paymentMethod: ServicePrice["paymentMethod"]
+) {
+  switch (paymentMethod) {
+    case "local_payment":
+      return "墨西哥本地付款";
+
+    case "card":
+      return "國際信用卡 / Debit Card";
+
+    case "wechat_pay":
+      return "微信人民幣付款";
+  }
+}
+
 export default function PaymentOptionSelector({
   prices,
   value,
@@ -38,10 +53,14 @@ export default function PaymentOptionSelector({
             `}
           >
             <p className="font-medium">
-              {price.currency === "MXN"
-                ? "墨西哥付款"
-                : "微信人民币付款"}
+              {getPaymentLabel(price.paymentMethod)}
             </p>
+
+            {price.paymentMethod === "card" && (
+              <p className="mt-1 text-sm text-gray-500">
+                Visa · Mastercard · American Express
+              </p>
+            )}
 
             <p className="mt-2 text-2xl font-semibold">
               {price.currency === "MXN"

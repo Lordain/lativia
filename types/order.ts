@@ -1,3 +1,10 @@
+import type {
+  Currency,
+  PaymentMethod,
+  PaymentProvider,
+  PaymentStatus,
+} from "./payment";
+
 export type OrderStatus =
   | "pending"
   | "processing"
@@ -21,6 +28,18 @@ export interface Order {
   createdAt: string;
 
   updatedAt: string;
+
+  paymentStatus: PaymentStatus;
+
+  amount: number | null;
+
+  currency: Currency | null;
+
+  paymentMethod: PaymentMethod | null;
+
+  paymentProvider: PaymentProvider;
+
+  paidAt: string | null;
 }
 
 export interface CreateOrderInput {

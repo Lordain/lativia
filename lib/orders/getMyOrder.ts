@@ -15,18 +15,23 @@ export async function getMyOrder(id: string) {
   const { data, error } = await supabase
     .from("orders")
     .select(`
-      id,
-      status,
-      created_at,
-      updated_at,
-      form_data,
-      admin_note,
-      service_id,
-      services (
-        title,
-        slug
-      )
-    `)
+        id,
+        status,
+        payment_status,
+        amount,
+        currency,
+        payment_method,
+        payment_provider,
+        paid_at,
+        created_at,
+        updated_at,
+        form_data,
+        service_id,
+        services (
+          title,
+          slug
+        )
+      `)
     .eq("id", id)
     .eq("user_id", user.id)
     .single();

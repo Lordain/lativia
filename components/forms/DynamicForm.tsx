@@ -6,6 +6,7 @@ import type { ServicePrice } from "@/types/servicePrice";
 import { useForm } from "react-hook-form";
 import type { FormFieldSchema } from "@/types/form";
 import { createOrder } from "@/lib/orders/createOrder";
+import { useRouter } from "next/navigation";
 
 type DynamicFormData = Record<string, string>;
 
@@ -21,6 +22,8 @@ export default function DynamicForm({
   prices,
 }: Props) {
   const [selectedPriceId, setSelectedPriceId] = useState(prices[0]?.id ?? "");
+  
+  const router = useRouter();
 
   const {
     register,
@@ -41,9 +44,7 @@ export default function DynamicForm({
         formData: data,
       });
   
-      console.log("Order created:", order);
-  
-      alert("申请已提交！");
+      router.push(`/account/orders/${order.id}/payment`);
     } catch (error) {
       console.error(error);
   

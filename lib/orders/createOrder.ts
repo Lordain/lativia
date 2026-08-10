@@ -51,7 +51,14 @@ export async function createOrder(
       payment_method: price.payment_method,
       payment_provider: price.payment_provider,
     })
-    .select("id")
+    .select(`
+      id,
+      amount,
+      currency,
+      payment_method,
+      payment_provider,
+      payment_status
+    `)
     .single();
 
   if (error) {

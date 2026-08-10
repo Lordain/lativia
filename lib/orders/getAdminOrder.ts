@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-export async function getAdminOrders() {
+export async function getAdminOrder(id: string) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -10,23 +10,26 @@ export async function getAdminOrders() {
       user_id,
       service_id,
       status,
+      form_data,
+      admin_note,
       created_at,
       updated_at,
       services (
         title,
-        slug
+        slug,
+        form_schema
       ),
       profiles (
-        name
+        name,
+        phone
       )
     `)
-    .order("created_at", {
-      ascending: false,
-    });
+    .eq("id", id)
+    .single();
 
   if (error) {
-    throw new Error(error.message);
+    return null;
   }
 
-  return data ?? [];
+  return data;
 }

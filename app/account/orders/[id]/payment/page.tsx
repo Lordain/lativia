@@ -1,10 +1,19 @@
 import { notFound } from "next/navigation";
 
-import { getMyOrder } from "@/lib/orders/getMyOrder";
+import PayNowButton from "@/components/payments/PayNowButton";
 import PaymentBadge from "@/components/orders/PaymentBadge";
-import type { PaymentStatus } from "@/types/payment";
-import { getPaymentMethodLabel, getPaymentProviderLabel } from "@/lib/payments/paymentLabel";
-import { PaymentProvider, PaymentMethod } from "@/types/payment";
+
+import { getMyOrder } from "@/lib/orders/getMyOrder";
+import {
+  getPaymentMethodLabel,
+  getPaymentProviderLabel,
+} from "@/lib/payments/paymentLabel";
+
+import type {
+  PaymentStatus,
+  PaymentProvider,
+  PaymentMethod,
+} from "@/types/payment";
 
 interface Props {
   params: Promise<{
@@ -84,6 +93,15 @@ export default async function PaymentPage({
           </p>
         </div>
       </div>
+      {order.payment_status === "unpaid" &&
+      order.payment_provider === "stripe" && (
+        <PayNowButton
+          orderId={order.id}
+          provider={
+            order.payment_provider as PaymentProvider
+          }
+        />
+      )}
     </main>
   );
 }

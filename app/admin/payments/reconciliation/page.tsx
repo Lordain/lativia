@@ -10,6 +10,8 @@ import ReconciliationBadge from "@/components/admin/ReconciliationBadge";
 
 import ReverifyStripeButton from "@/components/admin/ReverifyStripeButton";
 
+import RepairStripePaymentButton from "@/components/admin/RepairStripePaymentButton";
+
 export default async function PaymentReconciliationPage() {
   await requireAdmin();
 
@@ -55,6 +57,13 @@ export default async function PaymentReconciliationPage() {
                   <ReverifyStripeButton
                     orderId={issue.orderId}
                   />
+
+                    {issue.type ===
+                        "payment_status_mismatch" && (
+                        <RepairStripePaymentButton
+                        orderId={issue.orderId}
+                        />
+                    )}
                 </div>
 
                 <p className="mt-4">

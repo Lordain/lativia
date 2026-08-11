@@ -8,6 +8,8 @@ import {
 
 import ReconciliationBadge from "@/components/admin/ReconciliationBadge";
 
+import ReverifyStripeButton from "@/components/admin/ReverifyStripeButton";
+
 export default async function PaymentReconciliationPage() {
   await requireAdmin();
 
@@ -49,6 +51,10 @@ export default async function PaymentReconciliationPage() {
                   >
                     查看订单
                   </Link>
+
+                  <ReverifyStripeButton
+                    orderId={issue.orderId}
+                  />
                 </div>
 
                 <p className="mt-4">

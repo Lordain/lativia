@@ -44,18 +44,21 @@ export default function ReverifyStripeButton({
         throw new Error(
           data.error ??
             data.message ??
-            "重新驗證失敗"
+            "重新验证失败"
         );
       }
 
-      setMessage(data.message);
+      setMessage(
+        data.message ??
+          "Stripe 重新验证完成"
+      );
 
       router.refresh();
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
-          : "重新驗證失敗"
+          : "重新验证失败"
       );
     } finally {
       setLoading(false);
@@ -76,12 +79,13 @@ export default function ReverifyStripeButton({
           text-sm
           font-medium
           hover:bg-gray-50
+          disabled:cursor-not-allowed
           disabled:opacity-60
         "
       >
         {loading
-          ? "正在向 Stripe 驗證..."
-          : "向 Stripe 重新驗證"}
+          ? "正在向 Stripe 验证..."
+          : "向 Stripe 重新验证"}
       </button>
 
       {message && (

@@ -14,6 +14,10 @@ import OrderPaymentInfo from "@/components/admin/OrderPaymentInfo";
 
 import PaymentTransactionList from "@/components/admin/PaymentTransactionList";
 
+import { getPaymentAuditLogs } from "@/lib/payments/getPaymentAuditLogs";
+
+import PaymentAuditLogList from "@/components/admin/PaymentAuditLogList";
+
 import type {
   PaymentStatus,
   PaymentMethod,
@@ -38,6 +42,11 @@ export default async function AdminOrderDetailPage({
   if (!order) {
     notFound();
   }
+
+  const auditLogs =
+  await getPaymentAuditLogs(
+    order.id
+  );
 
   const formSchema =
     (order.services?.form_schema ?? []) as FormFieldSchema[];
@@ -124,6 +133,10 @@ export default async function AdminOrderDetailPage({
         transactions={
           order.payment_transactions ?? []
         }
+      />
+
+      <PaymentAuditLogList
+        logs={auditLogs}
       />
       
       <OrderManagementForm

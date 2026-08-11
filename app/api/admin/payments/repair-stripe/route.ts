@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { stripe } from "@/lib/payments/stripe";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
+import { createPaymentAuditLog } from "@/lib/payments/createPaymentAuditLog";
 
 export async function POST(request: Request) {
   try {
@@ -92,7 +93,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message:
-          "订单目前已经是已付款状态，无需修复。",
+          "订单当前已经是已付款状态，无需修复。",
       });
     }
 
@@ -128,7 +129,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "找不到已付款的 Stripe 交易纪录",
+            "找不到已付款的 Stripe 交易记录",
         },
         {
           status: 404,
@@ -161,6 +162,40 @@ export async function POST(request: Request) {
       session.metadata?.orderId !==
       order.id
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：Stripe Session 的订单 ID 不匹配。",
+
+          metadata: {
+            stripeOrderId:
+              session.metadata?.orderId ??
+              null,
+
+            orderId:
+              order.id,
+
+            sessionId:
+              session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -172,10 +207,40 @@ export async function POST(request: Request) {
       );
     }
 
-    // 7. 必须真的 paid
+    // 7. Stripe 必须真的 paid
     if (
       session.payment_status !== "paid"
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：Stripe 当前未确认付款为 paid。",
+
+          metadata: {
+            stripePaymentStatus:
+              session.payment_status,
+
+            sessionId:
+              session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -191,6 +256,39 @@ export async function POST(request: Request) {
       session.amount_total === null ||
       !session.currency
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：Stripe 付款资料不完整。",
+
+          metadata: {
+            sessionId:
+              session.id,
+
+            amountTotal:
+              session.amount_total,
+
+            currency:
+              session.currency,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -212,6 +310,40 @@ export async function POST(request: Request) {
       session.amount_total !==
       expectedAmount
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：Stripe 金额与订单金额不一致。",
+
+          metadata: {
+            stripeAmount:
+              session.amount_total /
+              100,
+
+            orderAmount:
+              Number(order.amount),
+
+            sessionId:
+              session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -228,6 +360,41 @@ export async function POST(request: Request) {
       Number(transaction.amount) !==
       Number(order.amount)
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：支付交易金额与订单金额不一致。",
+
+          metadata: {
+            transactionAmount:
+              Number(
+                transaction.amount
+              ),
+
+            orderAmount:
+              Number(order.amount),
+
+            transactionId:
+              transaction.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -239,7 +406,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 10. Currency 验证
+    // 10. Stripe 币种验证
     const expectedCurrency =
       order.currency?.toLowerCase();
 
@@ -247,6 +414,39 @@ export async function POST(request: Request) {
       session.currency !==
       expectedCurrency
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：Stripe 币种与订单币种不一致。",
+
+          metadata: {
+            stripeCurrency:
+              session.currency,
+
+            orderCurrency:
+              order.currency,
+
+            sessionId:
+              session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -258,10 +458,44 @@ export async function POST(request: Request) {
       );
     }
 
+    // 11. Transaction 币种也必须匹配
     if (
       transaction.currency !==
       order.currency
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+
+          adminUserId:
+            profile.id,
+
+          action:
+            "repair",
+
+          provider:
+            "stripe",
+
+          result:
+            "blocked",
+
+          message:
+            "安全修复被阻止：支付交易币种与订单币种不一致。",
+
+          metadata: {
+            transactionCurrency:
+              transaction.currency,
+
+            orderCurrency:
+              order.currency,
+
+            transactionId:
+              transaction.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           error:
@@ -273,14 +507,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // 11. 所有验证通过，调用数据库修复 RPC
+    // 12. 所有验证通过，调用修复 RPC
     const {
       error: repairError,
     } = await supabaseAdmin.rpc(
       "repair_paid_order",
       {
-        p_order_id: order.id,
-        p_provider: "stripe",
+        p_order_id:
+          order.id,
+
+        p_provider:
+          "stripe",
+
         p_provider_session_id:
           transaction.provider_session_id,
       }
@@ -307,8 +545,52 @@ export async function POST(request: Request) {
       `Order ${order.id} safely repaired from Stripe`
     );
 
+    // 13. 成功 Audit Log
+    await createPaymentAuditLog(
+      supabaseAdmin,
+      {
+        orderId:
+          order.id,
+
+        adminUserId:
+          profile.id,
+
+        action:
+          "repair",
+
+        provider:
+          "stripe",
+
+        result:
+          "success",
+
+        message:
+          "Stripe 付款状态已安全修复。",
+
+        metadata: {
+          sessionId:
+            session.id,
+
+          paymentIntentId:
+            transaction.provider_payment_id,
+
+          transactionId:
+            transaction.id,
+
+          amount:
+            Number(
+              transaction.amount
+            ),
+
+          currency:
+            transaction.currency,
+        },
+      }
+    );
+
     return NextResponse.json({
       success: true,
+
       message:
         "Stripe 付款已重新验证，订单付款状态已安全修复。",
     });

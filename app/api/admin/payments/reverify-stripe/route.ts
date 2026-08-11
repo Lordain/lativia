@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { stripe } from "@/lib/payments/stripe";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
+import { createPaymentAuditLog } from "@/lib/payments/createPaymentAuditLog";
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. 確認目前登入者是 Admin
+    // 1. 确认当前登录用户是 Admin
     const profile =
       await getCurrentProfile();
 
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         {
-          error: "無權限執行此操作",
+          error: "无权限执行此操作",
         },
         {
           status: 403,
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SECRET_KEY!
     );
 
-    // 3. 查 Order
+    // 3. 查询订单
     const {
       data: order,
       error: orderError,
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
     if (orderError || !order) {
       return NextResponse.json(
         {
-          error: "找不到訂單",
+          error: "找不到订单",
         },
         {
           status: 404,
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "此訂單不是 Stripe 卡片付款",
+            "此订单不是 Stripe 卡片付款",
         },
         {
           status: 400,
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. 找最近 Stripe transaction
+    // 4. 查找最近一笔 Stripe transaction
     const {
       data: transaction,
       error: transactionError,
@@ -117,7 +118,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "找不到 Stripe 支付交易紀錄",
+            "找不到 Stripe 支付交易记录",
         },
         {
           status: 404,
@@ -139,23 +140,41 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. 向 Stripe 重新查詢
+    // 5. 向 Stripe 重新查询
     const session =
       await stripe.checkout.sessions.retrieve(
         transaction.provider_session_id
       );
 
-    // 6. Order ID 驗證
+    // 6. Order ID 验证
     const stripeOrderId =
       session.metadata?.orderId;
 
     if (stripeOrderId !== order.id) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+          adminUserId: profile.id,
+          action: "reverify",
+          provider: "stripe",
+          result: "blocked",
+          message:
+            "Stripe Session 的 Order ID 与系统订单不一致。",
+          metadata: {
+            stripeOrderId,
+            orderId: order.id,
+            sessionId: session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           success: false,
           canRepair: false,
           message:
-            "Stripe Session 的 Order ID 與系統訂單不一致。",
+            "Stripe Session 的 Order ID 与系统订单不一致。",
         },
         {
           status: 409,
@@ -167,11 +186,29 @@ export async function POST(request: Request) {
     if (
       session.payment_status !== "paid"
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+          adminUserId: profile.id,
+          action: "reverify",
+          provider: "stripe",
+          result: "blocked",
+          message:
+            "Stripe 当前并未确认此付款为 paid。",
+          metadata: {
+            stripePaymentStatus:
+              session.payment_status,
+            sessionId: session.id,
+          },
+        }
+      );
+
       return NextResponse.json({
         success: true,
         canRepair: false,
         message:
-          "Stripe 目前並未確認此付款為 paid。",
+          "Stripe 当前并未确认此付款为 paid。",
         stripePaymentStatus:
           session.payment_status,
       });
@@ -181,12 +218,28 @@ export async function POST(request: Request) {
       session.amount_total === null ||
       !session.currency
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+          adminUserId: profile.id,
+          action: "reverify",
+          provider: "stripe",
+          result: "blocked",
+          message:
+            "Stripe Session 金额或币种资料不完整。",
+          metadata: {
+            sessionId: session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           success: false,
           canRepair: false,
           message:
-            "Stripe Session 金額或幣種資料不完整。",
+            "Stripe Session 金额或币种资料不完整。",
         },
         {
           status: 409,
@@ -194,7 +247,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 8. 金額驗證
+    // 8. 金额验证
     const expectedAmount =
       Math.round(
         Number(order.amount) * 100
@@ -204,12 +257,32 @@ export async function POST(request: Request) {
       session.amount_total !==
       expectedAmount
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+          adminUserId: profile.id,
+          action: "reverify",
+          provider: "stripe",
+          result: "blocked",
+          message:
+            "Stripe 金额与订单金额不一致。",
+          metadata: {
+            stripeAmount:
+              session.amount_total / 100,
+            orderAmount:
+              Number(order.amount),
+            sessionId: session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           success: false,
           canRepair: false,
           message:
-            "Stripe 金額與訂單金額不一致。",
+            "Stripe 金额与订单金额不一致。",
           stripeAmount:
             session.amount_total / 100,
           orderAmount:
@@ -221,7 +294,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 9. 幣種驗證
+    // 9. 币种验证
     const expectedCurrency =
       order.currency?.toLowerCase();
 
@@ -229,12 +302,32 @@ export async function POST(request: Request) {
       session.currency !==
       expectedCurrency
     ) {
+      await createPaymentAuditLog(
+        supabaseAdmin,
+        {
+          orderId: order.id,
+          adminUserId: profile.id,
+          action: "reverify",
+          provider: "stripe",
+          result: "blocked",
+          message:
+            "Stripe 币种与订单币种不一致。",
+          metadata: {
+            stripeCurrency:
+              session.currency,
+            orderCurrency:
+              order.currency,
+            sessionId: session.id,
+          },
+        }
+      );
+
       return NextResponse.json(
         {
           success: false,
           canRepair: false,
           message:
-            "Stripe 幣種與訂單幣種不一致。",
+            "Stripe 币种与订单币种不一致。",
           stripeCurrency:
             session.currency,
           orderCurrency:
@@ -246,11 +339,51 @@ export async function POST(request: Request) {
       );
     }
 
+    // 10. 验证全部成功，写入 Audit Log
+    await createPaymentAuditLog(
+      supabaseAdmin,
+      {
+        orderId: order.id,
+
+        adminUserId:
+          profile.id,
+
+        action:
+          "reverify",
+
+        provider:
+          "stripe",
+
+        result:
+          "success",
+
+        message:
+          "Stripe 付款重新验证成功。",
+
+        metadata: {
+          stripePaymentStatus:
+            session.payment_status,
+
+          stripeAmount:
+            session.amount_total / 100,
+
+          stripeCurrency:
+            session.currency,
+
+          sessionId:
+            session.id,
+
+          paymentIntentId:
+            transaction.provider_payment_id,
+        },
+      }
+    );
+
     return NextResponse.json({
       success: true,
       canRepair: true,
       message:
-        "Stripe 驗證成功，此付款可以安全修復。",
+        "Stripe 验证成功，此付款可以安全修复。",
       stripePaymentStatus:
         session.payment_status,
       stripeAmount:
@@ -271,7 +404,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Stripe 重新驗證失敗",
+          "Stripe 重新验证失败",
       },
       {
         status: 500,

@@ -42,7 +42,7 @@ export default function OrderPaymentInfo({
       amount === null ||
       !currency
     ) {
-      return "未設定";
+      return "未设置";
     }
 
     const value =
@@ -62,7 +62,7 @@ export default function OrderPaymentInfo({
   return (
     <section className="mt-8">
       <h2 className="text-xl font-semibold">
-        付款資訊
+        付款信息
       </h2>
 
       <div className="mt-4 rounded-xl border p-5">
@@ -75,7 +75,7 @@ export default function OrderPaymentInfo({
         <div className="mt-5 space-y-3 text-sm">
           <p>
             <span className="text-gray-500">
-              訂單金額：
+              订单金额：
             </span>
 
             <span className="ml-2 font-medium">
@@ -93,7 +93,7 @@ export default function OrderPaymentInfo({
                 ? getPaymentMethodLabel(
                     paymentMethod
                   )
-                : "未設定"}
+                : "未设置"}
             </span>
           </p>
 
@@ -107,13 +107,13 @@ export default function OrderPaymentInfo({
                 ? getPaymentProviderLabel(
                     paymentProvider
                   )
-                : "未設定"}
+                : "未设置"}
             </span>
           </p>
 
           <p>
             <span className="text-gray-500">
-              付款時間：
+              付款时间：
             </span>
 
             <span className="ml-2">

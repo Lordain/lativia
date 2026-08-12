@@ -1,30 +1,42 @@
-import { supabase } from "@/lib/supabase";
-import type { Service } from "@/types/service";
-import { normalizeService } from "./mapper";
+import {
+  supabase,
+} from "@/lib/supabase";
 
+import type {
+  Service,
+} from "@/types/service";
 
-export async function getService(slug: string): Promise<Service | null> {
-  const { data, error } = await supabase
+import {
+  normalizeService,
+} from "./mapper";
+
+export async function getService(
+  slug: string
+): Promise<Service | null> {
+  const {
+    data,
+    error,
+  } = await supabase
     .from("services")
     .select("*")
-    .eq("slug", slug)
-    .single();
+    .eq(
+      "slug",
+      slug
+    )
+    .eq(
+      "is_active",
+      true
+    )
+    .maybeSingle();
 
-    if (error) {
-      console.error("getService Supabase error:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      });
-    
-      return null;
-    }
-    
-    if (!data) {
-      console.error("getService: service not found:", slug);
-      return null;
-    }
+  if (
+    error ||
+    !data
+  ) {
+    return null;
+  }
 
-  return normalizeService(data);
+  return normalizeService(
+    data
+  );
 }

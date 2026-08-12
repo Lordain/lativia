@@ -1,57 +1,68 @@
 "use client";
 
+import {
+  useRouter,
+} from "next/navigation";
+
 import ServiceForm from "./ServiceForm";
-import { updateService } from "@/lib/services/updateService";
-import { useRouter } from "next/navigation";
+
+import {
+  updateService,
+} from "@/lib/services/updateService";
+
 import type {
-    ServiceFormData
+  ServiceFormData,
 } from "@/types/service";
 
-interface Props{
+interface Props {
+  id: string;
 
-    id:string;
-
-    initialData:ServiceFormData;
-
+  initialData:
+    ServiceFormData;
 }
 
 export default function EditServiceContainer({
+  id,
+  initialData,
+}: Props) {
+  const router =
+    useRouter();
 
-    id,
+  async function handleSubmit(
+    data: ServiceFormData
+  ) {
+    try {
+      await updateService(
+        id,
+        data
+      );
 
-    initialData,
+      router.push(
+        "/admin/services"
+      );
 
-}:Props){
+      router.refresh();
+    } catch (error) {
+      console.error(
+        error
+      );
 
-    const router = useRouter();
+      alert(
+        error instanceof Error
+          ? error.message
+          : "更新服务失败"
+      );
+    }
+  }
 
-    async function handleSubmit(data: ServiceFormData) {
-        try {
-          await updateService(id, data);
-      
-          router.push("/admin/services");
-          router.refresh();
-        } catch (error) {
-          console.error(error);
-      
-          alert(
-            error instanceof Error
-              ? error.message
-              : "发生未知错误"
-          );
-        }
+  return (
+    <ServiceForm
+      initialData={
+        initialData
       }
-
-    return(
-
-        <ServiceForm
-
-            initialData={initialData}
-
-            onSubmit={handleSubmit}
-
-        />
-
-    );
-
+      onSubmit={
+        handleSubmit
+      }
+    />
+  );
 }

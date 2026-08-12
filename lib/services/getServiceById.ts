@@ -1,21 +1,47 @@
-import { supabase } from "@/lib/supabase";
-import type { Service } from "@/types/service";
-import { normalizeService } from "./mapper";
+import {
+  createClient,
+} from "@/lib/supabase/server";
+
+import type {
+  Service,
+} from "@/types/service";
+
+import {
+  normalizeService,
+} from "./mapper";
 
 export async function getServiceById(
   id: string
 ): Promise<Service | null> {
+  const supabase =
+    await createClient();
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("services")
     .select("*")
-    .eq("id", id)
-    .single();
+    .eq(
+      "id",
+      id
+    )
+    .maybeSingle();
 
-  if (error || !data) {
-    console.error(error);
+  if (error) {
+    console.error(
+      "getServiceById error:",
+      error
+    );
+
     return null;
   }
 
-  return normalizeService(data);
+  if (!data) {
+    return null;
+  }
+
+  return normalizeService(
+    data
+  );
 }

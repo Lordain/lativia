@@ -1,30 +1,28 @@
 import {
-    supabase,
-  } from "@/lib/supabase";
+    createClient,
+  } from "@/lib/supabase/server";
   
   import {
     normalizeService,
   } from "./mapper";
   
-  export async function getServices() {
+  export async function getAdminServices() {
+    const supabase =
+      await createClient();
+  
     const {
       data,
       error,
     } = await supabase
       .from("services")
       .select("*")
-      .eq(
-        "is_active",
-        true
-      )
       .order(
-        "popular",
+        "created_at",
         {
           ascending:
             false,
         }
-      )
-      .order("title");
+      );
   
     if (error) {
       throw new Error(

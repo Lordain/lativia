@@ -1,32 +1,54 @@
 "use client";
 
+import {
+  useRouter,
+} from "next/navigation";
+
 import ServiceForm from "./ServiceForm";
-import { createService } from "@/lib/services/createService";
-import type { ServiceFormData } from "@/types/service";
-import { useRouter } from "next/navigation";
+
+import {
+  createService,
+} from "@/lib/services/createService";
+
+import type {
+  ServiceFormData,
+} from "@/types/service";
 
 export default function CreateServiceContainer() {
+  const router =
+    useRouter();
 
-    const router = useRouter();
+  async function handleSubmit(
+    data: ServiceFormData
+  ) {
+    try {
+      await createService(
+        data
+      );
 
-    async function handleSubmit(data: ServiceFormData) {
-        try {
-          await createService(data);
-      
-          router.push("/admin/services");
-          router.refresh();
-        } catch (error) {
-          console.error(error);
-      
-          alert(
-            error instanceof Error
-              ? error.message
-              : "发生未知错误"
-          );
-        }
+      router.push(
+        "/admin/services"
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(
+        error
+      );
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "新增服务失败"
+      );
+    }
+  }
+
+  return (
+    <ServiceForm
+      onSubmit={
+        handleSubmit
       }
-
-    return (
-        <ServiceForm initialData={undefined} onSubmit={handleSubmit} />
-    );
+    />
+  );
 }

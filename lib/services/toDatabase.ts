@@ -1,35 +1,55 @@
-import type { ServiceFormData } from "@/types/service";
-import type { FormFieldSchema } from "@/types/form";
+import type {
+  ServiceFormData,
+} from "@/types/service";
 
 export function toDatabase(
   formData: ServiceFormData
 ) {
   return {
+    slug:
+      formData.slug
+        .trim()
+        .toLowerCase(),
 
-    title: formData.title,
+    title:
+      formData.title.trim(),
 
     short_description:
-      formData.shortDescription,
+      formData
+        .shortDescription
+        .trim(),
 
     description:
-      formData.description,
+      formData
+        .description
+        .trim(),
+
+    category:
+      formData.category.trim(),
+
+    icon:
+      formData.icon.trim(),
 
     price:
-      formData.price,
+      formData.price.trim(),
 
     duration:
-      formData.duration,
+      formData.duration.trim(),
 
     requirements:
-      formData.requirements,
+      formData.requirements
+        .split(",")
+        .map(
+          (item) =>
+            item.trim()
+        )
+        .filter(Boolean)
+        .join(", "),
 
-    slug:
-      formData.title
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-"),
+    popular:
+      formData.popular,
 
-    form_schema:[]
-
+    is_active:
+      formData.isActive,
   };
 }

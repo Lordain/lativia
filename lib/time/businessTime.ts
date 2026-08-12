@@ -183,3 +183,25 @@ export function getBusinessDayRange(
     end,
   };
 }
+
+export function getBusinessDayRangeForDate(
+  year: number,
+  month: number,
+  day: number
+) {
+  const reference =
+    new Date(
+      Date.UTC(
+        year,
+        month - 1,
+        day,
+        12,
+        0,
+        0
+      )
+    );
+
+  return getBusinessDayRange(
+    reference
+  );
+}

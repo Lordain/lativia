@@ -1,67 +1,130 @@
 import { createClient } from "@/lib/supabase/server";
 
-export async function getAdminOrder(id: string) {
-  const supabase = await createClient();
+interface AdminOrderService {
+  id: string;
+  title: string;
+  slug: string;
+  form_schema: unknown;
+}
 
-  const { data, error } = await supabase
-    .from("orders")
-    .select(`
-      id,
-      user_id,
-      service_id,
-      status,
-      form_data,
-      admin_note,
-      created_at,
-      updated_at,
+interface AdminOrderProfile {
+  id: string;
+  name: string | null;
+  phone: string | null;
+}
 
-      amount,
-      currency,
-      payment_status,
-      payment_method,
-      payment_provider,
-      paid_at,
+export async function getAdminOrder(
+  id: string
+) {
+  const supabase =
+    await createClient();
 
-      services (
+  const { data, error } =
+    await supabase
+      .from("orders")
+      .select(`
         id,
-        title,
-        slug,
-        form_schema
-      ),
+        user_id,
+        service_id,
+        status,
+        form_data,
+        admin_note,
+        created_at,
+        updated_at,
 
-      profiles (
-        id,
-        name,
-        phone
-      ),
-
-      payment_transactions (
-        id,
-        order_id,
-        provider,
-        provider_event_id,
-        provider_session_id,
-        provider_payment_id,
         amount,
         currency,
-        status,
-        created_at,
-        updated_at
-      )
-    `)
-    .eq("id", id)
-    .single();
+        payment_status,
+        payment_method,
+        payment_provider,
+        paid_at,
+
+        services (
+          id,
+          title,
+          slug,
+          form_schema
+        ),
+
+        profiles (
+          id,
+          name,
+          phone
+        ),
+
+        payment_transactions (
+          id,
+          order_id,
+          provider,
+          provider_event_id,
+          provider_session_id,
+          provider_payment_id,
+          amount,
+          currency,
+          status,
+          created_at,
+          updated_at
+        )
+      `)
+      .eq("id", id)
+      .single();
 
   if (error) {
-    console.error("getAdminOrder error:", {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code,
-    });
+    console.error(
+      "getAdminOrder error:",
+      {
+        message:
+          error.message,
+
+        details:
+          error.details,
+
+        hint:
+          error.hint,
+
+        code:
+          error.code,
+      }
+    );
 
     return null;
   }
 
-  return data;
+  if (!data) {
+    return null;
+  }
+
+  const service:
+    AdminOrderService | null =
+    Array.isArray(data.services)
+      ? (
+          data.services[0] ??
+          null
+        ) as AdminOrderService | null
+      : (
+          data.services ??
+          null
+        ) as AdminOrderService | null;
+
+  const profile:
+    AdminOrderProfile | null =
+    Array.isArray(data.profiles)
+      ? (
+          data.profiles[0] ??
+          null
+        ) as AdminOrderProfile | null
+      : (
+          data.profiles ??
+          null
+        ) as AdminOrderProfile | null;
+
+  return {
+    ...data,
+
+    services:
+      service,
+
+    profiles:
+      profile,
+  };
 }

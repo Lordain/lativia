@@ -1,14 +1,17 @@
-export type FieldType =
-  | "text"
-  | "textarea"
-  | "password"
-  | "email"
-  | "number";
-
 export interface FormFieldSchema {
-    type: FieldType;
-    name: string;
-    label: string;
-    placeholder?: string;
-    required？: boolean;
+  name: string;
+
+  label: string;
+
+  type:
+    | "text"
+    | "email"
+    | "tel"
+    | "number"
+    | "date"
+    | "textarea";
+
+  placeholder?: string;
+
+  required?: boolean;
 }

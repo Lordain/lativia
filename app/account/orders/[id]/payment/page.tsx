@@ -94,14 +94,19 @@ export default async function PaymentPage({
         </div>
       </div>
       {order.payment_status === "unpaid" &&
-      order.payment_provider === "stripe" && (
-        <PayNowButton
-          orderId={order.id}
-          provider={
-            order.payment_provider as PaymentProvider
-          }
-        />
-      )}
+        (
+          order.payment_provider === "stripe" ||
+          order.payment_provider ===
+            "mercado_pago"
+        ) && (
+          <PayNowButton
+            orderId={order.id}
+            provider={
+              order.payment_provider as
+                PaymentProvider
+            }
+          />
+        )}
     </main>
   );
 }

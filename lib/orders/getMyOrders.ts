@@ -8,8 +8,15 @@ export async function getMyOrders() {
     error: userError,
   } = await supabase.auth.getUser();
 
-  console.log("SERVER USER:", user?.id);
-  console.log("SERVER USER ERROR:", userError?.message);
+  console.log(
+    "SERVER USER:",
+    user?.id
+  );
+
+  console.log(
+    "SERVER USER ERROR:",
+    userError?.message
+  );
 
   if (userError || !user) {
     return [];
@@ -22,6 +29,7 @@ export async function getMyOrders() {
       status,
       created_at,
       form_data,
+
       services (
         title,
         slug
@@ -33,8 +41,25 @@ export async function getMyOrders() {
     });
 
   if (error) {
-    throw new Error(error.message);
+    console.error(
+      "getMyOrders error:",
+      error.message
+    );
+
+    throw new Error(
+      error.message
+    );
   }
 
-  return data ?? [];
+  return (data ?? []).map(
+    (order) => ({
+      ...order,
+
+      services: Array.isArray(
+        order.services
+      )
+        ? order.services[0] ?? null
+        : order.services,
+    })
+  );
 }

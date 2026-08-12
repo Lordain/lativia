@@ -5,11 +5,16 @@ export interface AdminDashboardStats {
   pendingOrders: number;
   processingOrders: number;
   completedOrders: number;
+
   paidOrders: number;
   unpaidOrders: number;
 
   stripeOrders: number;
   mercadoPagoOrders: number;
+
+  paymentExceptions: number;
+  paidWithoutTransaction: number;
+  transactionPaidOrderUnpaid: number;
 }
 
 export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
@@ -23,7 +28,12 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
         id,
         status,
         payment_status,
-        payment_provider
+        payment_provider,
+
+        payment_transactions (
+          id,
+          status
+        )
       `);
 
   if (error) {
@@ -46,60 +56,97 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   const pendingOrders =
     orders.filter(
       (order) =>
-        order.status ===
-        "pending"
+        order.status === "pending"
     ).length;
 
   const processingOrders =
     orders.filter(
       (order) =>
-        order.status ===
-        "processing"
+        order.status === "processing"
     ).length;
 
   const completedOrders =
     orders.filter(
       (order) =>
-        order.status ===
-        "completed"
+        order.status === "completed"
     ).length;
 
   const paidOrders =
     orders.filter(
       (order) =>
-        order.payment_status ===
-        "paid"
+        order.payment_status === "paid"
     ).length;
 
   const unpaidOrders =
     orders.filter(
       (order) =>
-        order.payment_status ===
-        "unpaid"
+        order.payment_status === "unpaid"
     ).length;
 
   const stripeOrders =
     orders.filter(
       (order) =>
-        order.payment_provider ===
-        "stripe"
+        order.payment_provider === "stripe"
     ).length;
 
   const mercadoPagoOrders =
     orders.filter(
       (order) =>
-        order.payment_provider ===
-        "mercado_pago"
+        order.payment_provider === "mercado_pago"
     ).length;
+
+  const paidWithoutTransaction =
+    orders.filter((order) => {
+      const transactions =
+        order.payment_transactions ?? [];
+
+      const hasPaidTransaction =
+        transactions.some(
+          (transaction) =>
+            transaction.status === "paid"
+        );
+
+      return (
+        order.payment_status === "paid" &&
+        !hasPaidTransaction
+      );
+    }).length;
+
+  const transactionPaidOrderUnpaid =
+    orders.filter((order) => {
+      const transactions =
+        order.payment_transactions ?? [];
+
+      const hasPaidTransaction =
+        transactions.some(
+          (transaction) =>
+            transaction.status === "paid"
+        );
+
+      return (
+        order.payment_status !== "paid" &&
+        hasPaidTransaction
+      );
+    }).length;
+
+  const paymentExceptions =
+    paidWithoutTransaction +
+    transactionPaidOrderUnpaid;
 
   return {
     totalOrders,
     pendingOrders,
     processingOrders,
     completedOrders,
+
     paidOrders,
     unpaidOrders,
+
     stripeOrders,
     mercadoPagoOrders,
+
+    paymentExceptions,
+    paidWithoutTransaction,
+    transactionPaidOrderUnpaid,
   };
 }

@@ -102,6 +102,61 @@ export default async function AdminPage() {
   </div>
 </section>
 
+<section className="mt-10">
+  <h2 className="text-xl font-semibold">
+    需要处理
+  </h2>
+
+  <p className="mt-2 text-sm text-gray-500">
+    检查支付状态与交易记录是否一致。
+  </p>
+
+  <div className="mt-4 grid gap-6 md:grid-cols-3">
+    <DashboardStatCard
+      label="支付异常"
+      value={
+        stats.paymentExceptions
+      }
+      description="存在支付状态不一致的订单"
+    />
+
+    <DashboardStatCard
+      label="已付款但无交易记录"
+      value={
+        stats.paidWithoutTransaction
+      }
+      description="订单为已付款，但缺少支付交易"
+    />
+
+    <DashboardStatCard
+      label="交易已付款但订单未更新"
+      value={
+        stats.transactionPaidOrderUnpaid
+      }
+      description="已有已付款交易，但订单仍未标记已付款"
+    />
+  </div>
+
+  <Link
+    href="/admin/payments/reconciliation"
+    className="
+      mt-4
+      inline-flex
+      rounded-lg
+      border
+      bg-white
+      px-4
+      py-2
+      text-sm
+      font-medium
+      transition
+      hover:bg-gray-50
+    "
+  >
+    查看支付对账
+  </Link>
+</section>
+
       <section className="mt-10">
         <h2 className="text-xl font-semibold">
           快速入口

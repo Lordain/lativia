@@ -14,16 +14,13 @@ interface Props {
     payment?: string;
     overdue?: string;
     search?: string;
+    sort?: string;
   }>;
 }
 
 export default async function AdminOrdersPage({
   searchParams,
 }: Props) {
-  // ========================================
-  // 1. 读取 URL 筛选条件
-  // ========================================
-
   const filters =
     await searchParams;
 
@@ -32,31 +29,15 @@ export default async function AdminOrdersPage({
       ?.trim()
       .toLowerCase() ?? "";
 
-  // ========================================
-  // 2. 获取全部订单
-  // ========================================
-
   const orders =
     await getAdminOrders();
-
-  // ========================================
-  // 3. 计算 24 小时前
-  // ========================================
 
   const twentyFourHoursAgo =
     Date.now() -
     24 * 60 * 60 * 1000;
 
-  // ========================================
-  // 4. 筛选 + 搜索
-  // ========================================
-
   const filteredOrders =
     orders.filter((order) => {
-      // ------------------------------
-      // Order Status
-      // ------------------------------
-
       if (
         filters.status &&
         order.status !==
@@ -65,10 +46,6 @@ export default async function AdminOrdersPage({
         return false;
       }
 
-      // ------------------------------
-      // Payment Status
-      // ------------------------------
-
       if (
         filters.payment &&
         order.payment_status !==
@@ -76,10 +53,6 @@ export default async function AdminOrdersPage({
       ) {
         return false;
       }
-
-      // ------------------------------
-      // Overdue > 24h
-      // ------------------------------
 
       if (
         filters.overdue ===
@@ -97,15 +70,6 @@ export default async function AdminOrdersPage({
           return false;
         }
       }
-
-      // ------------------------------
-      // Search
-      // 支持：
-      // Order ID
-      // 客户姓名
-      // 手机号
-      // 服务名称
-      // ------------------------------
 
       if (searchTerm) {
         const orderId =
@@ -150,9 +114,53 @@ export default async function AdminOrdersPage({
       return true;
     });
 
-  // ========================================
-  // 5. 是否存在筛选
-  // ========================================
+  const sortedOrders =
+    [...filteredOrders].sort(
+      (a, b) => {
+        switch (filters.sort) {
+          case "oldest":
+            return (
+              new Date(
+                a.created_at
+              ).getTime() -
+              new Date(
+                b.created_at
+              ).getTime()
+            );
+
+          case "amount_desc":
+            return (
+              Number(
+                b.amount ?? 0
+              ) -
+              Number(
+                a.amount ?? 0
+              )
+            );
+
+          case "amount_asc":
+            return (
+              Number(
+                a.amount ?? 0
+              ) -
+              Number(
+                b.amount ?? 0
+              )
+            );
+
+          case "newest":
+          default:
+            return (
+              new Date(
+                b.created_at
+              ).getTime() -
+              new Date(
+                a.created_at
+              ).getTime()
+            );
+        }
+      }
+    );
 
   const hasFilters =
     Boolean(
@@ -162,17 +170,13 @@ export default async function AdminOrdersPage({
         filters.search
     );
 
-  // ========================================
-  // 6. URL Builder
-  // 保留现有筛选，只修改当前条件
-  // ========================================
-
   function buildFilterUrl(
     updates: {
       status?: string | null;
       payment?: string | null;
       overdue?: string | null;
       search?: string | null;
+      sort?: string | null;
     }
   ) {
     const params =
@@ -206,6 +210,13 @@ export default async function AdminOrdersPage({
         : filters.search ??
           null;
 
+    const sort =
+      updates.sort !==
+      undefined
+        ? updates.sort
+        : filters.sort ??
+          null;
+
     if (status) {
       params.set(
         "status",
@@ -234,6 +245,13 @@ export default async function AdminOrdersPage({
       );
     }
 
+    if (sort) {
+      params.set(
+        "sort",
+        sort
+      );
+    }
+
     const query =
       params.toString();
 
@@ -242,19 +260,15 @@ export default async function AdminOrdersPage({
       : "/admin/orders";
   }
 
-  // ========================================
-  // 7. Filter Button Style
-  // ========================================
-
   function getFilterClass(
     active: boolean
   ) {
     return `
-      rounded-lg
+      rounded-md
       border
-      px-3
-      py-2
-      text-sm
+      px-2.5
+      py-1.5
+      text-xs
       font-medium
       transition
       ${
@@ -264,10 +278,6 @@ export default async function AdminOrdersPage({
       }
     `;
   }
-
-  // ========================================
-  // 8. Order Status Label
-  // ========================================
 
   function getStatusLabel(
     status?: string
@@ -287,10 +297,6 @@ export default async function AdminOrdersPage({
     }
   }
 
-  // ========================================
-  // 9. Payment Status Label
-  // ========================================
-
   function getPaymentLabel(
     payment?: string
   ) {
@@ -308,10 +314,6 @@ export default async function AdminOrdersPage({
 
   return (
     <div>
-      {/* =====================================
-          Page Header
-      ===================================== */}
-
       <div className="flex items-start justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold">
@@ -331,21 +333,15 @@ export default async function AdminOrdersPage({
       </div>
 
       {/* =====================================
-          Filters
+          Compact Filter Bar
       ===================================== */}
 
-      <section className="mt-6 space-y-5 rounded-xl border bg-white p-5">
-        {/* =================================
-            Search
-        ================================= */}
-
+      <section className="mt-5 rounded-xl border bg-white p-4">
         <form
           action="/admin/orders"
           method="get"
-          className="flex flex-col gap-3 md:flex-row"
+          className="flex gap-2"
         >
-          {/* 保留当前 Status */}
-
           {filters.status && (
             <input
               type="hidden"
@@ -355,8 +351,6 @@ export default async function AdminOrdersPage({
               }
             />
           )}
-
-          {/* 保留当前 Payment */}
 
           {filters.payment && (
             <input
@@ -368,8 +362,6 @@ export default async function AdminOrdersPage({
             />
           )}
 
-          {/* 保留当前 Overdue */}
-
           {filters.overdue && (
             <input
               type="hidden"
@@ -380,19 +372,29 @@ export default async function AdminOrdersPage({
             />
           )}
 
+          {filters.sort && (
+            <input
+              type="hidden"
+              name="sort"
+              value={
+                filters.sort
+              }
+            />
+          )}
+
           <input
             type="text"
             name="search"
             defaultValue={
               filters.search ?? ""
             }
-            placeholder="搜索订单 ID、客户姓名、手机号或服务名称"
+            placeholder="搜索订单 ID、姓名、手机号或服务"
             className="
               min-w-0
               flex-1
               rounded-lg
               border
-              px-4
+              px-3
               py-2
               text-sm
               outline-none
@@ -406,7 +408,7 @@ export default async function AdminOrdersPage({
             className="
               rounded-lg
               bg-blue-600
-              px-5
+              px-4
               py-2
               text-sm
               font-medium
@@ -419,16 +421,14 @@ export default async function AdminOrdersPage({
           </button>
         </form>
 
-        {/* =================================
-            Order Status
-        ================================= */}
+        <div className="mt-4 space-y-2">
+          {/* Status */}
 
-        <div>
-          <p className="text-sm font-medium text-gray-700">
-            订单状态
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-12 text-xs font-medium text-gray-500">
+              状态
+            </span>
 
-          <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href={buildFilterUrl({
                 status: null,
@@ -479,22 +479,17 @@ export default async function AdminOrdersPage({
               已完成
             </Link>
           </div>
-        </div>
 
-        {/* =================================
-            Payment Status
-        ================================= */}
+          {/* Payment */}
 
-        <div>
-          <p className="text-sm font-medium text-gray-700">
-            付款状态
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-12 text-xs font-medium text-gray-500">
+              付款
+            </span>
 
-          <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href={buildFilterUrl({
-                payment:
-                  null,
+                payment: null,
               })}
               className={getFilterClass(
                 !filters.payment
@@ -529,22 +524,17 @@ export default async function AdminOrdersPage({
               已付款
             </Link>
           </div>
-        </div>
 
-        {/* =================================
-            Time
-        ================================= */}
+          {/* Time */}
 
-        <div>
-          <p className="text-sm font-medium text-gray-700">
-            时间
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-12 text-xs font-medium text-gray-500">
+              时间
+            </span>
 
-          <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href={buildFilterUrl({
-                overdue:
-                  null,
+                overdue: null,
               })}
               className={getFilterClass(
                 !filters.overdue
@@ -563,7 +553,66 @@ export default async function AdminOrdersPage({
                   "24h"
               )}
             >
-              超过 24 小时
+              超过24h
+            </Link>
+          </div>
+
+          {/* Sort */}
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-12 text-xs font-medium text-gray-500">
+              排序
+            </span>
+
+            <Link
+              href={buildFilterUrl({
+                sort: "newest",
+              })}
+              className={getFilterClass(
+                !filters.sort ||
+                  filters.sort ===
+                    "newest"
+              )}
+            >
+              最新
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                sort: "oldest",
+              })}
+              className={getFilterClass(
+                filters.sort ===
+                  "oldest"
+              )}
+            >
+              最旧
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                sort:
+                  "amount_desc",
+              })}
+              className={getFilterClass(
+                filters.sort ===
+                  "amount_desc"
+              )}
+            >
+              金额高
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                sort:
+                  "amount_asc",
+              })}
+              className={getFilterClass(
+                filters.sort ===
+                  "amount_asc"
+              )}
+            >
+              金额低
             </Link>
           </div>
         </div>
@@ -574,78 +623,64 @@ export default async function AdminOrdersPage({
       ===================================== */}
 
       {hasFilters && (
-        <section className="mt-6 rounded-xl border bg-blue-50 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="font-medium text-blue-900">
-                当前正在筛选订单
-              </p>
+        <section className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-blue-50 px-4 py-3">
+          <div className="flex flex-wrap gap-2">
+            {filters.search && (
+              <span className="text-xs text-blue-700">
+                搜索：
+                {
+                  filters.search
+                }
+              </span>
+            )}
 
-              <div className="mt-2 flex flex-wrap gap-2">
-                {filters.search && (
-                  <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
-                    搜索：
-                    {
-                      filters.search
-                    }
-                  </span>
+            {filters.status && (
+              <span className="text-xs text-blue-700">
+                状态：
+                {getStatusLabel(
+                  filters.status
                 )}
+              </span>
+            )}
 
-                {filters.status && (
-                  <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
-                    状态：
-                    {getStatusLabel(
-                      filters.status
-                    )}
-                  </span>
+            {filters.payment && (
+              <span className="text-xs text-blue-700">
+                付款：
+                {getPaymentLabel(
+                  filters.payment
                 )}
+              </span>
+            )}
 
-                {filters.payment && (
-                  <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
-                    付款：
-                    {getPaymentLabel(
-                      filters.payment
-                    )}
-                  </span>
-                )}
-
-                {filters.overdue ===
-                  "24h" && (
-                  <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
-                    超过 24 小时
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <Link
-              href="/admin/orders"
-              className="
-                rounded-lg
-                border
-                bg-white
-                px-4
-                py-2
-                text-sm
-                font-medium
-                text-gray-700
-                transition
-                hover:bg-gray-50
-              "
-            >
-              清除筛选
-            </Link>
+            {filters.overdue ===
+              "24h" && (
+              <span className="text-xs text-blue-700">
+                超过24小时
+              </span>
+            )}
           </div>
+
+          <Link
+            href={buildFilterUrl({
+              status: null,
+              payment: null,
+              overdue: null,
+              search: null,
+            })}
+            className="text-xs font-medium text-blue-700 hover:underline"
+          >
+            清除筛选
+          </Link>
         </section>
       )}
 
       {/* =====================================
-          Empty Result
+          Empty
       ===================================== */}
 
       {filteredOrders.length ===
         0 && (
-        <div className="mt-8 rounded-xl border bg-white p-8 text-center">
+        <div className="mt-6 rounded-xl border bg-white p-8 text-center">
           <p className="text-gray-500">
             没有符合当前筛选条件的订单。
           </p>
@@ -662,7 +697,6 @@ export default async function AdminOrdersPage({
                 py-2
                 text-sm
                 font-medium
-                transition
                 hover:bg-gray-50
               "
             >
@@ -676,10 +710,10 @@ export default async function AdminOrdersPage({
           Orders
       ===================================== */}
 
-      {filteredOrders.length >
+      {sortedOrders.length >
         0 && (
-        <div className="mt-8 space-y-4">
-          {filteredOrders.map(
+        <div className="mt-6 space-y-4">
+          {sortedOrders.map(
             (order) => (
               <Link
                 key={order.id}
@@ -689,16 +723,12 @@ export default async function AdminOrdersPage({
                   rounded-xl
                   border
                   bg-white
-                  p-6
+                  p-5
                   transition
                   hover:shadow-md
                 "
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  {/* =========================
-                      Order Information
-                  ========================= */}
-
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
                       <h2 className="text-lg font-semibold">
@@ -745,10 +775,6 @@ export default async function AdminOrdersPage({
                       ).toLocaleString()}
                     </p>
                   </div>
-
-                  {/* =========================
-                      Payment Information
-                  ========================= */}
 
                   <div className="md:text-right">
                     <p className="text-sm text-gray-500">

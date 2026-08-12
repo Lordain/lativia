@@ -6,9 +6,19 @@ import {
 
 import DashboardStatCard from "@/components/admin/DashboardStatCard";
 
+import { getRecentAdminActivity } from "@/lib/admin/getRecentAdminActivity";
+
+import RecentOrdersList from "@/components/admin/RecentOrdersList";
+import RecentPaymentsList from "@/components/admin/RecentPaymentsList";
+
 export default async function AdminPage() {
-  const stats =
-    await getAdminDashboardStats();
+  const [
+    stats,
+    recentActivity,
+  ] = await Promise.all([
+    getAdminDashboardStats(),
+    getRecentAdminActivity(),
+  ]);
 
   return (
     <div>
@@ -166,6 +176,32 @@ export default async function AdminPage() {
   >
     查看支付对账
   </Link>
+</section>
+
+<section className="mt-10">
+  <div>
+    <h2 className="text-xl font-semibold">
+      最近活动
+    </h2>
+
+    <p className="mt-2 text-sm text-gray-500">
+      查看最近创建的订单与支付交易。
+    </p>
+  </div>
+
+  <div className="mt-4 grid gap-6 xl:grid-cols-2">
+    <RecentOrdersList
+      orders={
+        recentActivity.recentOrders
+      }
+    />
+
+    <RecentPaymentsList
+      payments={
+        recentActivity.recentPayments
+      }
+    />
+  </div>
 </section>
 
       <section className="mt-10">

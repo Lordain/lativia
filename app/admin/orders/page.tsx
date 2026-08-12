@@ -13,6 +13,7 @@ interface Props {
     status?: string;
     payment?: string;
     overdue?: string;
+    search?: string;
   }>;
 }
 
@@ -20,11 +21,16 @@ export default async function AdminOrdersPage({
   searchParams,
 }: Props) {
   // ========================================
-  // 1. 读取 URL Filter
+  // 1. 读取 URL 筛选条件
   // ========================================
 
   const filters =
     await searchParams;
+
+  const searchTerm =
+    filters.search
+      ?.trim()
+      .toLowerCase() ?? "";
 
   // ========================================
   // 2. 获取全部订单
@@ -42,12 +48,15 @@ export default async function AdminOrdersPage({
     24 * 60 * 60 * 1000;
 
   // ========================================
-  // 4. 根据 URL 参数筛选
+  // 4. 筛选 + 搜索
   // ========================================
 
   const filteredOrders =
     orders.filter((order) => {
+      // ------------------------------
       // Order Status
+      // ------------------------------
+
       if (
         filters.status &&
         order.status !==
@@ -56,7 +65,10 @@ export default async function AdminOrdersPage({
         return false;
       }
 
+      // ------------------------------
       // Payment Status
+      // ------------------------------
+
       if (
         filters.payment &&
         order.payment_status !==
@@ -65,7 +77,10 @@ export default async function AdminOrdersPage({
         return false;
       }
 
-      // Overdue
+      // ------------------------------
+      // Overdue > 24h
+      // ------------------------------
+
       if (
         filters.overdue ===
         "24h"
@@ -83,23 +98,73 @@ export default async function AdminOrdersPage({
         }
       }
 
+      // ------------------------------
+      // Search
+      // 支持：
+      // Order ID
+      // 客户姓名
+      // 手机号
+      // 服务名称
+      // ------------------------------
+
+      if (searchTerm) {
+        const orderId =
+          order.id
+            ?.toLowerCase() ??
+          "";
+
+        const customerName =
+          order.profiles?.name
+            ?.toLowerCase() ??
+          "";
+
+        const customerPhone =
+          order.profiles?.phone
+            ?.toLowerCase() ??
+          "";
+
+        const serviceTitle =
+          order.services?.title
+            ?.toLowerCase() ??
+          "";
+
+        const matchesSearch =
+          orderId.includes(
+            searchTerm
+          ) ||
+          customerName.includes(
+            searchTerm
+          ) ||
+          customerPhone.includes(
+            searchTerm
+          ) ||
+          serviceTitle.includes(
+            searchTerm
+          );
+
+        if (!matchesSearch) {
+          return false;
+        }
+      }
+
       return true;
     });
 
   // ========================================
-  // 5. 是否存在 Filter
+  // 5. 是否存在筛选
   // ========================================
 
   const hasFilters =
     Boolean(
       filters.status ||
         filters.payment ||
-        filters.overdue
+        filters.overdue ||
+        filters.search
     );
 
   // ========================================
-  // 6. Build Filter URL
-  // 保留现有条件，只改变当前点击的条件
+  // 6. URL Builder
+  // 保留现有筛选，只修改当前条件
   // ========================================
 
   function buildFilterUrl(
@@ -107,6 +172,7 @@ export default async function AdminOrdersPage({
       status?: string | null;
       payment?: string | null;
       overdue?: string | null;
+      search?: string | null;
     }
   ) {
     const params =
@@ -133,6 +199,13 @@ export default async function AdminOrdersPage({
         : filters.overdue ??
           null;
 
+    const search =
+      updates.search !==
+      undefined
+        ? updates.search
+        : filters.search ??
+          null;
+
     if (status) {
       params.set(
         "status",
@@ -154,6 +227,13 @@ export default async function AdminOrdersPage({
       );
     }
 
+    if (search) {
+      params.set(
+        "search",
+        search
+      );
+    }
+
     const query =
       params.toString();
 
@@ -163,7 +243,7 @@ export default async function AdminOrdersPage({
   }
 
   // ========================================
-  // 7. Filter Button Active Style
+  // 7. Filter Button Style
   // ========================================
 
   function getFilterClass(
@@ -186,7 +266,7 @@ export default async function AdminOrdersPage({
   }
 
   // ========================================
-  // 8. Status Label
+  // 8. Order Status Label
   // ========================================
 
   function getStatusLabel(
@@ -203,15 +283,12 @@ export default async function AdminOrdersPage({
         return "已完成";
 
       default:
-        return (
-          status ??
-          ""
-        );
+        return status ?? "";
     }
   }
 
   // ========================================
-  // 9. Payment Label
+  // 9. Payment Status Label
   // ========================================
 
   function getPaymentLabel(
@@ -225,10 +302,7 @@ export default async function AdminOrdersPage({
         return "未付款";
 
       default:
-        return (
-          payment ??
-          ""
-        );
+        return payment ?? "";
     }
   }
 
@@ -250,16 +324,104 @@ export default async function AdminOrdersPage({
         </div>
 
         <div className="text-sm text-gray-500">
-          共 {filteredOrders.length} 笔
+          显示{" "}
+          {filteredOrders.length} /{" "}
+          {orders.length} 笔
         </div>
       </div>
 
       {/* =====================================
-          Filter UI
+          Filters
       ===================================== */}
 
       <section className="mt-6 space-y-5 rounded-xl border bg-white p-5">
-        {/* Order Status */}
+        {/* =================================
+            Search
+        ================================= */}
+
+        <form
+          action="/admin/orders"
+          method="get"
+          className="flex flex-col gap-3 md:flex-row"
+        >
+          {/* 保留当前 Status */}
+
+          {filters.status && (
+            <input
+              type="hidden"
+              name="status"
+              value={
+                filters.status
+              }
+            />
+          )}
+
+          {/* 保留当前 Payment */}
+
+          {filters.payment && (
+            <input
+              type="hidden"
+              name="payment"
+              value={
+                filters.payment
+              }
+            />
+          )}
+
+          {/* 保留当前 Overdue */}
+
+          {filters.overdue && (
+            <input
+              type="hidden"
+              name="overdue"
+              value={
+                filters.overdue
+              }
+            />
+          )}
+
+          <input
+            type="text"
+            name="search"
+            defaultValue={
+              filters.search ?? ""
+            }
+            placeholder="搜索订单 ID、客户姓名、手机号或服务名称"
+            className="
+              min-w-0
+              flex-1
+              rounded-lg
+              border
+              px-4
+              py-2
+              text-sm
+              outline-none
+              transition
+              focus:border-blue-500
+            "
+          />
+
+          <button
+            type="submit"
+            className="
+              rounded-lg
+              bg-blue-600
+              px-5
+              py-2
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-blue-700
+            "
+          >
+            搜索
+          </button>
+        </form>
+
+        {/* =================================
+            Order Status
+        ================================= */}
 
         <div>
           <p className="text-sm font-medium text-gray-700">
@@ -319,7 +481,9 @@ export default async function AdminOrdersPage({
           </div>
         </div>
 
-        {/* Payment Status */}
+        {/* =================================
+            Payment Status
+        ================================= */}
 
         <div>
           <p className="text-sm font-medium text-gray-700">
@@ -367,7 +531,9 @@ export default async function AdminOrdersPage({
           </div>
         </div>
 
-        {/* Time */}
+        {/* =================================
+            Time
+        ================================= */}
 
         <div>
           <p className="text-sm font-medium text-gray-700">
@@ -416,6 +582,15 @@ export default async function AdminOrdersPage({
               </p>
 
               <div className="mt-2 flex flex-wrap gap-2">
+                {filters.search && (
+                  <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
+                    搜索：
+                    {
+                      filters.search
+                    }
+                  </span>
+                )}
+
                 {filters.status && (
                   <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
                     状态：
@@ -465,7 +640,7 @@ export default async function AdminOrdersPage({
       )}
 
       {/* =====================================
-          Empty State
+          Empty Result
       ===================================== */}
 
       {filteredOrders.length ===
@@ -498,7 +673,7 @@ export default async function AdminOrdersPage({
       )}
 
       {/* =====================================
-          Order List
+          Orders
       ===================================== */}
 
       {filteredOrders.length >
@@ -520,7 +695,9 @@ export default async function AdminOrdersPage({
                 "
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  {/* Left */}
+                  {/* =========================
+                      Order Information
+                  ========================= */}
 
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
@@ -544,7 +721,19 @@ export default async function AdminOrdersPage({
                         "未填写姓名"}
                     </p>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    {order.profiles
+                      ?.phone && (
+                      <p className="mt-1 text-sm text-gray-500">
+                        手机：
+                        {
+                          order
+                            .profiles
+                            .phone
+                        }
+                      </p>
+                    )}
+
+                    <p className="mt-1 break-all text-sm text-gray-500">
                       订单 ID：
                       {order.id}
                     </p>
@@ -557,7 +746,9 @@ export default async function AdminOrdersPage({
                     </p>
                   </div>
 
-                  {/* Right */}
+                  {/* =========================
+                      Payment Information
+                  ========================= */}
 
                   <div className="md:text-right">
                     <p className="text-sm text-gray-500">

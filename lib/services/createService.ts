@@ -47,13 +47,12 @@ export async function createService(
     error,
   } = await supabase
     .from("services")
-    .insert({
-      ...databaseData,
-
-      form_schema:
-        [],
-    })
-    .select("id")
+    .insert(
+      databaseData
+    )
+    .select(
+      "id"
+    )
     .single();
 
   if (error) {
@@ -76,7 +75,10 @@ export async function createService(
     );
   }
 
-  revalidatePath("/");
+  revalidatePath(
+    "/"
+  );
+
   revalidatePath(
     "/admin/services"
   );

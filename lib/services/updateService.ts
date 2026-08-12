@@ -75,10 +75,14 @@ export async function updateService(
     );
   }
 
-  revalidatePath("/");
+  revalidatePath(
+    "/"
+  );
+
   revalidatePath(
     "/admin/services"
   );
+
   revalidatePath(
     `/admin/services/${id}`
   );

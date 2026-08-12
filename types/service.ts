@@ -21,8 +21,7 @@ export interface Service {
 
   /**
    * 仅用于前台展示。
-   *
-   * 实际支付金额请使用 service_prices。
+   * 实际付款金额使用 service_prices。
    */
   price: string;
 
@@ -64,6 +63,12 @@ export interface ServiceFormData {
   popular: boolean;
 
   isActive: boolean;
+
+  /**
+   * 客户申请时需要填写的动态表单。
+   */
+  formSchema:
+    FormFieldSchema[];
 }
 
 export interface CreateServiceInput

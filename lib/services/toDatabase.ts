@@ -51,5 +51,29 @@ export function toDatabase(
 
     is_active:
       formData.isActive,
+
+    form_schema:
+      formData.formSchema.map(
+        (field) => ({
+          name:
+            field.name.trim(),
+
+          label:
+            field.label.trim(),
+
+          type:
+            field.type,
+
+          placeholder:
+            field.placeholder
+              ?.trim() ??
+            "",
+
+          required:
+            Boolean(
+              field.required
+            ),
+        })
+      ),
   };
 }

@@ -24,14 +24,18 @@ import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 
+import DynamicFormBuilder from "@/components/admin/DynamicFormBuilder";
+
 interface Props {
   initialData?:
     ServiceFormData;
 
   onSubmit:
     (
-      data: ServiceFormData
-    ) => Promise<void>;
+      data:
+        ServiceFormData
+    ) =>
+      Promise<void>;
 }
 
 export default function ServiceForm({
@@ -41,10 +45,12 @@ export default function ServiceForm({
   const [
     loading,
     setLoading,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const {
     register,
+    control,
     handleSubmit,
     formState: {
       errors,
@@ -88,11 +94,15 @@ export default function ServiceForm({
 
           isActive:
             true,
+
+          formSchema:
+            [],
         },
     });
 
   async function submitForm(
-    data: ServiceFormData
+    data:
+      ServiceFormData
   ) {
     setLoading(true);
 
@@ -109,11 +119,15 @@ export default function ServiceForm({
 
   return (
     <form
-      onSubmit={handleSubmit(
-        submitForm
-      )}
+      onSubmit={
+        handleSubmit(
+          submitForm
+        )
+      }
       className="mt-6 space-y-6"
     >
+      {/* Basic Information */}
+
       <div className="grid gap-6 md:grid-cols-2">
         <FormField
           label="服务名称"
@@ -290,6 +304,8 @@ export default function ServiceForm({
         />
       </FormField>
 
+      {/* Flags */}
+
       <div className="grid gap-4 rounded-xl border bg-gray-50 p-4 md:grid-cols-2">
         <label className="flex cursor-pointer items-center gap-3">
           <input
@@ -326,23 +342,42 @@ export default function ServiceForm({
             </p>
 
             <p className="text-xs text-gray-500">
-              停用后前台不会显示。
+              停用后客户前台不会显示。
             </p>
           </div>
         </label>
       </div>
 
+      {/* Dynamic Form */}
+
+      <DynamicFormBuilder
+        control={
+          control
+        }
+        register={
+          register
+        }
+        errors={
+          errors
+        }
+      />
+
+      {/* Price Information */}
+
       <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
-        此处的「展示价格」仅用于页面显示。
-        Stripe、Mercado Pago
-        以及未来微信支付的实际金额，
-        仍然由 service_prices
-        管理。
+        「展示价格」仅用于页面显示。
+        实际 Stripe、Mercado Pago
+        和未来微信支付金额仍由
+        service_prices 管理。
       </div>
+
+      {/* Submit */}
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={
+          loading
+        }
         className="
           w-full
           rounded-lg

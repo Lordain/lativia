@@ -8,6 +8,8 @@ import type {
   OrderStatus,
 } from "@/types/order";
 
+import { formatBusinessDateTime } from "@/lib/time/formatBusinessDateTime";
+
 interface Props {
   searchParams: Promise<{
     status?: string;
@@ -770,9 +772,9 @@ export default async function AdminOrdersPage({
 
                     <p className="mt-1 text-sm text-gray-500">
                       创建时间：
-                      {new Date(
+                      {formatBusinessDateTime(
                         order.created_at
-                      ).toLocaleString()}
+                      )}
                     </p>
                   </div>
 

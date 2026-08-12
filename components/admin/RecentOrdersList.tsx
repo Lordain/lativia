@@ -6,6 +6,8 @@ import type {
   OrderStatus,
 } from "@/types/order";
 
+import { formatBusinessDateTime } from "@/lib/time/formatBusinessDateTime";
+
 interface RecentOrder {
   id: string;
   status: string;
@@ -97,9 +99,9 @@ export default function RecentOrdersList({
                   </p>
 
                   <p className="mt-1 text-xs text-gray-400">
-                    {new Date(
+                  {formatBusinessDateTime(
                       order.created_at
-                    ).toLocaleString()}
+                    )}
                   </p>
                 </div>
 

@@ -11,13 +11,18 @@ import { getRecentAdminActivity } from "@/lib/admin/getRecentAdminActivity";
 import RecentOrdersList from "@/components/admin/RecentOrdersList";
 import RecentPaymentsList from "@/components/admin/RecentPaymentsList";
 
+import { getTodayAdminStats } from "@/lib/admin/getTodayAdminStats";
+import TodayRevenueCard from "@/components/admin/TodayRevenueCard";
+
 export default async function AdminPage() {
   const [
     stats,
     recentActivity,
+    todayStats,
   ] = await Promise.all([
     getAdminDashboardStats(),
     getRecentAdminActivity(),
+    getTodayAdminStats(),
   ]);
 
   return (
@@ -31,6 +36,53 @@ export default async function AdminPage() {
           查看订单与支付状态概览。
         </p>
       </div>
+
+      <section className="mt-8">
+      <div>
+        <h2 className="text-xl font-semibold">
+          今日运营
+        </h2>
+
+        <p className="mt-2 text-sm text-gray-500">
+          按墨西哥城当地时间统计今天的订单与支付情况。
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <DashboardStatCard
+          label="今日新增订单"
+          value={
+            todayStats.newOrders
+          }
+          description="今天创建的订单"
+        />
+
+        <DashboardStatCard
+          label="今日完成订单"
+          value={
+            todayStats.completedOrders
+          }
+          description="今天完成处理的订单"
+        />
+
+        <DashboardStatCard
+          label="今日确认付款"
+          value={
+            todayStats.confirmedPayments
+          }
+          description="今天确认成功的支付交易"
+        />
+
+        <TodayRevenueCard
+          mxn={
+            todayStats.revenueMXN
+          }
+          cny={
+            todayStats.revenueCNY
+          }
+        />
+      </div>
+    </section>
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold">

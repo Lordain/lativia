@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatBusinessDateTime } from "@/lib/time/formatBusinessDateTime";
 
 interface RecentPayment {
   id: string;
@@ -86,9 +87,9 @@ export default function RecentPaymentsList({
                   </p>
 
                   <p className="mt-1 text-xs text-gray-500">
-                    {new Date(
+                  {formatBusinessDateTime(
                       payment.created_at
-                    ).toLocaleString()}
+                    )}
                   </p>
                 </div>
 

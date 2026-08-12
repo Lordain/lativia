@@ -114,26 +114,37 @@ export default async function AdminPage() {
   <div className="mt-4 grid gap-6 md:grid-cols-3">
     <DashboardStatCard
       label="支付异常"
-      value={
-        stats.paymentExceptions
-      }
+      value={stats.paymentExceptions}
       description="存在支付状态不一致的订单"
+      href="/admin/payments/reconciliation"
     />
 
     <DashboardStatCard
       label="已付款但无交易记录"
-      value={
-        stats.paidWithoutTransaction
-      }
+      value={stats.paidWithoutTransaction}
       description="订单为已付款，但缺少支付交易"
     />
 
     <DashboardStatCard
       label="交易已付款但订单未更新"
-      value={
-        stats.transactionPaidOrderUnpaid
-      }
+      value={stats.transactionPaidOrderUnpaid}
       description="已有已付款交易，但订单仍未标记已付款"
+    />
+  </div>
+
+  <div className="mt-6 grid gap-6 md:grid-cols-2">
+    <DashboardStatCard
+      label="未付款超过 24 小时"
+      value={stats.overdueUnpaidOrders}
+      description="创建超过 24 小时仍未完成付款"
+      href="/admin/orders?payment=unpaid&overdue=24h"
+    />
+
+    <DashboardStatCard
+      label="待处理超过 24 小时"
+      value={stats.overduePendingOrders}
+      description="创建超过 24 小时仍等待处理"
+      href="/admin/orders?status=pending&overdue=24h"
     />
   </div>
 

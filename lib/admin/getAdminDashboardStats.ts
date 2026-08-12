@@ -15,6 +15,9 @@ export interface AdminDashboardStats {
   paymentExceptions: number;
   paidWithoutTransaction: number;
   transactionPaidOrderUnpaid: number;
+
+  overdueUnpaidOrders: number;
+  overduePendingOrders: number;
 }
 
 export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
@@ -29,12 +32,13 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
         status,
         payment_status,
         payment_provider,
-
+        created_at,
+      
         payment_transactions (
           id,
           status
         )
-      `);
+      `)
 
   if (error) {
     console.error(
@@ -49,6 +53,32 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
 
   const orders =
     data ?? [];
+
+  const twentyFourHoursAgo =
+    Date.now() -
+    24 * 60 * 60 * 1000;
+
+  const overdueUnpaidOrders =
+    orders.filter(
+      (order) =>
+        order.payment_status ===
+          "unpaid" &&
+        new Date(
+          order.created_at
+        ).getTime() <
+          twentyFourHoursAgo
+    ).length;
+
+  const overduePendingOrders =
+    orders.filter(
+      (order) =>
+        order.status ===
+          "pending" &&
+        new Date(
+          order.created_at
+        ).getTime() <
+          twentyFourHoursAgo
+    ).length;
 
   const totalOrders =
     orders.length;
@@ -148,5 +178,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     paymentExceptions,
     paidWithoutTransaction,
     transactionPaidOrderUnpaid,
+    overdueUnpaidOrders,
+    overduePendingOrders,
   };
 }

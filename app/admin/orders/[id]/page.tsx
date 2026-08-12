@@ -1,22 +1,48 @@
-import { notFound } from "next/navigation";
+import {
+  notFound,
+} from "next/navigation";
 
-import { requireAdmin } from "@/lib/auth/requireAdmin";
-import { getAdminOrder } from "@/lib/orders/getAdminOrder";
+import {
+  requireAdmin,
+} from "@/lib/auth/requireAdmin";
+
+import {
+  getAdminOrder,
+} from "@/lib/orders/getAdminOrder";
+
+import {
+  getOrderActivity,
+} from "@/lib/orders/getOrderActivity";
+
+import {
+  getPaymentAuditLogs,
+} from "@/lib/payments/getPaymentAuditLogs";
+
+import {
+  formatBusinessDateTime,
+} from "@/lib/time/formatBusinessDateTime";
 
 import StatusBadge from "@/components/orders/StatusBadge";
-
-import type { OrderStatus } from "@/types/order";
-import type { FormFieldSchema } from "@/types/form";
-
-import OrderManagementForm from "@/components/admin/OrderManagementForm";
 
 import OrderPaymentInfo from "@/components/admin/OrderPaymentInfo";
 
 import PaymentTransactionList from "@/components/admin/PaymentTransactionList";
 
-import { getPaymentAuditLogs } from "@/lib/payments/getPaymentAuditLogs";
-
 import PaymentAuditLogList from "@/components/admin/PaymentAuditLogList";
+
+import OrderManagementForm from "@/components/admin/OrderManagementForm";
+
+import AddOrderNoteForm from "@/components/admin/AddOrderNoteForm";
+
+import OrderActivityTimeline from "@/components/admin/OrderActivityTimeline";
+
+import type {
+  OrderStatus,
+} from "@/types/order";
+
+import type {
+  FormFieldSchema,
+} from "@/types/form";
 
 import type {
   PaymentStatus,
@@ -35,87 +61,175 @@ export default async function AdminOrderDetailPage({
 }: Props) {
   await requireAdmin();
 
-  const { id } = await params;
+  const {
+    id,
+  } = await params;
 
-  const order = await getAdminOrder(id);
+  const order =
+    await getAdminOrder(
+      id
+    );
 
   if (!order) {
     notFound();
   }
 
-  const auditLogs =
-  await getPaymentAuditLogs(
-    order.id
-  );
+  const [
+    auditLogs,
+    activity,
+  ] =
+    await Promise.all([
+      getPaymentAuditLogs(
+        order.id
+      ),
+
+      getOrderActivity(
+        order.id
+      ),
+    ]);
 
   const formSchema =
-    (order.services?.form_schema ?? []) as FormFieldSchema[];
+    (
+      order.services
+        ?.form_schema ??
+      []
+    ) as FormFieldSchema[];
 
   return (
-    <main className="mx-auto max-w-4xl p-8">
-      <h1 className="text-3xl font-bold">
-        {order.services?.title ?? "订单详情"}
-      </h1>
+    <div>
+      {/* Header */}
 
-      <div className="mt-4">
-        <StatusBadge
-          status={order.status as OrderStatus}
-        />
+      <div>
+        <h1 className="text-3xl font-bold">
+          {order.services
+            ?.title ??
+            "订单详情"}
+        </h1>
+
+        <div className="mt-4">
+          <StatusBadge
+            status={
+              order.status as OrderStatus
+            }
+          />
+        </div>
       </div>
 
-      <div className="mt-6 space-y-2 text-sm text-gray-600">
-        <p>
-          客户：
-          {order.profiles?.name ?? "未知用户"}
-        </p>
+      {/* Customer */}
 
-        <p>
-          电话：
-          {order.profiles?.phone ?? "未填写"}
-        </p>
+      <section className="mt-8 rounded-xl border bg-white p-6">
+        <h2 className="text-xl font-semibold">
+          客户信息
+        </h2>
 
-        <p>
-          提交时间：
-          {new Date(order.created_at).toLocaleString()}
-        </p>
-      </div>
+        <div className="mt-4 grid gap-3 text-sm text-gray-600 md:grid-cols-2">
+          <p>
+            客户：
+            {order.profiles
+              ?.name ??
+              "未知用户"}
+          </p>
+
+          <p>
+            电话：
+            {order.profiles
+              ?.phone ??
+              "未填写"}
+          </p>
+
+          <p>
+            提交时间：
+            {formatBusinessDateTime(
+              order.created_at
+            )}
+          </p>
+
+          <p className="break-all">
+            订单 ID：
+            {order.id}
+          </p>
+        </div>
+      </section>
+
+      {/* Application */}
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold">
           申请资料
         </h2>
 
-        <div className="mt-4 space-y-3">
-          {Object.entries(order.form_data ?? {}).map(
-            ([key, value]) => {
-              const field = formSchema.find(
-                (item) => item.name === key
-              );
+        {Object.keys(
+          order.form_data ??
+            {}
+        ).length ===
+        0 ? (
+          <div className="mt-4 rounded-xl border bg-white p-6 text-sm text-gray-500">
+            暂无申请资料。
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {Object.entries(
+              order.form_data ??
+                {}
+            ).map(
+              ([
+                key,
+                value,
+              ]) => {
+                const field =
+                  formSchema.find(
+                    (
+                      item
+                    ) =>
+                      item.name ===
+                      key
+                  );
 
-              return (
-                <div
-                  key={key}
-                  className="rounded-lg border p-4"
-                >
-                  <p className="text-sm text-gray-500">
-                    {field?.label ?? key}
-                  </p>
+                return (
+                  <div
+                    key={
+                      key
+                    }
+                    className="rounded-lg border bg-white p-4"
+                  >
+                    <p className="text-sm text-gray-500">
+                      {field
+                        ?.label ??
+                        key}
+                    </p>
 
-                  <p className="mt-1">
-                    {String(value) || "未填写"}
-                  </p>
-                </div>
-              );
-            }
-          )}
-        </div>
+                    <p className="mt-1 whitespace-pre-wrap">
+                      {value ===
+                        null ||
+                      value ===
+                        undefined ||
+                      String(
+                        value
+                      ).trim() ===
+                        ""
+                        ? "未填写"
+                        : String(
+                            value
+                          )}
+                    </p>
+                  </div>
+                );
+              }
+            )}
+          </div>
+        )}
       </section>
+
       <OrderPaymentInfo
         paymentStatus={
           order.payment_status as PaymentStatus
         }
-        amount={order.amount}
-        currency={order.currency}
+        amount={
+          order.amount
+        }
+        currency={
+          order.currency
+        }
         paymentMethod={
           order.payment_method as
             | PaymentMethod
@@ -126,25 +240,46 @@ export default async function AdminOrderDetailPage({
             | PaymentProvider
             | null
         }
-        paidAt={order.paid_at}
+        paidAt={
+          order.paid_at
+        }
       />
 
       <PaymentTransactionList
         transactions={
-          order.payment_transactions ?? []
+          order.payment_transactions ??
+          []
         }
       />
 
       <PaymentAuditLogList
-        logs={auditLogs}
-      />
-      
-      <OrderManagementForm
-        orderId={order.id}
-        initialStatus={order.status as OrderStatus}
-        initialAdminNote={order.admin_note}
+        logs={
+          auditLogs
+        }
       />
 
-    </main>
+      {/* Operations */}
+
+      <OrderManagementForm
+        orderId={
+          order.id
+        }
+        initialStatus={
+          order.status as OrderStatus
+        }
+      />
+
+      <AddOrderNoteForm
+        orderId={
+          order.id
+        }
+      />
+
+      <OrderActivityTimeline
+        activity={
+          activity
+        }
+      />
+    </div>
   );
 }

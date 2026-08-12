@@ -16,21 +16,20 @@ import {
   requireAdmin,
 } from "@/lib/auth/requireAdmin";
 
-import type {
-  OrderStatus,
-} from "@/types/order";
-
-export interface UpdateAdminOrderInput {
-  status: OrderStatus;
-
-  note?: string;
-}
-
-export async function updateAdminOrder(
-  id: string,
-  input: UpdateAdminOrderInput
+export async function addAdminOrderNote(
+  orderId: string,
+  note: string
 ) {
   await requireAdmin();
+
+  const cleanNote =
+    note.trim();
+
+  if (!cleanNote) {
+    throw new Error(
+      "请输入内部备注"
+    );
+  }
 
   const supabase =
     await createClient();
@@ -60,38 +59,24 @@ export async function updateAdminOrder(
     error,
   } =
     await supabaseAdmin.rpc(
-      "admin_update_order_status",
+      "admin_add_order_note",
       {
         p_order_id:
-          id,
-
-        p_new_status:
-          input.status,
+          orderId,
 
         p_actor_user_id:
           user.id,
 
         p_note:
-          input.note?.trim() ||
-          null,
+          cleanNote,
       }
     );
 
   if (error) {
     console.error(
-      "updateAdminOrder error:",
+      "addAdminOrderNote error:",
       error
     );
-
-    if (
-      error.message.includes(
-        "INVALID_STATUS_TRANSITION"
-      )
-    ) {
-      throw new Error(
-        "不允许这样修改订单状态"
-      );
-    }
 
     throw new Error(
       error.message
@@ -99,14 +84,10 @@ export async function updateAdminOrder(
   }
 
   revalidatePath(
-    `/admin/orders/${id}`
+    `/admin/orders/${orderId}`
   );
 
   revalidatePath(
     "/admin/orders"
-  );
-
-  revalidatePath(
-    "/admin"
   );
 }

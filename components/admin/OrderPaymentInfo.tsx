@@ -1,32 +1,42 @@
 import PaymentBadge from "@/components/orders/PaymentBadge";
 
-import type {
-  PaymentStatus,
-  PaymentMethod,
-  PaymentProvider,
-} from "@/types/payment";
+import {
+  formatBusinessDateTime,
+} from "@/lib/time/formatBusinessDateTime";
 
 import {
   getPaymentMethodLabel,
   getPaymentProviderLabel,
 } from "@/lib/payments/paymentLabel";
 
+import type {
+  PaymentStatus,
+  PaymentMethod,
+  PaymentProvider,
+} from "@/types/payment";
+
 interface Props {
-  paymentStatus: PaymentStatus;
+  paymentStatus:
+    PaymentStatus;
 
-  amount: number | string | null;
+  amount:
+    number |
+    string |
+    null;
 
-  currency: string | null;
+  currency:
+    string | null;
 
   paymentMethod:
-    | PaymentMethod
-    | null;
+    PaymentMethod |
+    null;
 
   paymentProvider:
-    | PaymentProvider
-    | null;
+    PaymentProvider |
+    null;
 
-  paidAt: string | null;
+  paidAt:
+    string | null;
 }
 
 export default function OrderPaymentInfo({
@@ -46,13 +56,21 @@ export default function OrderPaymentInfo({
     }
 
     const value =
-      Number(amount).toFixed(2);
+      Number(
+        amount
+      ).toFixed(2);
 
-    if (currency === "CNY") {
+    if (
+      currency ===
+      "CNY"
+    ) {
       return `¥${value} CNY`;
     }
 
-    if (currency === "MXN") {
+    if (
+      currency ===
+      "MXN"
+    ) {
       return `$${value} MXN`;
     }
 
@@ -65,14 +83,14 @@ export default function OrderPaymentInfo({
         付款信息
       </h2>
 
-      <div className="mt-4 rounded-xl border p-5">
-        <div>
-          <PaymentBadge
-            status={paymentStatus}
-          />
-        </div>
+      <div className="mt-4 rounded-xl border bg-white p-5">
+        <PaymentBadge
+          status={
+            paymentStatus
+          }
+        />
 
-        <div className="mt-5 space-y-3 text-sm">
+        <div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
           <p>
             <span className="text-gray-500">
               订单金额：
@@ -118,13 +136,18 @@ export default function OrderPaymentInfo({
 
             <span className="ml-2">
               {paidAt
-                ? new Date(
+                ? formatBusinessDateTime(
                     paidAt
-                  ).toLocaleString()
+                  )
                 : "尚未付款"}
             </span>
           </p>
         </div>
+
+        <p className="mt-4 border-t pt-4 text-xs text-gray-500">
+          付款状态由支付系统、Webhook
+          与对账流程维护，管理员不能在此手动修改。
+        </p>
       </div>
     </section>
   );

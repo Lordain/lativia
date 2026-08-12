@@ -20,7 +20,7 @@ export default async function AdminOrdersPage({
   searchParams,
 }: Props) {
   // ========================================
-  // 1. 读取 URL 筛选条件
+  // 1. 读取 URL Filter
   // ========================================
 
   const filters =
@@ -34,7 +34,7 @@ export default async function AdminOrdersPage({
     await getAdminOrders();
 
   // ========================================
-  // 3. 计算 24 小时前的时间
+  // 3. 计算 24 小时前
   // ========================================
 
   const twentyFourHoursAgo =
@@ -42,17 +42,12 @@ export default async function AdminOrdersPage({
     24 * 60 * 60 * 1000;
 
   // ========================================
-  // 4. 根据 URL 参数筛选订单
+  // 4. 根据 URL 参数筛选
   // ========================================
 
   const filteredOrders =
     orders.filter((order) => {
-      // ------------------------------
-      // Status 筛选
-      // 例如：
-      // ?status=pending
-      // ------------------------------
-
+      // Order Status
       if (
         filters.status &&
         order.status !==
@@ -61,12 +56,7 @@ export default async function AdminOrdersPage({
         return false;
       }
 
-      // ------------------------------
-      // Payment Status 筛选
-      // 例如：
-      // ?payment=unpaid
-      // ------------------------------
-
+      // Payment Status
       if (
         filters.payment &&
         order.payment_status !==
@@ -75,12 +65,7 @@ export default async function AdminOrdersPage({
         return false;
       }
 
-      // ------------------------------
-      // 超过 24 小时筛选
-      // 例如：
-      // ?overdue=24h
-      // ------------------------------
-
+      // Overdue
       if (
         filters.overdue ===
         "24h"
@@ -102,7 +87,7 @@ export default async function AdminOrdersPage({
     });
 
   // ========================================
-  // 5. 判断当前是否正在使用筛选
+  // 5. 是否存在 Filter
   // ========================================
 
   const hasFilters =
@@ -111,6 +96,141 @@ export default async function AdminOrdersPage({
         filters.payment ||
         filters.overdue
     );
+
+  // ========================================
+  // 6. Build Filter URL
+  // 保留现有条件，只改变当前点击的条件
+  // ========================================
+
+  function buildFilterUrl(
+    updates: {
+      status?: string | null;
+      payment?: string | null;
+      overdue?: string | null;
+    }
+  ) {
+    const params =
+      new URLSearchParams();
+
+    const status =
+      updates.status !==
+      undefined
+        ? updates.status
+        : filters.status ??
+          null;
+
+    const payment =
+      updates.payment !==
+      undefined
+        ? updates.payment
+        : filters.payment ??
+          null;
+
+    const overdue =
+      updates.overdue !==
+      undefined
+        ? updates.overdue
+        : filters.overdue ??
+          null;
+
+    if (status) {
+      params.set(
+        "status",
+        status
+      );
+    }
+
+    if (payment) {
+      params.set(
+        "payment",
+        payment
+      );
+    }
+
+    if (overdue) {
+      params.set(
+        "overdue",
+        overdue
+      );
+    }
+
+    const query =
+      params.toString();
+
+    return query
+      ? `/admin/orders?${query}`
+      : "/admin/orders";
+  }
+
+  // ========================================
+  // 7. Filter Button Active Style
+  // ========================================
+
+  function getFilterClass(
+    active: boolean
+  ) {
+    return `
+      rounded-lg
+      border
+      px-3
+      py-2
+      text-sm
+      font-medium
+      transition
+      ${
+        active
+          ? "border-blue-600 bg-blue-50 text-blue-700"
+          : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+      }
+    `;
+  }
+
+  // ========================================
+  // 8. Status Label
+  // ========================================
+
+  function getStatusLabel(
+    status?: string
+  ) {
+    switch (status) {
+      case "pending":
+        return "待处理";
+
+      case "processing":
+        return "处理中";
+
+      case "completed":
+        return "已完成";
+
+      default:
+        return (
+          status ??
+          ""
+        );
+    }
+  }
+
+  // ========================================
+  // 9. Payment Label
+  // ========================================
+
+  function getPaymentLabel(
+    payment?: string
+  ) {
+    switch (payment) {
+      case "paid":
+        return "已付款";
+
+      case "unpaid":
+        return "未付款";
+
+      default:
+        return (
+          payment ??
+          ""
+        );
+    }
+  }
 
   return (
     <div>
@@ -135,11 +255,160 @@ export default async function AdminOrdersPage({
       </div>
 
       {/* =====================================
-          当前筛选提示
+          Filter UI
+      ===================================== */}
+
+      <section className="mt-6 space-y-5 rounded-xl border bg-white p-5">
+        {/* Order Status */}
+
+        <div>
+          <p className="text-sm font-medium text-gray-700">
+            订单状态
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              href={buildFilterUrl({
+                status: null,
+              })}
+              className={getFilterClass(
+                !filters.status
+              )}
+            >
+              全部
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                status:
+                  "pending",
+              })}
+              className={getFilterClass(
+                filters.status ===
+                  "pending"
+              )}
+            >
+              待处理
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                status:
+                  "processing",
+              })}
+              className={getFilterClass(
+                filters.status ===
+                  "processing"
+              )}
+            >
+              处理中
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                status:
+                  "completed",
+              })}
+              className={getFilterClass(
+                filters.status ===
+                  "completed"
+              )}
+            >
+              已完成
+            </Link>
+          </div>
+        </div>
+
+        {/* Payment Status */}
+
+        <div>
+          <p className="text-sm font-medium text-gray-700">
+            付款状态
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              href={buildFilterUrl({
+                payment:
+                  null,
+              })}
+              className={getFilterClass(
+                !filters.payment
+              )}
+            >
+              全部
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                payment:
+                  "unpaid",
+              })}
+              className={getFilterClass(
+                filters.payment ===
+                  "unpaid"
+              )}
+            >
+              未付款
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                payment:
+                  "paid",
+              })}
+              className={getFilterClass(
+                filters.payment ===
+                  "paid"
+              )}
+            >
+              已付款
+            </Link>
+          </div>
+        </div>
+
+        {/* Time */}
+
+        <div>
+          <p className="text-sm font-medium text-gray-700">
+            时间
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              href={buildFilterUrl({
+                overdue:
+                  null,
+              })}
+              className={getFilterClass(
+                !filters.overdue
+              )}
+            >
+              全部
+            </Link>
+
+            <Link
+              href={buildFilterUrl({
+                overdue:
+                  "24h",
+              })}
+              className={getFilterClass(
+                filters.overdue ===
+                  "24h"
+              )}
+            >
+              超过 24 小时
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================
+          Current Filters
       ===================================== */}
 
       {hasFilters && (
-        <div className="mt-6 rounded-xl border bg-blue-50 p-4">
+        <section className="mt-6 rounded-xl border bg-blue-50 p-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="font-medium text-blue-900">
@@ -150,14 +419,18 @@ export default async function AdminOrdersPage({
                 {filters.status && (
                   <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
                     状态：
-                    {filters.status}
+                    {getStatusLabel(
+                      filters.status
+                    )}
                   </span>
                 )}
 
                 {filters.payment && (
                   <span className="rounded-full bg-white px-3 py-1 text-sm text-blue-700">
                     付款：
-                    {filters.payment}
+                    {getPaymentLabel(
+                      filters.payment
+                    )}
                   </span>
                 )}
 
@@ -188,11 +461,11 @@ export default async function AdminOrdersPage({
               清除筛选
             </Link>
           </div>
-        </div>
+        </section>
       )}
 
       {/* =====================================
-          没有订单
+          Empty State
       ===================================== */}
 
       {filteredOrders.length ===
@@ -214,6 +487,7 @@ export default async function AdminOrdersPage({
                 py-2
                 text-sm
                 font-medium
+                transition
                 hover:bg-gray-50
               "
             >
@@ -246,9 +520,7 @@ export default async function AdminOrdersPage({
                 "
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  {/* -------------------------
-                      左侧订单资料
-                  ------------------------- */}
+                  {/* Left */}
 
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
@@ -285,9 +557,7 @@ export default async function AdminOrdersPage({
                     </p>
                   </div>
 
-                  {/* -------------------------
-                      右侧支付资料
-                  ------------------------- */}
+                  {/* Right */}
 
                   <div className="md:text-right">
                     <p className="text-sm text-gray-500">

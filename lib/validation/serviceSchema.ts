@@ -31,20 +31,11 @@ export const formFieldSchema =
       "textarea",
     ]),
 
-    /*
-     * 与 FormFieldSchema 保持一致：
-     * placeholder 可以不存在
-     */
     placeholder:
       z
         .string()
         .optional(),
 
-    /*
-     * required 也可以不存在。
-     * DynamicForm 会把 undefined
-     * 当成非必填处理。
-     */
     required:
       z
         .boolean()
@@ -139,12 +130,94 @@ export const serviceSchema =
         z.array(
           formFieldSchema
         ),
+
+      /*
+       * =====================================
+       * Business Value
+       * =====================================
+       */
+
+      customerValue:
+        z
+          .string()
+          .trim()
+          .min(
+            10,
+            "请说明客户为什么值得购买这项服务"
+          ),
+
+      expectedOutcome:
+        z
+          .string()
+          .trim()
+          .min(
+            10,
+            "请明确说明客户最终会获得什么结果"
+          ),
+
+      /*
+       * =====================================
+       * Automation
+       * =====================================
+       */
+
+      fulfillmentType:
+        z.enum([
+          "automatic",
+          "semi_automatic",
+          "manual",
+        ]),
+
+      humanReviewRequired:
+        z.boolean(),
+
+      humanReviewNotes:
+        z
+          .string()
+          .trim(),
+
+      /*
+       * =====================================
+       * Refund
+       * =====================================
+       */
+
+      refundEligibleWhenFailed:
+        z.boolean(),
+
+      /*
+       * =====================================
+       * Data / Result
+       * =====================================
+       */
+
+      personalDataPolicy:
+        z
+          .string()
+          .trim()
+          .min(
+            10,
+            "请说明本服务如何处理客户个人资料"
+          ),
+
+      resultType:
+        z
+          .string()
+          .trim()
+          .min(
+            1,
+            "请输入结果类型"
+          ),
     })
     .superRefine(
       (
         data,
         ctx
       ) => {
+        /*
+         * Dynamic Form name duplicate check
+         */
+
         const names =
           new Set<string>();
 
@@ -183,6 +256,31 @@ export const serviceSchema =
             );
           }
         );
+
+        /*
+         * Semi-auto service should explain
+         * its human-review requirement.
+         */
+
+        if (
+          data
+            .humanReviewRequired &&
+          !data
+            .humanReviewNotes
+            .trim()
+        ) {
+          ctx.addIssue({
+            code:
+              "custom",
+
+            path: [
+              "humanReviewNotes",
+            ],
+
+            message:
+              "启用人工审核时，请说明什么情况下需要人工介入",
+          });
+        }
       }
     );
 

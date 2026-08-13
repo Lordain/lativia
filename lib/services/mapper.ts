@@ -1,4 +1,5 @@
 import type {
+  FulfillmentType,
   Service,
 } from "@/types/service";
 
@@ -20,13 +21,15 @@ export function normalizeService(
       "",
 
     description:
-      data.description ?? "",
+      data.description ??
+      "",
 
     icon:
       data.icon ?? "📄",
 
     category:
-      data.category ?? "",
+      data.category ??
+      "",
 
     popular:
       Boolean(
@@ -37,7 +40,8 @@ export function normalizeService(
       data.price ?? "",
 
     duration:
-      data.duration ?? "",
+      data.duration ??
+      "",
 
     requirements:
       data.requirements
@@ -64,6 +68,49 @@ export function normalizeService(
     isActive:
       data.is_active !==
       false,
+
+    customerValue:
+      data.customer_value ??
+      "",
+
+    expectedOutcome:
+      data.expected_outcome ??
+      "",
+
+    fulfillmentType:
+      (
+        data.fulfillment_type ??
+        "semi_automatic"
+      ) as FulfillmentType,
+
+    humanReviewRequired:
+      data
+        .human_review_required !==
+      false,
+
+    humanReviewNotes:
+      data
+        .human_review_notes ??
+      "",
+
+    refundEligibleWhenFailed:
+      data
+        .refund_eligible_when_failed !==
+      false,
+
+    noRefundAfterCompletion:
+      data
+        .no_refund_after_completion !==
+      false,
+
+    personalDataPolicy:
+      data
+        .personal_data_policy ??
+      "",
+
+    resultType:
+      data.result_type ??
+      "",
 
     createdAt:
       data.created_at ??

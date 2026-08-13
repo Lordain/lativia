@@ -108,6 +108,30 @@ export default async function EditServicePage({
 
             formSchema:
               service.formSchema,
+
+              customerValue:
+                service.customerValue,
+
+              expectedOutcome:
+                service.expectedOutcome,
+
+              fulfillmentType:
+                service.fulfillmentType,
+
+              humanReviewRequired:
+                service.humanReviewRequired,
+
+              humanReviewNotes:
+                service.humanReviewNotes,
+
+              refundEligibleWhenFailed:
+                service.refundEligibleWhenFailed,
+
+              personalDataPolicy:
+                service.personalDataPolicy,
+
+              resultType:
+                service.resultType,
           }}
         />
       </div>

@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import {
   getAdminDashboardStats,
 } from "@/lib/admin/getAdminDashboardStats";
@@ -16,12 +14,18 @@ import {
   getAdmin30DayTrends,
 } from "@/lib/admin/getAdmin30DayTrends";
 
+import {
+  getAdminOperationsQueue,
+} from "@/lib/admin/getAdminOperationsQueue";
+
 import DashboardStatCard from "@/components/admin/DashboardStatCard";
 import TodayRevenueCard from "@/components/admin/TodayRevenueCard";
 import RecentOrdersList from "@/components/admin/RecentOrdersList";
 import RecentPaymentsList from "@/components/admin/RecentPaymentsList";
 import OrdersTrendChart from "@/components/admin/OrdersTrendChart";
 import RevenueTrendChart from "@/components/admin/RevenueTrendChart";
+import OperationsQueueSummary from "@/components/admin/OperationsQueueSummary";
+import OperationsQueueList from "@/components/admin/OperationsQueueList";
 
 export default async function AdminPage() {
   const [
@@ -29,11 +33,13 @@ export default async function AdminPage() {
     recentActivity,
     todayStats,
     trends,
+    operationsQueue,
   ] = await Promise.all([
     getAdminDashboardStats(),
     getRecentAdminActivity(),
     getTodayAdminStats(),
     getAdmin30DayTrends(),
+    getAdminOperationsQueue(),
   ]);
 
   return (
@@ -51,6 +57,34 @@ export default async function AdminPage() {
           查看订单、支付与今日运营情况。
         </p>
       </div>
+
+      {/* =====================================
+          Operations Center
+
+          Admin Dashboard 最重要的行动区域。
+
+          只显示真正需要管理员关注的任务。
+          正常自动办理中的订单不会显示。
+      ===================================== */}
+
+      <OperationsQueueSummary
+        counts={
+          operationsQueue.counts
+        }
+      />
+
+      <OperationsQueueList
+        items={
+          operationsQueue.items.slice(
+            0,
+            10
+          )
+        }
+        showViewAll={
+          operationsQueue.items.length >
+          10
+        }
+      />
 
       {/* =====================================
           Today's Operations
@@ -128,8 +162,7 @@ export default async function AdminPage() {
 
             <p className="mt-1 text-2xl font-bold">
               {
-                trends.totals
-                  .orders
+                trends.totals.orders
               }
             </p>
           </div>
@@ -275,86 +308,6 @@ export default async function AdminPage() {
       </section>
 
       {/* =====================================
-          Action Required
-      ===================================== */}
-
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">
-          需要处理
-        </h2>
-
-        <p className="mt-2 text-sm text-gray-500">
-          检查支付状态、交易记录与超时订单。
-        </p>
-
-        <div className="mt-4 grid gap-6 md:grid-cols-3">
-          <DashboardStatCard
-            label="支付异常"
-            value={
-              stats.paymentExceptions
-            }
-            description="存在支付状态不一致的订单"
-            href="/admin/payments/reconciliation"
-          />
-
-          <DashboardStatCard
-            label="已付款但无交易记录"
-            value={
-              stats.paidWithoutTransaction
-            }
-            description="订单为已付款，但缺少支付交易"
-          />
-
-          <DashboardStatCard
-            label="交易已付款但订单未更新"
-            value={
-              stats.transactionPaidOrderUnpaid
-            }
-            description="已有已付款交易，但订单仍未标记已付款"
-          />
-        </div>
-
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          <DashboardStatCard
-            label="未付款超过 24 小时"
-            value={
-              stats.overdueUnpaidOrders
-            }
-            description="创建超过 24 小时仍未完成付款"
-            href="/admin/orders?payment=unpaid&overdue=24h"
-          />
-
-          <DashboardStatCard
-            label="待处理超过 24 小时"
-            value={
-              stats.overduePendingOrders
-            }
-            description="创建超过 24 小时仍等待处理"
-            href="/admin/orders?status=pending&overdue=24h"
-          />
-        </div>
-
-        <Link
-          href="/admin/payments/reconciliation"
-          className="
-            mt-4
-            inline-flex
-            rounded-lg
-            border
-            bg-white
-            px-4
-            py-2
-            text-sm
-            font-medium
-            transition
-            hover:bg-gray-50
-          "
-        >
-          查看支付对账
-        </Link>
-      </section>
-
-      {/* =====================================
           Recent Activity
       ===================================== */}
 
@@ -381,63 +334,6 @@ export default async function AdminPage() {
               recentActivity.recentPayments
             }
           />
-        </div>
-      </section>
-
-      {/* =====================================
-          Quick Links
-      ===================================== */}
-
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">
-          快速入口
-        </h2>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <Link
-            href="/admin/orders"
-            className="
-              rounded-xl
-              border
-              bg-white
-              p-5
-              font-medium
-              transition
-              hover:shadow-md
-            "
-          >
-            查看订单
-          </Link>
-
-          <Link
-            href="/admin/services"
-            className="
-              rounded-xl
-              border
-              bg-white
-              p-5
-              font-medium
-              transition
-              hover:shadow-md
-            "
-          >
-            管理服务
-          </Link>
-
-          <Link
-            href="/admin/payments/reconciliation"
-            className="
-              rounded-xl
-              border
-              bg-white
-              p-5
-              font-medium
-              transition
-              hover:shadow-md
-            "
-          >
-            支付对账
-          </Link>
         </div>
       </section>
     </div>

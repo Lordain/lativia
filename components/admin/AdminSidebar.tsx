@@ -14,6 +14,15 @@ const navigation = [
     href:
       "/admin",
   },
+
+  {
+    label:
+      "运营待办",
+
+    href:
+      "/admin/operations",
+  },
+
   {
     label:
       "订单管理",
@@ -21,6 +30,7 @@ const navigation = [
     href:
       "/admin/orders",
   },
+
   {
     label:
       "服务管理",
@@ -28,6 +38,7 @@ const navigation = [
     href:
       "/admin/services",
   },
+
   {
     label:
       "支付对账",
@@ -45,7 +56,8 @@ export default function AdminSidebar() {
     href: string
   ) {
     if (
-      href === "/admin"
+      href ===
+      "/admin"
     ) {
       return (
         pathname ===
@@ -63,18 +75,17 @@ export default function AdminSidebar() {
 
   return (
     <aside className="w-64 border-r bg-white">
-      <div className="p-6">
-        <Link
-          href="/admin"
-          className="text-xl font-bold"
-        >
+      <div className="border-b px-6 py-5">
+        <p className="text-lg font-bold">
           Mex Helper Admin
-        </Link>
+        </p>
       </div>
 
-      <nav className="space-y-1 px-3">
+      <nav className="space-y-1 px-3 py-4">
         {navigation.map(
-          (item) => {
+          (
+            item
+          ) => {
             const active =
               isActive(
                 item.href

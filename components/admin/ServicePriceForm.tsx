@@ -5,6 +5,11 @@ import {
 } from "react";
 
 import type {
+  Currency,
+  PaymentMethod,
+} from "@/types/payment";
+
+import type {
   ServicePriceFormData,
 } from "@/types/servicePriceAdmin";
 
@@ -36,7 +41,7 @@ export default function ServicePriceForm({
     currency,
     setCurrency,
   ] =
-    useState(
+    useState<Currency>(
       initialData
         ?.currency ??
         "MXN"
@@ -56,7 +61,7 @@ export default function ServicePriceForm({
     paymentMethod,
     setPaymentMethod,
   ] =
-    useState(
+    useState<PaymentMethod>(
       initialData
         ?.paymentMethod ??
         "local_payment"
@@ -66,10 +71,12 @@ export default function ServicePriceForm({
     paymentProvider,
     setPaymentProvider,
   ] =
-    useState(
+    useState<
+      ServicePriceFormData["paymentProvider"]
+    >(
       initialData
         ?.paymentProvider ??
-        "mercado_pago"
+        ""
     );
 
   const [
@@ -93,6 +100,17 @@ export default function ServicePriceForm({
       React.FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
+
+    if (
+      active &&
+      !paymentProvider
+    ) {
+      alert(
+        "启用付款方式前必须选择 Payment Provider"
+      );
+
+      return;
+    }
 
     setLoading(true);
 
@@ -119,6 +137,8 @@ export default function ServicePriceForm({
       className="space-y-4 rounded-xl border bg-gray-50 p-5"
     >
       <div className="grid gap-4 md:grid-cols-2">
+        {/* Currency */}
+
         <div>
           <label className="mb-1 block text-sm font-medium">
             币种
@@ -133,20 +153,22 @@ export default function ServicePriceForm({
             ) =>
               setCurrency(
                 event.target
-                  .value
+                  .value as Currency
               )
             }
             className="w-full rounded-lg border bg-white px-3 py-2"
           >
             <option value="MXN">
-              MXN
+              MXN — 墨西哥比索
             </option>
 
             <option value="CNY">
-              CNY
+              CNY — 人民币
             </option>
           </select>
         </div>
+
+        {/* Amount */}
 
         <div>
           <label className="mb-1 block text-sm font-medium">
@@ -155,7 +177,7 @@ export default function ServicePriceForm({
 
           <input
             type="number"
-            min="0"
+            min="0.01"
             step="0.01"
             value={
               amount
@@ -173,9 +195,11 @@ export default function ServicePriceForm({
           />
         </div>
 
+        {/* Payment Method */}
+
         <div>
           <label className="mb-1 block text-sm font-medium">
-            付款方式
+            客户付款方式
           </label>
 
           <select
@@ -187,13 +211,13 @@ export default function ServicePriceForm({
             ) =>
               setPaymentMethod(
                 event.target
-                  .value
+                  .value as PaymentMethod
               )
             }
             className="w-full rounded-lg border bg-white px-3 py-2"
           >
             <option value="local_payment">
-              本地付款
+              墨西哥本地付款
             </option>
 
             <option value="card">
@@ -206,9 +230,11 @@ export default function ServicePriceForm({
           </select>
         </div>
 
+        {/* Provider */}
+
         <div>
           <label className="mb-1 block text-sm font-medium">
-            支付平台
+            Payment Provider
           </label>
 
           <select
@@ -220,11 +246,16 @@ export default function ServicePriceForm({
             ) =>
               setPaymentProvider(
                 event.target
-                  .value
+                  .value as
+                  ServicePriceFormData["paymentProvider"]
               )
             }
             className="w-full rounded-lg border bg-white px-3 py-2"
           >
+            <option value="">
+              尚未配置
+            </option>
+
             <option value="mercado_pago">
               Mercado Pago
             </option>
@@ -233,14 +264,16 @@ export default function ServicePriceForm({
               Stripe
             </option>
 
-            <option value="wechat_pay">
-              WeChat Pay
+            <option value="nuvei">
+              Nuvei
             </option>
           </select>
         </div>
       </div>
 
-      <label className="flex items-center gap-3">
+      {/* Status */}
+
+      <label className="flex items-start gap-3 rounded-lg border bg-white p-4">
         <input
           type="checkbox"
           checked={
@@ -254,12 +287,28 @@ export default function ServicePriceForm({
                 .checked
             )
           }
+          className="mt-0.5"
         />
 
-        <span className="text-sm font-medium">
-          启用此付款方式
-        </span>
+        <div>
+          <p className="text-sm font-medium">
+            启用此付款方式
+          </p>
+
+          <p className="mt-1 text-xs text-gray-500">
+            只有启用中的付款方式才会显示给客户。
+          </p>
+        </div>
       </label>
+
+      {!paymentProvider && (
+        <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
+          此付款方式尚未绑定正式 Payment Provider，
+          请保持停用状态。
+        </div>
+      )}
+
+      {/* Actions */}
 
       <div className="flex gap-3">
         <button

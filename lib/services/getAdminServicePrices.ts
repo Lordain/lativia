@@ -1,5 +1,16 @@
-import { requireAdmin } from "@/lib/auth/requireAdmin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  requireAdmin,
+} from "@/lib/auth/requireAdmin";
+
+import {
+  createAdminClient,
+} from "@/lib/supabase/admin";
+
+import type {
+  Currency,
+  PaymentMethod,
+  PaymentProvider,
+} from "@/types/payment";
 
 import type {
   AdminServicePrice,
@@ -7,7 +18,9 @@ import type {
 
 export async function getAdminServicePrices(
   serviceId: string
-): Promise<AdminServicePrice[]> {
+): Promise<
+  AdminServicePrice[]
+> {
   await requireAdmin();
 
   const supabase =
@@ -17,7 +30,9 @@ export async function getAdminServicePrices(
     data,
     error,
   } = await supabase
-    .from("service_prices")
+    .from(
+      "service_prices"
+    )
     .select(`
       id,
       service_id,
@@ -61,7 +76,7 @@ export async function getAdminServicePrices(
         item.service_id,
 
       currency:
-        item.currency,
+        item.currency as Currency,
 
       amount:
         Number(
@@ -69,13 +84,15 @@ export async function getAdminServicePrices(
         ),
 
       paymentMethod:
-        item.payment_method,
+        item.payment_method as PaymentMethod,
 
       paymentProvider:
-        item.payment_provider,
+        item.payment_provider as PaymentProvider,
 
       active:
-        item.active,
+        Boolean(
+          item.active
+        ),
 
       createdAt:
         item.created_at,

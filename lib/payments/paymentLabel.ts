@@ -4,9 +4,9 @@ import type {
 } from "@/types/payment";
 
 export function getPaymentMethodLabel(
-  method: PaymentMethod
+  paymentMethod: PaymentMethod
 ) {
-  switch (method) {
+  switch (paymentMethod) {
     case "local_payment":
       return "墨西哥本地付款";
 
@@ -15,23 +15,29 @@ export function getPaymentMethodLabel(
 
     case "wechat_pay":
       return "微信支付";
+
+    default:
+      return paymentMethod;
   }
 }
 
 export function getPaymentProviderLabel(
-  provider: PaymentProvider
+  paymentProvider: PaymentProvider
 ) {
-  switch (provider) {
+  switch (paymentProvider) {
     case "mercado_pago":
       return "Mercado Pago";
 
     case "stripe":
       return "Stripe";
 
-    case "wechat_pay":
-      return "WeChat Pay";
+    case "nuvei":
+      return "Nuvei";
+
+    case null:
+      return "尚未配置";
 
     default:
-      return "尚未指定";
+      return paymentProvider;
   }
 }

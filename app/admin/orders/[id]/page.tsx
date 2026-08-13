@@ -11,12 +11,12 @@ import {
 } from "@/lib/orders/getAdminOrder";
 
 import {
-  getOrderActivity,
-} from "@/lib/orders/getOrderActivity";
-
-import {
   getPaymentAuditLogs,
 } from "@/lib/payments/getPaymentAuditLogs";
+
+import {
+  getAdminFulfillment,
+} from "@/lib/fulfillments/getAdminFulfillment";
 
 import {
   formatBusinessDateTime,
@@ -30,11 +30,11 @@ import PaymentTransactionList from "@/components/admin/PaymentTransactionList";
 
 import PaymentAuditLogList from "@/components/admin/PaymentAuditLogList";
 
-import OrderManagementForm from "@/components/admin/OrderManagementForm";
+import AdminFulfillmentControl from "@/components/admin/AdminFulfillmentControl";
+
+import FulfillmentActivityTimeline from "@/components/admin/FulfillmentActivityTimeline";
 
 import AddOrderNoteForm from "@/components/admin/AddOrderNoteForm";
-
-import OrderActivityTimeline from "@/components/admin/OrderActivityTimeline";
 
 import type {
   OrderStatus,
@@ -63,7 +63,8 @@ export default async function AdminOrderDetailPage({
 
   const {
     id,
-  } = await params;
+  } =
+    await params;
 
   const order =
     await getAdminOrder(
@@ -76,14 +77,14 @@ export default async function AdminOrderDetailPage({
 
   const [
     auditLogs,
-    activity,
+    fulfillmentData,
   ] =
     await Promise.all([
       getPaymentAuditLogs(
         order.id
       ),
-
-      getOrderActivity(
+  
+      getAdminFulfillment(
         order.id
       ),
     ]);
@@ -97,7 +98,9 @@ export default async function AdminOrderDetailPage({
 
   return (
     <div>
-      {/* Header */}
+      {/* =====================================
+          Header
+      ===================================== */}
 
       <div>
         <h1 className="text-3xl font-bold">
@@ -109,13 +112,22 @@ export default async function AdminOrderDetailPage({
         <div className="mt-4">
           <StatusBadge
             status={
-              order.status as OrderStatus
+              order.status as
+                OrderStatus
             }
           />
         </div>
+
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500">
+          订单状态用于显示客户层面的整体办理进度。
+          实际业务办理状态由下方 Fulfillment Operations
+          统一管理并自动同步。
+        </p>
       </div>
 
-      {/* Customer */}
+      {/* =====================================
+          Customer
+      ===================================== */}
 
       <section className="mt-8 rounded-xl border bg-white p-6">
         <h2 className="text-xl font-semibold">
@@ -151,7 +163,9 @@ export default async function AdminOrderDetailPage({
         </div>
       </section>
 
-      {/* Application */}
+      {/* =====================================
+          Application Data
+      ===================================== */}
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold">
@@ -220,9 +234,14 @@ export default async function AdminOrderDetailPage({
         )}
       </section>
 
+      {/* =====================================
+          Payment
+      ===================================== */}
+
       <OrderPaymentInfo
         paymentStatus={
-          order.payment_status as PaymentStatus
+          order.payment_status as
+            PaymentStatus
         }
         amount={
           order.amount
@@ -258,28 +277,59 @@ export default async function AdminOrderDetailPage({
         }
       />
 
-      {/* Operations */}
+      {/* =====================================
+          Fulfillment Operations
 
-      <OrderManagementForm
-        orderId={
-          order.id
+          这是实际业务办理状态的唯一 Admin 操作入口。
+          不再允许 Admin 直接修改 orders.status。
+      ===================================== */}
+
+      <AdminFulfillmentControl
+        fulfillment={
+          fulfillmentData
+            .fulfillment
         }
-        initialStatus={
-          order.status as OrderStatus
+        paymentStatus={
+          order.payment_status
         }
       />
 
-      <AddOrderNoteForm
-        orderId={
-          order.id
-        }
-      />
+      {fulfillmentData
+        .fulfillment && (
+        <FulfillmentActivityTimeline
+          activity={
+            fulfillmentData
+              .activity
+          }
+        />
+      )}
 
-      <OrderActivityTimeline
-        activity={
-          activity
-        }
-      />
+      {/* =====================================
+          Internal Notes
+
+          暂时继续沿用旧 order_activity。
+          Lesson 23.32 会迁移到 fulfillment_activity。
+      ===================================== */}
+
+      <section className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">
+            内部备注
+          </h2>
+
+          <p className="mt-1 text-sm leading-6 text-gray-500">
+            用于记录客户沟通、人工处理说明及其他内部信息。
+            仅供管理员查看，不会显示给客户。
+          </p>
+        </div>
+
+        <AddOrderNoteForm
+          orderId={
+            order.id
+          }
+        />
+      </section>
+
     </div>
   );
 }

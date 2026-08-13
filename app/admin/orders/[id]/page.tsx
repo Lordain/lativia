@@ -19,6 +19,10 @@ import {
 } from "@/lib/fulfillments/getAdminFulfillment";
 
 import {
+  buildAdminOrderTimeline,
+} from "@/lib/orders/buildAdminOrderTimeline";
+
+import {
   formatBusinessDateTime,
 } from "@/lib/time/formatBusinessDateTime";
 
@@ -26,15 +30,11 @@ import StatusBadge from "@/components/orders/StatusBadge";
 
 import OrderPaymentInfo from "@/components/admin/OrderPaymentInfo";
 
-import PaymentTransactionList from "@/components/admin/PaymentTransactionList";
-
-import PaymentAuditLogList from "@/components/admin/PaymentAuditLogList";
-
 import AdminFulfillmentControl from "@/components/admin/AdminFulfillmentControl";
 
-import FulfillmentActivityTimeline from "@/components/admin/FulfillmentActivityTimeline";
+import AddFulfillmentNoteForm from "@/components/admin/AddFulfillmentNoteForm";
 
-import AddOrderNoteForm from "@/components/admin/AddOrderNoteForm";
+import AdminOrderTimeline from "@/components/admin/AdminOrderTimeline";
 
 import type {
   OrderStatus,
@@ -59,12 +59,24 @@ interface Props {
 export default async function AdminOrderDetailPage({
   params,
 }: Props) {
+  /*
+   * =====================================
+   * Admin Authorization
+   * =====================================
+   */
+
   await requireAdmin();
 
   const {
     id,
   } =
     await params;
+
+  /*
+   * =====================================
+   * Order
+   * =====================================
+   */
 
   const order =
     await getAdminOrder(
@@ -75,6 +87,15 @@ export default async function AdminOrderDetailPage({
     notFound();
   }
 
+  /*
+   * =====================================
+   * Additional Admin Data
+   *
+   * Payment Audit 与 Fulfillment
+   * 并行读取，减少页面等待时间。
+   * =====================================
+   */
+
   const [
     auditLogs,
     fulfillmentData,
@@ -83,11 +104,17 @@ export default async function AdminOrderDetailPage({
       getPaymentAuditLogs(
         order.id
       ),
-  
+
       getAdminFulfillment(
         order.id
       ),
     ]);
+
+  /*
+   * =====================================
+   * Dynamic Application Form
+   * =====================================
+   */
 
   const formSchema =
     (
@@ -95,6 +122,34 @@ export default async function AdminOrderDetailPage({
         ?.form_schema ??
       []
     ) as FormFieldSchema[];
+
+  /*
+   * =====================================
+   * Unified Operations Timeline
+   *
+   * 底层数据仍分别保存在：
+   *
+   * payment_transactions
+   * payment_audit_logs
+   * fulfillment_activity
+   *
+   * Admin 页面统一转换为一个 Timeline。
+   * =====================================
+   */
+
+  const timeline =
+    buildAdminOrderTimeline({
+      transactions:
+        order
+          .payment_transactions ??
+        [],
+
+      auditLogs,
+
+      fulfillmentActivity:
+        fulfillmentData
+          .activity,
+    });
 
   return (
     <div>
@@ -120,46 +175,72 @@ export default async function AdminOrderDetailPage({
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500">
           订单状态用于显示客户层面的整体办理进度。
-          实际业务办理状态由下方 Fulfillment Operations
+          实际业务办理流程由 Fulfillment Operations
           统一管理并自动同步。
         </p>
       </div>
 
       {/* =====================================
-          Customer
+          Customer Information
       ===================================== */}
 
       <section className="mt-8 rounded-xl border bg-white p-6">
-        <h2 className="text-xl font-semibold">
-          客户信息
-        </h2>
-
-        <div className="mt-4 grid gap-3 text-sm text-gray-600 md:grid-cols-2">
-          <p>
-            客户：
-            {order.profiles
-              ?.name ??
-              "未知用户"}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Customer
           </p>
 
-          <p>
-            电话：
-            {order.profiles
-              ?.phone ??
-              "未填写"}
-          </p>
+          <h2 className="mt-1 text-xl font-semibold">
+            客户信息
+          </h2>
+        </div>
 
-          <p>
-            提交时间：
-            {formatBusinessDateTime(
-              order.created_at
-            )}
-          </p>
+        <div className="mt-5 grid gap-4 text-sm text-gray-600 md:grid-cols-2">
+          <div>
+            <p className="text-xs text-gray-400">
+              客户
+            </p>
 
-          <p className="break-all">
-            订单 ID：
-            {order.id}
-          </p>
+            <p className="mt-1 font-medium text-gray-700">
+              {order.profiles
+                ?.name ??
+                "未知用户"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-400">
+              电话
+            </p>
+
+            <p className="mt-1 font-medium text-gray-700">
+              {order.profiles
+                ?.phone ??
+                "未填写"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-400">
+              提交时间
+            </p>
+
+            <p className="mt-1 font-medium text-gray-700">
+              {formatBusinessDateTime(
+                order.created_at
+              )}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs text-gray-400">
+              订单 ID
+            </p>
+
+            <p className="mt-1 break-all font-medium text-gray-700">
+              {order.id}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -168,9 +249,20 @@ export default async function AdminOrderDetailPage({
       ===================================== */}
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold">
-          申请资料
-        </h2>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Application
+          </p>
+
+          <h2 className="mt-1 text-xl font-semibold">
+            申请资料
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            以下资料由客户在提交本次服务申请时提供，
+            仅用于当前业务办理。
+          </p>
+        </div>
 
         {Object.keys(
           order.form_data ??
@@ -204,7 +296,7 @@ export default async function AdminOrderDetailPage({
                     key={
                       key
                     }
-                    className="rounded-lg border bg-white p-4"
+                    className="rounded-xl border bg-white p-4"
                   >
                     <p className="text-sm text-gray-500">
                       {field
@@ -212,7 +304,7 @@ export default async function AdminOrderDetailPage({
                         key}
                     </p>
 
-                    <p className="mt-1 whitespace-pre-wrap">
+                    <p className="mt-1 whitespace-pre-wrap font-medium text-gray-800">
                       {value ===
                         null ||
                       value ===
@@ -235,7 +327,12 @@ export default async function AdminOrderDetailPage({
       </section>
 
       {/* =====================================
-          Payment
+          Payment Summary
+
+          这里只显示当前付款状态摘要。
+
+          Payment Transaction / Audit 的历史记录
+          已统一进入下方 Order Timeline。
       ===================================== */}
 
       <OrderPaymentInfo
@@ -264,24 +361,12 @@ export default async function AdminOrderDetailPage({
         }
       />
 
-      <PaymentTransactionList
-        transactions={
-          order.payment_transactions ??
-          []
-        }
-      />
-
-      <PaymentAuditLogList
-        logs={
-          auditLogs
-        }
-      />
-
       {/* =====================================
           Fulfillment Operations
 
-          这是实际业务办理状态的唯一 Admin 操作入口。
-          不再允许 Admin 直接修改 orders.status。
+          业务办理的唯一 Admin 状态操作入口。
+
+          Admin 不再直接修改 orders.status。
       ===================================== */}
 
       <AdminFulfillmentControl
@@ -294,42 +379,45 @@ export default async function AdminOrderDetailPage({
         }
       />
 
+      {/* =====================================
+          Internal Note
+
+          新备注统一进入 fulfillment_activity。
+
+          不再写入 legacy order_activity。
+      ===================================== */}
+
       {fulfillmentData
         .fulfillment && (
-        <FulfillmentActivityTimeline
-          activity={
+        <AddFulfillmentNoteForm
+          fulfillmentId={
             fulfillmentData
-              .activity
+              .fulfillment
+              .id
           }
         />
       )}
 
       {/* =====================================
-          Internal Notes
+          Unified Order Timeline
 
-          暂时继续沿用旧 order_activity。
-          Lesson 23.32 会迁移到 fulfillment_activity。
+          Payment
+          Payment Audit
+          Fulfillment
+          Human Review
+          Internal Notes
+          Failure
+          Refund Review
+          Completion
+
+          全部按时间统一展示。
       ===================================== */}
 
-      <section className="mt-8">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">
-            内部备注
-          </h2>
-
-          <p className="mt-1 text-sm leading-6 text-gray-500">
-            用于记录客户沟通、人工处理说明及其他内部信息。
-            仅供管理员查看，不会显示给客户。
-          </p>
-        </div>
-
-        <AddOrderNoteForm
-          orderId={
-            order.id
-          }
-        />
-      </section>
-
+      <AdminOrderTimeline
+        items={
+          timeline
+        }
+      />
     </div>
   );
 }

@@ -16,6 +16,10 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
+import {
+  notifyRefundEvent,
+} from "@/lib/notifications/notifyRefundEvent";
+
 export async function approveAdminRefund(
   refundId: string,
   orderId: string,
@@ -85,6 +89,69 @@ export async function approveAdminRefund(
       error.message
     );
   }
+
+  /*
+ * ========================================
+ * Customer Notification
+ * ========================================
+ */
+
+const {
+  data:
+    refund,
+  error:
+    refundError,
+} =
+  await supabaseAdmin
+    .from(
+      "refunds"
+    )
+    .select(`
+      id,
+      order_id,
+      fulfillment_id,
+      amount,
+      currency
+    `)
+    .eq(
+      "id",
+      refundId
+    )
+    .single();
+
+
+if (
+  refundError ||
+  !refund
+) {
+  console.error(
+    "approveAdminRefund notification lookup error:",
+    refundError
+  );
+
+} else {
+  await notifyRefundEvent({
+    refundId:
+      refund.id,
+
+    orderId:
+      refund.order_id,
+
+    fulfillmentId:
+      refund.fulfillment_id,
+
+    event:
+      "approved",
+
+    amount:
+      Number(
+        refund.amount
+      ),
+
+    currency:
+      refund.currency,
+  });
+}
 
   revalidatePath(
     `/admin/orders/${orderId}`

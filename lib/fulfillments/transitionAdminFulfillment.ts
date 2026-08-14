@@ -8,9 +8,18 @@ import {
   createClient,
 } from "@/lib/supabase/server";
 
+import {
+  createAdminClient,
+} from "@/lib/supabase/admin";
+
 import type {
   FulfillmentStatus,
 } from "@/types/fulfillment";
+
+import {
+  notifyFulfillmentTransition,
+} from "@/lib/notifications/notifyFulfillmentTransition";
+
 
 export interface TransitionAdminFulfillmentInput {
   fulfillmentId:
@@ -29,6 +38,7 @@ export interface TransitionAdminFulfillmentInput {
     string;
 }
 
+
 function getFriendlyError(
   message: string
 ) {
@@ -40,6 +50,7 @@ function getFriendlyError(
     return "此服务已经完成并交付，不能重新处理，也不能进入退款审核。";
   }
 
+
   if (
     message.includes(
       "INVALID_FULFILLMENT_TRANSITION"
@@ -47,6 +58,7 @@ function getFriendlyError(
   ) {
     return "当前办理状态不允许执行这个操作。请刷新页面后重试。";
   }
+
 
   if (
     message.includes(
@@ -56,6 +68,7 @@ function getFriendlyError(
     return "进入人工审核前必须填写人工审核原因。";
   }
 
+
   if (
     message.includes(
       "CUSTOMER_ACTION_REASON_REQUIRED"
@@ -63,6 +76,7 @@ function getFriendlyError(
   ) {
     return "等待客户操作前必须说明客户需要补充或完成什么。";
   }
+
 
   if (
     message.includes(
@@ -72,6 +86,7 @@ function getFriendlyError(
     return "标记服务无法完成前必须填写具体原因。";
   }
 
+
   if (
     message.includes(
       "SERVICE_NOT_ELIGIBLE_FOR_REFUND_REVIEW"
@@ -79,6 +94,7 @@ function getFriendlyError(
   ) {
     return "此服务当前不符合进入退款审核的条件。";
   }
+
 
   if (
     message.includes(
@@ -88,27 +104,39 @@ function getFriendlyError(
     return "找不到办理任务。";
   }
 
+
   return message;
 }
+
 
 export async function transitionAdminFulfillment(
   input:
     TransitionAdminFulfillmentInput
 ) {
+  /*
+   * ========================================
+   * 1. Admin Authorization
+   * ========================================
+   */
+
   await requireAdmin();
+
 
   const supabase =
     await createClient();
+
 
   const {
     data: {
       user,
     },
+
     error:
       userError,
   } =
     await supabase.auth
       .getUser();
+
 
   if (
     userError ||
@@ -119,6 +147,16 @@ export async function transitionAdminFulfillment(
     );
   }
 
+
+  /*
+   * ========================================
+   * 2. Core Fulfillment Transition
+   *
+   * 使用当前登录 Admin 的 authenticated
+   * Supabase client 执行正式 RPC。
+   * ========================================
+   */
+
   const {
     error,
   } =
@@ -126,12 +164,10 @@ export async function transitionAdminFulfillment(
       "transition_fulfillment_status",
       {
         p_fulfillment_id:
-          input
-            .fulfillmentId,
+          input.fulfillmentId,
 
         p_new_status:
-          input
-            .newStatus,
+          input.newStatus,
 
         p_actor_type:
           "admin",
@@ -145,8 +181,7 @@ export async function transitionAdminFulfillment(
           null,
 
         p_current_step:
-          input
-            .currentStep
+          input.currentStep
             .trim() ||
           null,
 
@@ -157,11 +192,13 @@ export async function transitionAdminFulfillment(
       }
     );
 
+
   if (error) {
     console.error(
       "transitionAdminFulfillment error:",
       error
     );
+
 
     throw new Error(
       getFriendlyError(
@@ -169,6 +206,109 @@ export async function transitionAdminFulfillment(
       )
     );
   }
+
+
+  /*
+   * ========================================
+   * 3. Resolve Fulfillment for Notification
+   * ========================================
+   *
+   * 注意：
+   *
+   * 这里不能继续使用普通 authenticated client。
+   *
+   * Admin 可以通过 RPC 修改 Fulfillment，
+   * 但 fulfillments 表本身的 RLS 可能不允许
+   * Admin Session 直接 SELECT 这条记录。
+   *
+   * Notification 属于服务器内部 side effect，
+   * 因此这里使用 Service Role Admin Client。
+   * ========================================
+   */
+
+  const admin =
+    createAdminClient();
+
+
+  const {
+    data:
+      fulfillment,
+
+    error:
+      fulfillmentError,
+  } =
+    await admin
+      .from(
+        "fulfillments"
+      )
+      .select(`
+        id,
+        order_id
+      `)
+      .eq(
+        "id",
+        input.fulfillmentId
+      )
+      .single();
+
+
+  if (
+    fulfillmentError ||
+    !fulfillment
+  ) {
+    /*
+     * Fulfillment transition 已经成功。
+     *
+     * Notification lookup 失败绝不能
+     * 让主业务操作表现为失败。
+     */
+
+    console.error(
+      "Fulfillment notification lookup error:",
+      {
+        fulfillmentId:
+          input.fulfillmentId,
+
+        error:
+          fulfillmentError,
+      }
+    );
+
+
+    return {
+      success:
+        true,
+    };
+  }
+
+
+  /*
+   * ========================================
+   * 4. Customer Notification
+   * ========================================
+   *
+   * notifyFulfillmentTransition()
+   * 最终使用 safeCreateNotification()。
+   *
+   * Notification 失败不会回滚
+   * 已经成功的 Fulfillment transition。
+   * ========================================
+   */
+
+  await notifyFulfillmentTransition({
+    orderId:
+      fulfillment.order_id,
+
+    fulfillmentId:
+      fulfillment.id,
+
+    newStatus:
+      input.newStatus,
+
+    reason:
+      input.reason,
+  });
+
 
   return {
     success:

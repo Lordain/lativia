@@ -16,6 +16,10 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
+import {
+  notifyRefundEvent,
+} from "@/lib/notifications/notifyRefundEvent";
+
 export async function rejectAdminRefund(
   refundId: string,
   orderId: string,
@@ -93,6 +97,72 @@ export async function rejectAdminRefund(
       error.message
     );
   }
+
+  /*
+ * ========================================
+ * Customer Notification
+ * ========================================
+ */
+
+const {
+  data:
+    refund,
+  error:
+    refundError,
+} =
+  await supabaseAdmin
+    .from(
+      "refunds"
+    )
+    .select(`
+      id,
+      order_id,
+      fulfillment_id,
+      amount,
+      currency
+    `)
+    .eq(
+      "id",
+      refundId
+    )
+    .single();
+
+
+if (
+  refundError ||
+  !refund
+) {
+  console.error(
+    "rejectAdminRefund notification lookup error:",
+    refundError
+  );
+
+} else {
+  await notifyRefundEvent({
+    refundId:
+      refund.id,
+
+    orderId:
+      refund.order_id,
+
+    fulfillmentId:
+      refund.fulfillment_id,
+
+    event:
+      "rejected",
+
+    amount:
+      Number(
+        refund.amount
+      ),
+
+    currency:
+      refund.currency,
+
+    reason:
+      cleanNote,
+  });
+}
 
   revalidatePath(
     `/admin/orders/${orderId}`

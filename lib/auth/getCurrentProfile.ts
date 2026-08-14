@@ -1,38 +1,61 @@
-import { createClient } from "@/lib/supabase/server";
+import {
+  createClient,
+} from "@/lib/supabase/server";
+
 
 export async function getCurrentProfile() {
-  const supabase = await createClient();
+  const supabase =
+    await createClient();
+
 
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: {
+      user,
+    },
 
-  console.log("getCurrentProfile user:", user);
-  console.log("getCurrentProfile userError:", userError);
+    error:
+      userError,
+  } =
+    await supabase.auth.getUser();
 
-  if (userError || !user) {
+
+  if (
+    userError ||
+    !user
+  ) {
     return null;
   }
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select(`
-      id,
-      name,
-      phone,
-      role,
-      created_at
-    `)
-    .eq("id", user.id)
-    .single();
 
-  console.log("getCurrentProfile profile:", data);
-  console.log("getCurrentProfile profileError:", error);
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from(
+        "profiles"
+      )
+      .select(`
+        id,
+        name,
+        phone,
+        role,
+        created_at
+      `)
+      .eq(
+        "id",
+        user.id
+      )
+      .single();
 
-  if (error) {
+
+  if (
+    error ||
+    !data
+  ) {
     return null;
   }
+
 
   return data;
 }

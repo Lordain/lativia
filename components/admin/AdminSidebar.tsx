@@ -6,7 +6,8 @@ import {
   usePathname,
 } from "next/navigation";
 
-const navigation = [
+
+const navigationItems = [
   {
     label:
       "控制台",
@@ -33,6 +34,14 @@ const navigation = [
 
   {
     label:
+      "通知管理",
+
+    href:
+      "/admin/notifications",
+  },
+
+  {
+    label:
       "服务管理",
 
     href:
@@ -48,80 +57,108 @@ const navigation = [
   },
 ];
 
+
 export default function AdminSidebar() {
   const pathname =
     usePathname();
 
+
   function isActive(
-    href: string
+    href:
+      string
   ) {
+    /*
+     * /admin 只在 Dashboard 首页高亮。
+     *
+     * 其他项目：
+     *
+     * /admin/orders
+     * /admin/orders/[id]
+     *
+     * 都应该保持「订单管理」高亮。
+     */
+
     if (
       href ===
       "/admin"
     ) {
-      return (
-        pathname ===
-        "/admin"
-      );
+      return pathname ===
+        "/admin";
     }
 
+
     return (
-      pathname === href ||
+      pathname ===
+        href ||
       pathname.startsWith(
         `${href}/`
       )
     );
   }
 
+
   return (
-    <aside className="w-64 border-r bg-white">
-      <div className="border-b px-6 py-5">
-        <p className="text-lg font-bold">
-          Mex Helper Admin
-        </p>
-      </div>
+    <aside
+      className="
+        w-64
+        shrink-0
+        border-r
+        bg-white
+      "
+    >
+      <div className="sticky top-0 p-5">
+        <div className="mb-6">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+            MEX Helper
+          </p>
 
-      <nav className="space-y-1 px-3 py-4">
-        {navigation.map(
-          (
-            item
-          ) => {
-            const active =
-              isActive(
-                item.href
-              );
+          <p className="mt-1 text-lg font-semibold">
+            管理后台
+          </p>
+        </div>
 
-            return (
-              <Link
-                key={
+
+        <nav className="space-y-1">
+          {navigationItems.map(
+            item => {
+              const active =
+                isActive(
                   item.href
-                }
-                href={
-                  item.href
-                }
-                className={`
-                  block
-                  rounded-lg
-                  px-4
-                  py-3
-                  text-sm
-                  font-medium
-                  transition
-                  ${
-                    active
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-700 hover:bg-gray-100"
+                );
+
+
+              return (
+                <Link
+                  key={
+                    item.href
                   }
-                `}
-              >
-                {
-                  item.label
-                }
-              </Link>
-            );
-          }
-        )}
-      </nav>
+                  href={
+                    item.href
+                  }
+                  className={`
+                    block
+                    rounded-lg
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    transition
+                    ${
+                      active
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }
+                  `}
+                >
+                  {
+                    item.label
+                  }
+                </Link>
+              );
+            }
+          )}
+        </nav>
+      </div>
     </aside>
   );
 }

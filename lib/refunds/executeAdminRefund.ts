@@ -21,6 +21,9 @@ import type {
   PaymentProvider,
 } from "@/types/payment";
 
+import {
+  notifyRefundEvent,
+} from "@/lib/notifications/notifyRefundEvent";
 
 interface RefundExecutionRow {
   id: string;
@@ -203,6 +206,38 @@ export async function executeAdminRefund(
     refund.status ===
     "succeeded"
   ) {
+    /*
+ * ========================================
+ * Customer Notification
+ * ========================================
+ *
+ * 只有 Provider 成功 +
+ * mark_refund_succeeded 成功之后
+ * 才通知客户退款完成。
+ */
+
+await notifyRefundEvent({
+  refundId:
+    refund.id,
+
+  orderId:
+    refund.order_id,
+
+  fulfillmentId:
+    null,
+
+  event:
+    "succeeded",
+
+  amount:
+    Number(
+      refund.amount
+    ),
+
+  currency:
+    refund.currency,
+});
+
     return {
       status:
         "succeeded" as const,
@@ -479,28 +514,51 @@ export async function executeAdminRefund(
     );
 
 
-  if (
-    pendingError
-  ) {
-    console.error(
-      "record_refund_processing_result error:",
+    if (
       pendingError
-    );
-
-
+    ) {
+      console.error(
+        "record_refund_processing_result error:",
+        pendingError
+      );
+    
+      throw new Error(
+        "支付平台已经接受退款，但本地处理状态同步失败，请进行退款对账。"
+      );
+    }
+    
+    
     /*
-     * Provider 已接受退款请求。
-     * 不应把这种本地同步问题误标成 Provider Failed。
+     * ========================================
+     * Customer Notification
+     * ========================================
      */
-
-    throw new Error(
-      "支付平台已经接受退款，但本地处理状态同步失败，请进行退款对账。"
-    );
-  }
-
-
-  return {
-    status:
-      "processing" as const,
-  };
+    
+    await notifyRefundEvent({
+      refundId:
+        refund.id,
+    
+      orderId:
+        refund.order_id,
+    
+      fulfillmentId:
+        null,
+    
+      event:
+        "processing",
+    
+      amount:
+        Number(
+          refund.amount
+        ),
+    
+      currency:
+        refund.currency,
+    });
+    
+    
+    return {
+      status:
+        "processing" as const,
+    };
 }

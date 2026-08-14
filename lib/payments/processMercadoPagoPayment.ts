@@ -10,6 +10,10 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
+import {
+  createOrderNotification,
+} from "@/lib/notifications/createOrderNotification";
+
 
 export interface ProcessMercadoPagoPaymentResult {
   paymentId: string;
@@ -510,6 +514,30 @@ export async function processMercadoPagoPayment(
     }
   );
 
+
+  await createOrderNotification({
+    orderId:
+      order.id,
+  
+    type:
+      "payment_confirmed",
+  
+    title:
+      "付款已经确认",
+  
+    message:
+      "您的付款已经确认。我们将按照服务要求检查资料，并开始后续办理流程。",
+  
+    idempotencyKey:
+      `payment_confirmed:${order.id}`,
+  
+    metadata: {
+      provider:
+        "mercado_pago",
+  
+      providerPaymentId,
+    },
+  });
 
   return {
     paymentId:

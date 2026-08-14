@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
-    "offline-reuters-pointer-outcome.trycloudflare.com",
+    "galaxy-shoe-said-surround.trycloudflare.com",
   ],
 };
 

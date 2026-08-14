@@ -50,11 +50,21 @@ import type {
   PaymentProvider,
 } from "@/types/payment";
 
+import {
+  getAdminRefund,
+} from "@/lib/refunds/getAdminRefund";
+
+import AdminRefundReview from "@/components/admin/AdminRefundReview";
+
+import AdminRefundExecution from "@/components/admin/AdminRefundExecution";
+
+
 interface Props {
   params: Promise<{
     id: string;
   }>;
 }
+
 
 export default async function AdminOrderDetailPage({
   params,
@@ -67,10 +77,12 @@ export default async function AdminOrderDetailPage({
 
   await requireAdmin();
 
+
   const {
     id,
   } =
     await params;
+
 
   /*
    * =====================================
@@ -83,15 +95,17 @@ export default async function AdminOrderDetailPage({
       id
     );
 
+
   if (!order) {
     notFound();
   }
+
 
   /*
    * =====================================
    * Additional Admin Data
    *
-   * Payment Audit 与 Fulfillment
+   * Payment Audit / Fulfillment / Refund
    * 并行读取，减少页面等待时间。
    * =====================================
    */
@@ -99,6 +113,7 @@ export default async function AdminOrderDetailPage({
   const [
     auditLogs,
     fulfillmentData,
+    refundData,
   ] =
     await Promise.all([
       getPaymentAuditLogs(
@@ -108,7 +123,12 @@ export default async function AdminOrderDetailPage({
       getAdminFulfillment(
         order.id
       ),
+
+      getAdminRefund(
+        order.id
+      ),
     ]);
+
 
   /*
    * =====================================
@@ -122,6 +142,7 @@ export default async function AdminOrderDetailPage({
         ?.form_schema ??
       []
     ) as FormFieldSchema[];
+
 
   /*
    * =====================================
@@ -150,6 +171,7 @@ export default async function AdminOrderDetailPage({
         fulfillmentData
           .activity,
     });
+
 
   return (
     <div>
@@ -180,6 +202,7 @@ export default async function AdminOrderDetailPage({
         </p>
       </div>
 
+
       {/* =====================================
           Customer Information
       ===================================== */}
@@ -208,6 +231,7 @@ export default async function AdminOrderDetailPage({
             </p>
           </div>
 
+
           <div>
             <p className="text-xs text-gray-400">
               电话
@@ -219,6 +243,7 @@ export default async function AdminOrderDetailPage({
                 "未填写"}
             </p>
           </div>
+
 
           <div>
             <p className="text-xs text-gray-400">
@@ -232,6 +257,7 @@ export default async function AdminOrderDetailPage({
             </p>
           </div>
 
+
           <div>
             <p className="text-xs text-gray-400">
               订单 ID
@@ -243,6 +269,7 @@ export default async function AdminOrderDetailPage({
           </div>
         </div>
       </section>
+
 
       {/* =====================================
           Application Data
@@ -263,6 +290,7 @@ export default async function AdminOrderDetailPage({
             仅用于当前业务办理。
           </p>
         </div>
+
 
         {Object.keys(
           order.form_data ??
@@ -290,6 +318,7 @@ export default async function AdminOrderDetailPage({
                       item.name ===
                       key
                   );
+
 
                 return (
                   <div
@@ -326,6 +355,7 @@ export default async function AdminOrderDetailPage({
         )}
       </section>
 
+
       {/* =====================================
           Payment Summary
 
@@ -361,6 +391,7 @@ export default async function AdminOrderDetailPage({
         }
       />
 
+
       {/* =====================================
           Fulfillment Operations
 
@@ -378,6 +409,35 @@ export default async function AdminOrderDetailPage({
           order.payment_status
         }
       />
+
+
+      {/* =====================================
+          Refund Management
+
+          只有真正建立 Refund Case
+          才显示退款审核区。
+      ===================================== */}
+
+      {refundData.refund && (
+        <AdminRefundReview
+          refund={
+            refundData.refund
+          }
+          activity={
+            refundData.activity
+          }
+        />
+      )}
+
+
+      {refundData.refund && (
+        <AdminRefundExecution
+          refund={
+            refundData.refund
+          }
+        />
+      )}
+
 
       {/* =====================================
           Internal Note
@@ -397,6 +457,7 @@ export default async function AdminOrderDetailPage({
           }
         />
       )}
+
 
       {/* =====================================
           Unified Order Timeline

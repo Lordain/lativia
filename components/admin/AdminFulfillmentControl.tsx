@@ -8,718 +8,666 @@ import {
   useRouter,
 } from "next/navigation";
 
+import {
+  transitionAdminFulfillment,
+} from "@/lib/fulfillments/transitionAdminFulfillment";
+
 import type {
   Fulfillment,
   FulfillmentStatus,
 } from "@/types/fulfillment";
 
-import {
-  transitionAdminFulfillment,
-} from "@/lib/fulfillments/transitionAdminFulfillment";
+import type {
+  PaymentStatus,
+} from "@/types/payment";
 
-import FulfillmentStatusBadge from "@/components/admin/FulfillmentStatusBadge";
 
 interface Props {
   fulfillment:
     Fulfillment | null;
 
   paymentStatus:
-    string;
+    PaymentStatus;
 }
 
-interface ActionDefinition {
+
+interface FulfillmentAction {
+  status:
+    FulfillmentStatus;
+
   label:
     string;
 
-  status:
-    FulfillmentStatus;
+  description:
+    string;
 
   currentStep:
     string;
 
-  defaultMessage:
-    string;
-
-  requireReason?:
+  requiresReason:
     boolean;
-
-  reasonPlaceholder?:
-    string;
-
-  variant?:
-    | "primary"
-    | "secondary"
-    | "warning"
-    | "danger"
-    | "success";
 
   confirmMessage?:
     string;
 }
 
-function getActions(
+
+const STATUS_LABELS:
+  Record<
+    FulfillmentStatus,
+    string
+  > = {
+    queued:
+      "等待办理",
+
+    validating:
+      "资料验证",
+
+    processing:
+      "办理中",
+
+    waiting_human:
+      "等待人工处理",
+
+    waiting_customer:
+      "等待客户补充",
+
+    manual_review:
+      "人工复核",
+
+    completed:
+      "服务已完成",
+
+    failed:
+      "办理失败",
+
+    refund_review:
+      "退款审核",
+  };
+
+
+const STATUS_STYLES:
+  Record<
+    FulfillmentStatus,
+    string
+  > = {
+    queued:
+      "bg-gray-100 text-gray-700",
+
+    validating:
+      "bg-blue-50 text-blue-700",
+
+    processing:
+      "bg-blue-50 text-blue-700",
+
+    waiting_human:
+      "bg-amber-50 text-amber-700",
+
+    waiting_customer:
+      "bg-amber-50 text-amber-700",
+
+    manual_review:
+      "bg-orange-50 text-orange-700",
+
+    completed:
+      "bg-green-50 text-green-700",
+
+    failed:
+      "bg-red-50 text-red-700",
+
+    refund_review:
+      "bg-purple-50 text-purple-700",
+  };
+
+
+function getAvailableActions(
   status:
     FulfillmentStatus
-): ActionDefinition[] {
-  switch (status) {
+): FulfillmentAction[] {
+  switch (
+    status
+  ) {
     case "queued":
       return [
         {
-          label:
-            "开始资料检查",
-
           status:
             "validating",
 
+          label:
+            "开始资料验证",
+
+          description:
+            "开始检查客户提交的资料与办理条件。",
+
           currentStep:
-            "validate_customer_input",
+            "validating_application",
 
-          defaultMessage:
-            "开始检查客户提交资料。",
-
-          variant:
-            "primary",
+          requiresReason:
+            false,
         },
 
         {
+          status:
+            "manual_review",
+
           label:
             "进入人工复核",
 
-          status:
-            "manual_review",
+          description:
+            "当前申请需要管理员进一步判断。",
 
           currentStep:
             "manual_review",
 
-          defaultMessage:
-            "办理任务进入人工复核。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请说明为什么需要人工复核",
-
-          variant:
-            "secondary",
         },
 
         {
-          label:
-            "标记无法完成",
-
           status:
             "failed",
 
+          label:
+            "标记无法办理",
+
+          description:
+            "确认当前服务无法继续完成。",
+
           currentStep:
-            "fulfillment_failed",
+            "service_failed",
 
-          defaultMessage:
-            "确认当前服务无法完成。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请说明服务无法完成的具体原因",
-
-          variant:
-            "danger",
+          confirmMessage:
+            "确定将这笔服务标记为无法办理吗？",
         },
       ];
+
 
     case "validating":
       return [
         {
-          label:
-            "资料检查完成，开始办理",
-
           status:
             "processing",
 
+          label:
+            "开始办理",
+
+          description:
+            "资料已经验证，可以开始正式办理。",
+
           currentStep:
-            "government_processing",
+            "processing",
 
-          defaultMessage:
-            "资料检查完成，开始办理服务。",
-
-          variant:
-            "primary",
+          requiresReason:
+            false,
         },
 
         {
-          label:
-            "需要人工处理",
+          status:
+            "waiting_customer",
 
+          label:
+            "等待客户补充",
+
+          description:
+            "需要客户补充资料或完成其他操作。",
+
+          currentStep:
+            "waiting_customer",
+
+          requiresReason:
+            true,
+        },
+
+        {
           status:
             "waiting_human",
 
-          currentStep:
-            "government_verification",
-
-          defaultMessage:
-            "自动流程需要工作人员介入确认。",
-
-          requireReason:
-            true,
-
-          reasonPlaceholder:
-            "例如：SAT CAPTCHA 需要人工处理",
-
-          variant:
-            "warning",
-        },
-
-        {
           label:
-            "等待客户补资料",
+            "等待人工处理",
 
-          status:
-            "waiting_customer",
+          description:
+            "当前步骤需要人工介入。",
 
           currentStep:
-            "waiting_customer",
+            "waiting_human",
 
-          defaultMessage:
-            "需要客户补充资料后才能继续办理。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请明确客户需要提供什么资料",
-
-          variant:
-            "warning",
         },
 
         {
+          status:
+            "manual_review",
+
           label:
             "进入人工复核",
 
-          status:
-            "manual_review",
+          description:
+            "需要管理员进一步审核。",
 
           currentStep:
             "manual_review",
 
-          defaultMessage:
-            "资料验证结果需要人工复核。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请说明需要人工复核的原因",
-
-          variant:
-            "secondary",
         },
 
         {
-          label:
-            "标记无法完成",
-
           status:
             "failed",
 
+          label:
+            "标记无法办理",
+
+          description:
+            "确认当前服务无法继续完成。",
+
           currentStep:
-            "fulfillment_failed",
+            "service_failed",
 
-          defaultMessage:
-            "确认当前服务无法完成。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请说明服务无法完成的具体原因",
-
-          variant:
-            "danger",
+          confirmMessage:
+            "确定将这笔服务标记为无法办理吗？",
         },
       ];
+
 
     case "processing":
       return [
         {
-          label:
-            "需要人工处理",
-
-          status:
-            "waiting_human",
-
-          currentStep:
-            "government_verification",
-
-          defaultMessage:
-            "办理过程中需要工作人员人工确认。",
-
-          requireReason:
-            true,
-
-          reasonPlaceholder:
-            "例如：政府网站 CAPTCHA 或结果需要人工确认",
-
-          variant:
-            "warning",
-        },
-
-        {
-          label:
-            "等待客户补资料",
-
-          status:
-            "waiting_customer",
-
-          currentStep:
-            "waiting_customer",
-
-          defaultMessage:
-            "办理过程中需要客户补充资料。",
-
-          requireReason:
-            true,
-
-          reasonPlaceholder:
-            "请明确客户需要补充什么资料",
-
-          variant:
-            "warning",
-        },
-
-        {
-          label:
-            "进入人工复核",
-
-          status:
-            "manual_review",
-
-          currentStep:
-            "manual_review",
-
-          defaultMessage:
-            "当前办理结果需要人工复核。",
-
-          requireReason:
-            true,
-
-          reasonPlaceholder:
-            "请说明需要人工复核的原因",
-
-          variant:
-            "secondary",
-        },
-
-        {
-          label:
-            "确认服务完成",
-
           status:
             "completed",
 
+          label:
+            "确认服务完成",
+
+          description:
+            "服务结果已经成功交付给客户。",
+
           currentStep:
-            "result_delivered",
+            "service_completed",
 
-          defaultMessage:
-            "办理结果已经确认并完成交付。",
-
-          variant:
-            "success",
+          requiresReason:
+            false,
 
           confirmMessage:
-            "确认服务已经成功完成并交付结果？\n\n完成后此办理任务将成为终止状态，并且不再允许进入退款审核。",
+            "确定服务已经成功完成并交付吗？完成后的服务不可退款。",
         },
 
         {
-          label:
-            "标记无法完成",
+          status:
+            "waiting_customer",
 
+          label:
+            "等待客户补充",
+
+          description:
+            "客户需要补充资料或完成其他操作。",
+
+          currentStep:
+            "waiting_customer",
+
+          requiresReason:
+            true,
+        },
+
+        {
+          status:
+            "waiting_human",
+
+          label:
+            "等待人工处理",
+
+          description:
+            "当前办理步骤需要人工介入。",
+
+          currentStep:
+            "waiting_human",
+
+          requiresReason:
+            true,
+        },
+
+        {
+          status:
+            "manual_review",
+
+          label:
+            "进入人工复核",
+
+          description:
+            "当前结果需要管理员审核。",
+
+          currentStep:
+            "manual_review",
+
+          requiresReason:
+            true,
+        },
+
+        {
           status:
             "failed",
 
+          label:
+            "标记无法办理",
+
+          description:
+            "服务因客观原因无法完成。",
+
           currentStep:
-            "fulfillment_failed",
+            "service_failed",
 
-          defaultMessage:
-            "经过处理后确认当前服务无法完成。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请填写无法完成的明确原因",
-
-          variant:
-            "danger",
+          confirmMessage:
+            "确定当前服务无法完成吗？",
         },
       ];
+
 
     case "waiting_human":
       return [
         {
-          label:
-            "人工处理完成，继续办理",
-
           status:
             "processing",
 
+          label:
+            "继续办理",
+
+          description:
+            "人工处理完成，继续正常办理。",
+
           currentStep:
-            "resume_processing",
+            "processing",
 
-          defaultMessage:
-            "人工验证完成，继续办理服务。",
-
-          variant:
-            "primary",
+          requiresReason:
+            false,
         },
 
         {
-          label:
-            "等待客户补资料",
-
           status:
             "waiting_customer",
 
+          label:
+            "等待客户补充",
+
+          description:
+            "下一步需要客户提供资料或操作。",
+
           currentStep:
             "waiting_customer",
 
-          defaultMessage:
-            "人工审核后确认需要客户补充资料。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请明确客户需要补充的资料",
-
-          variant:
-            "warning",
         },
 
         {
+          status:
+            "manual_review",
+
           label:
             "进入人工复核",
 
-          status:
-            "manual_review",
+          description:
+            "需要进一步审核当前情况。",
 
           currentStep:
             "manual_review",
 
-          defaultMessage:
-            "人工处理后仍需要进一步复核。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请说明复核原因",
-
-          variant:
-            "secondary",
         },
 
         {
-          label:
-            "标记无法完成",
-
           status:
             "failed",
 
+          label:
+            "标记无法办理",
+
+          description:
+            "人工确认服务无法继续完成。",
+
           currentStep:
-            "fulfillment_failed",
+            "service_failed",
 
-          defaultMessage:
-            "人工确认后，本次服务无法完成。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请填写无法完成的明确原因",
-
-          variant:
-            "danger",
+          confirmMessage:
+            "确定当前服务无法完成吗？",
         },
       ];
+
 
     case "waiting_customer":
       return [
         {
-          label:
-            "客户资料已补充，重新检查",
-
           status:
             "validating",
 
+          label:
+            "重新验证资料",
+
+          description:
+            "客户已经补充资料，重新进行验证。",
+
           currentStep:
-            "validate_customer_input",
+            "validating_application",
 
-          defaultMessage:
-            "客户已经补充资料，重新进行资料检查。",
-
-          variant:
-            "primary",
+          requiresReason:
+            false,
         },
 
         {
-          label:
-            "客户资料已确认，继续办理",
-
           status:
             "processing",
 
+          label:
+            "继续办理",
+
+          description:
+            "客户所需操作已经完成，可以继续办理。",
+
           currentStep:
-            "resume_processing",
+            "processing",
 
-          defaultMessage:
-            "客户所需资料已确认，继续办理。",
-
-          variant:
-            "primary",
+          requiresReason:
+            false,
         },
 
         {
+          status:
+            "manual_review",
+
           label:
             "进入人工复核",
 
-          status:
-            "manual_review",
+          description:
+            "客户补充内容需要人工确认。",
 
           currentStep:
             "manual_review",
 
-          defaultMessage:
-            "客户补充资料后需要人工复核。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请填写人工复核原因",
-
-          variant:
-            "secondary",
         },
 
         {
-          label:
-            "标记无法完成",
-
           status:
             "failed",
 
+          label:
+            "标记无法办理",
+
+          description:
+            "确认服务已无法继续。",
+
           currentStep:
-            "fulfillment_failed",
+            "service_failed",
 
-          defaultMessage:
-            "客户资料处理后确认服务无法完成。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请填写无法完成原因",
-
-          variant:
-            "danger",
+          confirmMessage:
+            "确定当前服务无法完成吗？",
         },
       ];
+
 
     case "manual_review":
       return [
         {
-          label:
-            "复核通过，继续办理",
-
           status:
             "processing",
 
+          label:
+            "继续办理",
+
+          description:
+            "人工复核通过，返回正常办理流程。",
+
           currentStep:
-            "resume_processing",
+            "processing",
 
-          defaultMessage:
-            "人工复核完成，继续办理服务。",
-
-          variant:
-            "primary",
+          requiresReason:
+            false,
         },
 
         {
-          label:
-            "等待客户补资料",
-
           status:
             "waiting_customer",
 
+          label:
+            "等待客户补充",
+
+          description:
+            "复核后确认还需要客户补充资料。",
+
           currentStep:
             "waiting_customer",
 
-          defaultMessage:
-            "人工复核后需要客户补充资料。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请明确客户需要补充的资料",
-
-          variant:
-            "warning",
         },
 
         {
-          label:
-            "确认服务完成",
-
           status:
             "completed",
 
+          label:
+            "确认服务完成",
+
+          description:
+            "人工确认服务已经成功完成。",
+
           currentStep:
-            "result_delivered",
+            "service_completed",
 
-          defaultMessage:
-            "人工复核确认服务已经完成并交付结果。",
-
-          variant:
-            "success",
+          requiresReason:
+            false,
 
           confirmMessage:
-            "确认服务已经完成并交付？\n\n完成后本服务不再支持退款。",
+            "确定服务已经成功完成并交付吗？完成后的服务不可退款。",
         },
 
         {
-          label:
-            "标记无法完成",
-
           status:
             "failed",
 
+          label:
+            "确认无法办理",
+
+          description:
+            "人工复核确认服务无法完成。",
+
           currentStep:
-            "fulfillment_failed",
+            "service_failed",
 
-          defaultMessage:
-            "人工复核确认本次服务无法完成。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请填写无法完成的明确原因",
-
-          variant:
-            "danger",
+          confirmMessage:
+            "确定人工复核结果为服务无法完成吗？",
         },
 
         {
+          status:
+            "refund_review",
+
           label:
             "进入退款审核",
 
-          status:
-            "refund_review",
+          description:
+            "确认服务无法完成，并进入退款资格审核。",
 
           currentStep:
             "refund_review",
 
-          defaultMessage:
-            "服务未完成，进入退款资格审核。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请说明为什么需要进行退款资格审核",
-
-          variant:
-            "warning",
-
           confirmMessage:
-            "确认进入退款审核？\n\n这不会立即退款，只会进入退款资格审核流程。",
+            "确定进入退款资格审核吗？只有无法完成且符合退款规则的服务才能退款。",
         },
       ];
+
 
     case "failed":
       return [
         {
+          status:
+            "manual_review",
+
           label:
             "进入人工复核",
 
-          status:
-            "manual_review",
+          description:
+            "进一步确认失败原因与后续处理方式。",
 
           currentStep:
             "manual_review",
 
-          defaultMessage:
-            "服务无法完成，进入人工复核。",
-
-          requireReason:
+          requiresReason:
             true,
-
-          reasonPlaceholder:
-            "请填写人工复核原因",
-
-          variant:
-            "secondary",
         },
 
         {
+          status:
+            "refund_review",
+
           label:
             "进入退款审核",
 
-          status:
-            "refund_review",
+          description:
+            "服务无法完成，进入退款资格审核流程。",
 
           currentStep:
             "refund_review",
 
-          defaultMessage:
-            "服务无法完成，进入退款资格审核。",
-
-          requireReason:
+          requiresReason:
             true,
 
-          reasonPlaceholder:
-            "请说明服务未完成及进入退款审核的原因",
-
-          variant:
-            "warning",
-
           confirmMessage:
-            "确认进入退款审核？\n\n进入退款审核不会立即退款，仍需根据退款政策确认资格。",
+            "确定进入退款资格审核吗？",
         },
       ];
 
+
     case "refund_review":
-      return [];
-
     case "completed":
+    default:
       return [];
   }
 }
 
-function getButtonClass(
-  variant:
-    ActionDefinition["variant"]
-) {
-  switch (variant) {
-    case "success":
-      return "bg-green-600 text-white hover:bg-green-700";
-
-    case "danger":
-      return "bg-red-600 text-white hover:bg-red-700";
-
-    case "warning":
-      return "bg-amber-500 text-white hover:bg-amber-600";
-
-    case "secondary":
-      return "border bg-white text-gray-700 hover:bg-gray-50";
-
-    default:
-      return "bg-blue-600 text-white hover:bg-blue-700";
-  }
-}
 
 export default function AdminFulfillmentControl({
   fulfillment,
@@ -728,423 +676,483 @@ export default function AdminFulfillmentControl({
   const router =
     useRouter();
 
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(false);
 
   const [
-    selectedAction,
-    setSelectedAction,
+    loadingStatus,
+    setLoadingStatus,
   ] =
-    useState<ActionDefinition | null>(
+    useState<
+      FulfillmentStatus | null
+    >(
       null
     );
 
-  const [
-    reason,
-    setReason,
-  ] =
-    useState("");
+
+  /*
+   * ========================================
+   * No Fulfillment
+   * ========================================
+   */
 
   if (!fulfillment) {
     return (
       <section className="mt-8 rounded-xl border bg-white p-6">
-        <h2 className="text-xl font-semibold">
-          办理执行状态
+        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+          Fulfillment Operations
+        </p>
+
+        <h2 className="mt-1 text-xl font-semibold">
+          办理控制
         </h2>
 
         {paymentStatus ===
-        "paid" ? (
-          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="font-medium text-red-700">
-              付款已经确认，但没有找到办理任务
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-red-600">
-              这是需要人工检查的系统异常。
-              请不要直接修改订单状态或重复向客户收费。
-            </p>
+        "unpaid" ? (
+          <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm leading-6 text-gray-600">
+            当前订单尚未完成付款。
+            付款确认后系统会自动建立办理任务。
           </div>
         ) : (
-          <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
-            此订单尚未付款，因此尚未建立办理任务。
+          <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+            当前订单没有对应的 Fulfillment 记录，
+            请检查付款确认流程。
           </div>
         )}
       </section>
     );
   }
 
-  const fulfillmentId =
-  fulfillment.id;
+
+  /*
+   * ========================================
+   * Fulfillment guaranteed non-null
+   * ========================================
+   */
+
+  const currentFulfillment =
+    fulfillment;
+
+
+  /*
+   * ========================================
+   * Refund Terminal State
+   * ========================================
+   */
+
+  const isRefundTerminal =
+    paymentStatus ===
+      "refunded" ||
+    currentFulfillment.currentStep ===
+      "refund_succeeded";
+
+
+  /*
+   * ========================================
+   * Completed Terminal State
+   * ========================================
+   */
+
+  const isCompletedTerminal =
+    currentFulfillment.status ===
+    "completed";
+
 
   const actions =
-    getActions(
-      fulfillment.status
-    );
+    isRefundTerminal ||
+    isCompletedTerminal
+      ? []
+      : getAvailableActions(
+          currentFulfillment.status
+        );
 
-  async function runAction(
+
+  async function handleAction(
     action:
-      ActionDefinition
+      FulfillmentAction
   ) {
     if (
-      action.requireReason &&
-      !reason.trim()
+      loadingStatus ||
+      isRefundTerminal ||
+      isCompletedTerminal
     ) {
-      alert(
-        "请先填写本次操作原因"
-      );
-
       return;
     }
+
 
     if (
-      action.confirmMessage &&
-      !window.confirm(
-        action.confirmMessage
-      )
+      action.confirmMessage
     ) {
-      return;
+      const confirmed =
+        window.confirm(
+          action.confirmMessage
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
     }
 
-    setLoading(
-      true
+
+    let reason =
+      "";
+
+
+    if (
+      action.requiresReason
+    ) {
+      const input =
+        window.prompt(
+          "请输入处理原因："
+        );
+
+
+      if (
+        input === null
+      ) {
+        return;
+      }
+
+
+      const cleanReason =
+        input.trim();
+
+
+      if (!cleanReason) {
+        alert(
+          "此操作必须填写原因。"
+        );
+
+        return;
+      }
+
+
+      reason =
+        cleanReason;
+    }
+
+
+    setLoadingStatus(
+      action.status
     );
+
 
     try {
       await transitionAdminFulfillment(
         {
-          fulfillmentId,
+          fulfillmentId:
+            currentFulfillment.id,
 
           newStatus:
             action.status,
 
           message:
-            action.defaultMessage,
+            action.description,
 
           currentStep:
             action.currentStep,
 
-          reason:
-            reason,
+          reason,
         }
       );
 
-      setReason(
-        ""
-      );
-
-      setSelectedAction(
-        null
-      );
 
       router.refresh();
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
       console.error(
         error
       );
 
+
       alert(
         error instanceof Error
           ? error.message
-          : "办理状态更新失败"
+          : "更新办理状态失败"
       );
+
     } finally {
-      setLoading(
-        false
+      setLoadingStatus(
+        null
       );
     }
   }
 
+
   return (
     <section className="mt-8 rounded-xl border bg-white p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Fulfillment Operations
-          </p>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+          Fulfillment Operations
+        </p>
 
-          <h2 className="mt-1 text-xl font-semibold">
-            办理执行状态
-          </h2>
+        <h2 className="mt-1 text-xl font-semibold">
+          办理控制
+        </h2>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
-            系统优先自动处理正常流程；
-            CAPTCHA、资料异常或结果无法确定时，
-            再由工作人员介入确认。
-          </p>
-        </div>
-
-        <FulfillmentStatusBadge
-          status={
-            fulfillment.status
-          }
-        />
+        <p className="mt-2 text-sm leading-6 text-gray-500">
+          实际业务办理状态统一由 Fulfillment 管理。
+          页面只显示当前状态合法的下一步操作。
+        </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-lg bg-gray-50 p-4">
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-lg border p-4">
           <p className="text-xs text-gray-500">
-            办理模式
+            当前状态
           </p>
 
-          <p className="mt-1 font-medium">
-            {
-              fulfillment
-                .fulfillmentType
-            }
-          </p>
+          <div className="mt-2">
+            <span
+              className={`
+                inline-flex
+                rounded-full
+                px-2.5
+                py-1
+                text-xs
+                font-medium
+                ${
+                  STATUS_STYLES[
+                    currentFulfillment.status
+                  ]
+                }
+              `}
+            >
+              {
+                STATUS_LABELS[
+                  currentFulfillment.status
+                ]
+              }
+            </span>
+          </div>
         </div>
 
-        <div className="rounded-lg bg-gray-50 p-4">
+
+        <div className="rounded-lg border p-4">
           <p className="text-xs text-gray-500">
             当前步骤
           </p>
 
-          <p className="mt-1 break-all font-medium">
-            {
-              fulfillment
-                .currentStep ??
-              "尚未记录"
-            }
+          <p className="mt-2 break-words text-sm font-medium text-gray-800">
+            {currentFulfillment.currentStep ??
+              "尚未记录"}
           </p>
         </div>
 
-        <div className="rounded-lg bg-gray-50 p-4">
+
+        <div className="rounded-lg border p-4">
           <p className="text-xs text-gray-500">
-            开始时间
+            人工复核
           </p>
 
-          <p className="mt-1 font-medium">
-            {fulfillment
-              .startedAt
-              ? new Date(
-                  fulfillment
-                    .startedAt
-                ).toLocaleString(
-                  "zh-CN"
-                )
-              : "尚未开始"}
+          <p className="mt-2 text-sm font-medium text-gray-800">
+            {currentFulfillment
+              .humanReviewRequired
+              ? "需要"
+              : "不需要"}
+          </p>
+        </div>
+
+
+        <div className="rounded-lg border p-4">
+          <p className="text-xs text-gray-500">
+            客户操作
+          </p>
+
+          <p className="mt-2 text-sm font-medium text-gray-800">
+            {currentFulfillment
+              .customerActionRequired
+              ? "需要"
+              : "不需要"}
           </p>
         </div>
       </div>
 
-      {fulfillment
-        .humanReviewReason && (
-        <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <p className="font-medium text-amber-800">
-            人工审核原因
+
+      {isRefundTerminal && (
+        <div className="mt-6 rounded-lg border border-green-200 bg-green-50 p-5">
+          <p className="font-medium text-green-800">
+            服务流程已结束，退款已经完成
           </p>
 
-          <p className="mt-1 text-sm leading-6 text-amber-700">
-            {
-              fulfillment
-                .humanReviewReason
-            }
-          </p>
-        </div>
-      )}
-
-      {fulfillment
-        .customerActionReason && (
-        <div className="mt-5 rounded-lg border border-orange-200 bg-orange-50 p-4">
-          <p className="font-medium text-orange-800">
-            等待客户操作
-          </p>
-
-          <p className="mt-1 text-sm leading-6 text-orange-700">
-            {
-              fulfillment
-                .customerActionReason
-            }
+          <p className="mt-2 text-sm leading-6 text-green-700">
+            该订单已经完成原路退款，
+            不再允许重新进入人工复核、
+            退款审核或其他办理状态。
           </p>
         </div>
       )}
 
-      {fulfillment
+
+      {!isRefundTerminal &&
+        isCompletedTerminal && (
+          <div className="mt-6 rounded-lg border border-green-200 bg-green-50 p-5">
+            <p className="font-medium text-green-800">
+              服务已经成功完成
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-green-700">
+              服务已经完成并交付，
+              当前状态为业务终态，
+              不再允许继续修改办理状态。
+            </p>
+          </div>
+        )}
+
+
+      {!isRefundTerminal &&
+        currentFulfillment
+          .humanReviewReason && (
+          <div className="mt-6 rounded-lg bg-amber-50 p-4">
+            <p className="text-xs font-medium text-amber-700">
+              人工处理原因
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-amber-800">
+              {
+                currentFulfillment
+                  .humanReviewReason
+              }
+            </p>
+          </div>
+        )}
+
+
+      {!isRefundTerminal &&
+        currentFulfillment
+          .customerActionReason && (
+          <div className="mt-4 rounded-lg bg-amber-50 p-4">
+            <p className="text-xs font-medium text-amber-700">
+              等待客户原因
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-amber-800">
+              {
+                currentFulfillment
+                  .customerActionReason
+              }
+            </p>
+          </div>
+        )}
+
+
+      {currentFulfillment
         .failureReason && (
-        <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="font-medium text-red-700">
+        <div className="mt-4 rounded-lg bg-red-50 p-4">
+          <p className="text-xs font-medium text-red-700">
             无法完成原因
           </p>
 
-          <p className="mt-1 text-sm leading-6 text-red-600">
+          <p className="mt-2 text-sm leading-6 text-red-700">
             {
-              fulfillment
+              currentFulfillment
                 .failureReason
             }
           </p>
         </div>
       )}
 
-      {fulfillment.status ===
-        "completed" && (
-        <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-5">
-          <p className="font-semibold text-green-800">
-            服务已经成功完成并交付
-          </p>
 
-          <p className="mt-2 text-sm leading-6 text-green-700">
-            本服务已经履行完成。
-            根据退款规则，已完成并交付的服务不支持退款，
-            也不能重新进入办理流程。
-          </p>
-        </div>
-      )}
+      {!isRefundTerminal &&
+        currentFulfillment.status ===
+          "refund_review" && (
+          <div className="mt-6 rounded-lg border border-purple-200 bg-purple-50 p-5">
+            <p className="font-medium text-purple-800">
+              已进入退款审核
+            </p>
 
-      {fulfillment.status ===
-        "refund_review" && (
-        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
-          <p className="font-semibold text-amber-800">
-            当前正在进行退款资格审核
-          </p>
+            <p className="mt-2 text-sm leading-6 text-purple-700">
+              当前服务已经停止正常办理。
+              后续退款资格审核与资金退款，
+              请在下方 Refund Management 区域完成。
+            </p>
+          </div>
+        )}
 
-          <p className="mt-2 text-sm leading-6 text-amber-700">
-            进入退款审核并不代表已经退款。
-            后续仍需根据服务失败原因、退款政策和付款记录确认资格。
-          </p>
-        </div>
-      )}
 
-      {actions.length >
-        0 && (
-        <div className="mt-7 border-t pt-6">
-          <h3 className="font-semibold">
-            可执行操作
-          </h3>
+      {!isRefundTerminal &&
+        !isCompletedTerminal &&
+        currentFulfillment.status !==
+          "refund_review" && (
+          <div className="mt-6 border-t pt-5">
+            <p className="text-sm font-semibold text-gray-800">
+              可执行操作
+            </p>
 
-          <p className="mt-1 text-sm text-gray-500">
-            页面只显示当前状态允许执行的操作，
-            数据库状态机仍会进行最终校验。
-          </p>
+            <p className="mt-1 text-xs leading-5 text-gray-500">
+              页面只显示当前状态允许执行的操作，
+              数据库状态机仍会进行最终校验。
+            </p>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            {actions.map(
-              (
-                action
-              ) => (
-                <button
-                  key={`${action.status}-${action.label}`}
-                  type="button"
-                  disabled={
-                    loading
-                  }
-                  onClick={() => {
-                    setSelectedAction(
-                      action
+
+            {actions.length ===
+            0 ? (
+              <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+                当前没有可执行的下一步操作。
+              </div>
+            ) : (
+              <div className="mt-4 flex flex-wrap gap-3">
+                {actions.map(
+                  (
+                    action
+                  ) => {
+                    const loading =
+                      loadingStatus ===
+                      action.status;
+
+
+                    const dangerous =
+                      action.status ===
+                        "failed" ||
+                      action.status ===
+                        "refund_review";
+
+
+                    return (
+                      <button
+                        key={
+                          action.status
+                        }
+                        type="button"
+                        onClick={() =>
+                          handleAction(
+                            action
+                          )
+                        }
+                        disabled={
+                          loadingStatus !==
+                          null
+                        }
+                        className={`
+                          rounded-lg
+                          border
+                          px-4
+                          py-2.5
+                          text-sm
+                          font-medium
+                          transition
+                          disabled:cursor-not-allowed
+                          disabled:opacity-60
+                          ${
+                            dangerous
+                              ? "border-orange-300 bg-white text-orange-700 hover:bg-orange-50"
+                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                          }
+                        `}
+                      >
+                        {loading
+                          ? "处理中..."
+                          : action.label}
+                      </button>
                     );
-
-                    if (
-                      !action
-                        .requireReason
-                    ) {
-                      void runAction(
-                        action
-                      );
-                    }
-                  }}
-                  className={`
-                    rounded-lg
-                    px-4
-                    py-2
-                    text-sm
-                    font-medium
-                    transition
-                    disabled:cursor-not-allowed
-                    disabled:opacity-50
-                    ${getButtonClass(
-                      action.variant
-                    )}
-                  `}
-                >
-                  {
-                    action.label
                   }
-                </button>
-              )
+                )}
+              </div>
             )}
           </div>
-
-          {selectedAction
-            ?.requireReason && (
-            <div className="mt-5 rounded-xl border bg-gray-50 p-4">
-              <label className="block text-sm font-medium">
-                操作原因
-              </label>
-
-              <textarea
-                value={
-                  reason
-                }
-                onChange={(
-                  event
-                ) =>
-                  setReason(
-                    event
-                      .target
-                      .value
-                  )
-                }
-                rows={4}
-                placeholder={
-                  selectedAction
-                    .reasonPlaceholder
-                }
-                className="mt-2 w-full rounded-lg border bg-white p-3"
-              />
-
-              <div className="mt-3 flex gap-3">
-                <button
-                  type="button"
-                  disabled={
-                    loading
-                  }
-                  onClick={() =>
-                    void runAction(
-                      selectedAction
-                    )
-                  }
-                  className={`
-                    rounded-lg
-                    px-4
-                    py-2
-                    text-sm
-                    font-medium
-                    ${getButtonClass(
-                      selectedAction
-                        .variant
-                    )}
-                  `}
-                >
-                  {loading
-                    ? "处理中..."
-                    : "确认操作"}
-                </button>
-
-                <button
-                  type="button"
-                  disabled={
-                    loading
-                  }
-                  onClick={() => {
-                    setSelectedAction(
-                      null
-                    );
-
-                    setReason(
-                      ""
-                    );
-                  }}
-                  className="rounded-lg border bg-white px-4 py-2 text-sm"
-                >
-                  取消
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
     </section>
   );
 }

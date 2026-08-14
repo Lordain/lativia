@@ -240,20 +240,35 @@ function getOperationType(
     fulfillment.status ===
     "failed"
   ) {
+    /*
+     * Refund 已明确审核拒绝，
+     * 这已经是一个完成的运营决定，
+     * 不应该再次回到
+     * failed_pending_review Queue。
+     */
+    if (
+      fulfillment.current_step ===
+        "refund_rejected" ||
+      fulfillment.current_step ===
+        "refund_succeeded"
+    ) {
+      return null;
+    }
+  
     if (
       fulfillment
         .refund_review_required
     ) {
       return "refund_review";
     }
-
+  
     if (
       fulfillment
         .human_review_required
     ) {
       return "manual_review";
     }
-
+  
     return "failed_pending_review";
   }
 

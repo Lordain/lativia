@@ -58,6 +58,17 @@ import AdminRefundReview from "@/components/admin/AdminRefundReview";
 
 import AdminRefundExecution from "@/components/admin/AdminRefundExecution";
 
+import {
+  getAdminCustomerActionRequest,
+} from "@/lib/customerActions/getAdminCustomerActionRequest";
+
+import AdminCustomerActionRequest from "@/components/admin/AdminCustomerActionRequest";
+
+import {
+  getAdminCustomerActionSubmission,
+} from "@/lib/customerActions/getAdminCustomerActionSubmission";
+
+import AdminCustomerActionReview from "@/components/admin/AdminCustomerActionReview";
 
 interface Props {
   params: Promise<{
@@ -114,20 +125,32 @@ export default async function AdminOrderDetailPage({
     auditLogs,
     fulfillmentData,
     refundData,
+    customerActionRequest,
   ] =
     await Promise.all([
       getPaymentAuditLogs(
         order.id
       ),
-
+  
       getAdminFulfillment(
         order.id
       ),
-
+  
       getAdminRefund(
         order.id
       ),
+  
+      getAdminCustomerActionRequest(
+        order.id
+      ),
     ]);
+
+  const customerActionSubmission =
+  customerActionRequest
+    ? await getAdminCustomerActionSubmission(
+        customerActionRequest.id
+      )
+    : null;
 
 
   /*
@@ -410,6 +433,60 @@ export default async function AdminOrderDetailPage({
         }
       />
 
+
+    <AdminCustomerActionRequest
+      orderId={
+        order.id
+      }
+      fulfillmentId={
+        fulfillmentData
+          .fulfillment
+          ?.id ??
+        null
+      }
+      fulfillmentStatus={
+        fulfillmentData
+          .fulfillment
+          ?.status ??
+        null
+      }
+      formSchema={
+        formSchema
+      }
+      formData={
+        (
+          order.form_data ??
+          {}
+        ) as
+          Record<
+            string,
+            string
+          >
+      }
+      activeRequest={
+        customerActionRequest
+      }
+    />
+
+    {customerActionRequest && (
+      <AdminCustomerActionReview
+        request={
+          customerActionRequest
+        }
+        submission={
+          customerActionSubmission
+        }
+        currentFormData={
+          (
+            order.form_data ??
+            {}
+          ) as Record<
+            string,
+            string
+          >
+        }
+      />
+    )}
 
       {/* =====================================
           Refund Management

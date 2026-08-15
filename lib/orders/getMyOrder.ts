@@ -30,7 +30,8 @@ export async function getMyOrder(id: string) {
 
       services (
         title,
-        slug
+        slug,
+        form_schema
       )
     `)
     .eq("id", id)

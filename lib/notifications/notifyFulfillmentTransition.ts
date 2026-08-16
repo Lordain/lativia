@@ -90,7 +90,7 @@ import {
           /*
            * waiting_customer 可能发生多次。
            *
-           * 如果以后要允许每一次补件产生新通知，
+           * 如果以后要允许每一次客户处理要求产生新通知，
            * 会加入 transition/activity ID。
            *
            * MVP 目前每个 Fulfillment 保留一次。

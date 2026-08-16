@@ -20,6 +20,14 @@ import type {
   CustomerActionRequestedFields,
 } from "@/types/customerAction";
 
+import {
+  notifyCustomerActionApproved,
+} from "@/lib/notifications/notifyCustomerActionReview";
+
+import {
+  createCustomerActionActivity,
+} from "@/lib/customerActions/createCustomerActionActivity";
+
 
 export async function approveCustomerActionSubmission(
   submissionId:
@@ -409,6 +417,53 @@ export async function approveCustomerActionSubmission(
         "",
     });
   }
+
+  if (
+    request.fulfillment_id
+  ) {
+    await createCustomerActionActivity({
+      fulfillmentId:
+        request.fulfillment_id,
+  
+      orderId:
+        submission.order_id,
+  
+      actorType:
+        "admin",
+  
+      actorUserId:
+        profile.id,
+  
+      action:
+        "customer_correction_approved",
+  
+      message:
+        "客户修正资料审核通过，正式订单资料已更新。",
+  
+      metadata: {
+        requestId:
+          request.id,
+  
+        submissionId:
+          submission.id,
+  
+        fields:
+          requestedKeys,
+      },
+    });
+  }
+
+  await notifyCustomerActionApproved({
+    orderId:
+      submission.order_id,
+  
+    fulfillmentId:
+      request.fulfillment_id ??
+      null,
+  
+    submissionId:
+      submission.id,
+  });
 
 
   revalidatePath(

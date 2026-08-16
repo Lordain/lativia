@@ -12,7 +12,7 @@ export function getStatusColor(status:OrderStatus){
     
     return "bg-blue-100 text-blue-700";
     
-    case "waiting_documents":
+    case "waiting_customer":
     
     return "bg-orange-100 text-orange-700";
     

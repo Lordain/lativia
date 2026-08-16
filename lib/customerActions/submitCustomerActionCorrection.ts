@@ -17,6 +17,9 @@ import type {
   CustomerActionRequestedFields,
 } from "@/types/customerAction";
 
+import {
+  createCustomerActionActivity,
+} from "@/lib/customerActions/createCustomerActionActivity";
 
 export async function submitCustomerActionCorrection(
   input:
@@ -81,6 +84,7 @@ export async function submitCustomerActionCorrection(
         id,
         order_id,
         user_id,
+        fulfillment_id,
         status,
         requested_fields
       `)
@@ -333,6 +337,41 @@ export async function submitCustomerActionCorrection(
     throw new Error(
       "资料已经提交，但状态同步失败，请联系客服。"
     );
+  }
+
+  if (
+    request.fulfillment_id
+  ) {
+    await createCustomerActionActivity({
+      fulfillmentId:
+        request.fulfillment_id,
+  
+      orderId:
+        request.order_id,
+  
+      actorType:
+        "customer",
+  
+      actorUserId:
+        user.id,
+  
+      action:
+        "customer_correction_submitted",
+  
+      message:
+        "客户已提交修正资料，等待管理员审核。",
+  
+      metadata: {
+        requestId:
+          request.id,
+  
+        submissionId:
+          submission.id,
+  
+        fields:
+          requestedKeys,
+      },
+    });
   }
 
 

@@ -8,7 +8,7 @@ import type {
 export type OrderStatus =
   | "pending"
   | "processing"
-  | "waiting_documents"
+  | "waiting_customer"
   | "completed"
   | "cancelled";
 

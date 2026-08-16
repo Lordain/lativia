@@ -61,6 +61,27 @@ import type {
     ) {
       return "管理员内部备注";
     }
+
+    if (
+      activity.action ===
+      "customer_correction_submitted"
+    ) {
+      return "客户已提交修正资料";
+    }
+    
+    if (
+      activity.action ===
+      "customer_correction_rejected"
+    ) {
+      return "客户修正资料审核未通过";
+    }
+    
+    if (
+      activity.action ===
+      "customer_correction_approved"
+    ) {
+      return "客户修正资料审核通过";
+    }
   
     if (
       activity.action ===
@@ -123,6 +144,29 @@ import type {
     activity:
       FulfillmentActivity
   ): OrderTimelineItem["level"] {
+
+    if (
+      activity.action ===
+      "customer_correction_approved"
+    ) {
+      return "success";
+    }
+    
+    if (
+      activity.action ===
+      "customer_correction_rejected"
+    ) {
+      return "warning";
+    }
+    
+    if (
+      activity.action ===
+      "customer_correction_submitted"
+    ) {
+      return "info";
+    }
+
+
     if (
       activity.toStatus ===
       "completed"

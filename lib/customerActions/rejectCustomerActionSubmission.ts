@@ -12,6 +12,13 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
+import {
+  notifyCustomerActionRejected,
+} from "@/lib/notifications/notifyCustomerActionReview";
+
+import {
+  createCustomerActionActivity,
+} from "@/lib/customerActions/createCustomerActionActivity";
 
 export async function rejectCustomerActionSubmission(
   submissionId:
@@ -153,6 +160,9 @@ export async function rejectCustomerActionSubmission(
    */
 
   const {
+    data:
+      updatedRequest,
+  
     error:
       requestUpdateError,
   } =
@@ -163,7 +173,7 @@ export async function rejectCustomerActionSubmission(
       .update({
         status:
           "pending",
-
+  
         submitted_at:
           null,
       })
@@ -174,16 +184,68 @@ export async function rejectCustomerActionSubmission(
       .eq(
         "status",
         "submitted"
-      );
+      )
+      .select(`
+        id,
+        fulfillment_id
+      `)
+      .single();
 
 
   if (
-    requestUpdateError
+    requestUpdateError ||
+    !updatedRequest
   ) {
     throw new Error(
       "重新开启客户资料修正要求失败。"
     );
   }
+
+  if (
+    updatedRequest.fulfillment_id
+  ) {
+    await createCustomerActionActivity({
+      fulfillmentId:
+        updatedRequest.fulfillment_id,
+  
+      orderId:
+        submission.order_id,
+  
+      actorType:
+        "admin",
+  
+      actorUserId:
+        profile.id,
+  
+      action:
+        "customer_correction_rejected",
+  
+      message:
+        `客户修正资料审核未通过：${cleanReason}`,
+  
+      metadata: {
+        requestId:
+          submission.request_id,
+  
+        submissionId:
+          submission.id,
+  
+        reason:
+          cleanReason,
+      },
+    });
+  }
+
+  await notifyCustomerActionRejected({
+    orderId:
+      submission.order_id,
+  
+    submissionId:
+      submission.id,
+  
+    reason:
+      cleanReason,
+  });
 
 
   revalidatePath(

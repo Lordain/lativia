@@ -22,6 +22,9 @@ import type {
   FormFieldSchema,
 } from "@/types/form";
 
+import {
+  getMyLatestRejectedSubmission,
+} from "@/lib/customerActions/getMyLatestRejectedSubmission";
 
 interface Props {
   params:
@@ -53,6 +56,13 @@ export default async function OrderDetailPage({
         id
       ),
     ]);
+  
+    const latestRejectedSubmission =
+    customerActionRequest
+      ? await getMyLatestRejectedSubmission(
+          customerActionRequest.id
+        )
+      : null;
 
 
   if (!order) {
@@ -100,23 +110,28 @@ export default async function OrderDetailPage({
           Customer Action
       ===================================== */}
 
-      {customerActionRequest && (
-        <CustomerActionCorrectionForm
-          request={
-            customerActionRequest
-          }
-          currentFormData={
-            (
-              order.form_data ??
-              {}
-            ) as
-              Record<
-                string,
-                string
-              >
-          }
-        />
-      )}
+    {customerActionRequest && (
+      <CustomerActionCorrectionForm
+        request={
+          customerActionRequest
+        }
+        currentFormData={
+          (
+            order.form_data ??
+            {}
+          ) as
+            Record<
+              string,
+              string
+            >
+        }
+        latestRejectReason={
+          latestRejectedSubmission
+            ?.reviewReason ??
+          null
+        }
+      />
+    )}
 
 
       {/* =====================================

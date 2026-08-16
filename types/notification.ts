@@ -2,6 +2,8 @@ export type NotificationType =
   | "payment_confirmed"
   | "fulfillment_started"
   | "customer_action_required"
+  | "customer_correction_approved"
+  | "customer_correction_rejected"
   | "service_completed"
   | "service_failed"
   | "refund_review_started"

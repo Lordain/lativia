@@ -8,8 +8,8 @@ export function getStatusText(status: OrderStatus) {
     case "processing":
       return "办理中";
 
-    case "waiting_documents":
-      return "等待补件";
+      case "waiting_customer":
+        return "等待客户处理";
 
     case "completed":
       return "已完成";

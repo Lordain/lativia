@@ -26,12 +26,16 @@ interface Props {
       string,
       string
     >;
+
+  latestRejectReason?:
+    string | null;
 }
 
 
 export default function CustomerActionCorrectionForm({
   request,
   currentFormData,
+  latestRejectReason,
 }: Props) {
   const router =
     useRouter();
@@ -174,6 +178,18 @@ export default function CustomerActionCorrectionForm({
         <h2 className="mt-1 text-xl font-semibold text-amber-900">
           请修正以下资料
         </h2>
+
+        {latestRejectReason && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="text-sm font-semibold text-red-800">
+              最近一次审核未通过
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-red-700">
+              {latestRejectReason}
+            </p>
+          </div>
+        )}
 
 
         {request.message && (

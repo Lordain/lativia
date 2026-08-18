@@ -14,6 +14,10 @@ import {
   createOrderNotification,
 } from "@/lib/notifications/createOrderNotification";
 
+import {
+  safeEnsureOrderWorkspace,
+} from "@/lib/workspaces/safeEnsureOrderWorkspace";
+
 
 export interface ProcessMercadoPagoPaymentResult {
   paymentId: string;
@@ -512,6 +516,10 @@ export async function processMercadoPagoPayment(
       orderId:
         order.id,
     }
+  );
+
+  await safeEnsureOrderWorkspace(
+    order.id
   );
 
 

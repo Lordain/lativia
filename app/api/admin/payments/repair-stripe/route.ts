@@ -5,6 +5,10 @@ import { stripe } from "@/lib/payments/stripe";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
 import { createPaymentAuditLog } from "@/lib/payments/createPaymentAuditLog";
 
+import {
+  safeEnsureOrderWorkspace,
+} from "@/lib/workspaces/safeEnsureOrderWorkspace";
+
 export async function POST(request: Request) {
   try {
     const { orderId } = await request.json();
@@ -90,8 +94,20 @@ export async function POST(request: Request) {
     if (
       order.payment_status === "paid"
     ) {
+      /*
+       * Order 已经 paid，
+       * 但可能因为历史异常缺少 Workspace。
+       *
+       * ensure 本身幂等，
+       * 非 Workspace Service 会自动跳过。
+       */
+      await safeEnsureOrderWorkspace(
+        order.id
+      );
+    
       return NextResponse.json({
         success: true,
+    
         message:
           "订单当前已经是已付款状态，无需修复。",
       });
@@ -543,6 +559,22 @@ export async function POST(request: Request) {
 
     console.log(
       `Order ${order.id} safely repaired from Stripe`
+    );
+
+    /*
+    * ========================================
+    * Workspace Recovery
+    * ========================================
+    *
+    * Payment 修复已经成功。
+    * 现在补建需要的 Workspace。
+    *
+    * Workspace 创建失败不能让已经完成的
+    * Payment Repair 显示为失败。
+    */
+
+    await safeEnsureOrderWorkspace(
+      order.id
     );
 
     // 13. 成功 Audit Log

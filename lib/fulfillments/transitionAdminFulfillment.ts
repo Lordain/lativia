@@ -20,6 +20,14 @@ import {
   notifyFulfillmentTransition,
 } from "@/lib/notifications/notifyFulfillmentTransition";
 
+import {
+  safeEnsureOrderWorkspace,
+} from "@/lib/workspaces/safeEnsureOrderWorkspace";
+
+import {
+  safeStartOrderWorkspace,
+} from "@/lib/workspaces/safeStartOrderWorkspace";
+
 
 export interface TransitionAdminFulfillmentInput {
   fulfillmentId:
@@ -279,6 +287,35 @@ export async function transitionAdminFulfillment(
       success:
         true,
     };
+  }
+
+  /*
+  * ========================================
+  * Workspace Lifecycle
+  * ========================================
+  *
+  * validating / processing
+  * 代表 Admin 已经真正开始处理服务。
+  *
+  * 先确保 Workspace 存在，
+  * 再启动服务期限。
+  *
+  * 两个函数均为幂等操作。
+  */
+
+  if (
+    input.newStatus ===
+      "validating" ||
+    input.newStatus ===
+      "processing"
+  ) {
+    await safeEnsureOrderWorkspace(
+      fulfillment.order_id
+    );
+
+    await safeStartOrderWorkspace(
+      fulfillment.order_id
+    );
   }
 
 

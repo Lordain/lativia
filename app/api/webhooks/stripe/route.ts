@@ -18,6 +18,10 @@ import {
   createOrderNotification,
 } from "@/lib/notifications/createOrderNotification";
 
+import {
+  safeEnsureOrderWorkspace,
+} from "@/lib/workspaces/safeEnsureOrderWorkspace";
+
 
 export async function POST(
   request: Request
@@ -253,6 +257,10 @@ export async function POST(
       `Stripe event ${event.id} already processed`
     );
 
+    await safeEnsureOrderWorkspace(
+      orderId
+    );
+
 
     await createOrderNotification({
       orderId,
@@ -365,6 +373,10 @@ export async function POST(
   ) {
     console.log(
       `Order ${orderId} already paid`
+    );
+
+    await safeEnsureOrderWorkspace(
+      orderId
     );
 
 
@@ -652,6 +664,10 @@ export async function POST(
       }
     );
   }
+
+  await safeEnsureOrderWorkspace(
+    orderId
+  );
 
 
   console.log(

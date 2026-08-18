@@ -13,9 +13,9 @@ import {
     } = await supabase
       .from("services")
       .select("*")
-      .eq(
-        "is_active",
-        true
+      .neq(
+        "service_status",
+        "hidden"
       )
       .order(
         "popular",

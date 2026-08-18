@@ -19,15 +19,24 @@ export default function CreateServiceContainer() {
     useRouter();
 
   async function handleSubmit(
-    data: ServiceFormData
+    data:
+      ServiceFormData
   ) {
     try {
-      await createService(
-        data
-      );
+      const result =
+        await createService(
+          data
+        );
+
+      /*
+       * 创建 Service 后不返回列表。
+       *
+       * 直接进入该 Service 编辑页，
+       * 继续配置付款方式。
+       */
 
       router.push(
-        "/admin/services"
+        `/admin/services/${result.id}`
       );
 
       router.refresh();

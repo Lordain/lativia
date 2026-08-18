@@ -4,15 +4,52 @@ import type {
   Service,
 } from "@/types/service";
 
-import ServiceActiveButton from "@/components/admin/ServiceActiveButton";
-
 interface Props {
   service: Service;
+}
+
+function getServiceStatusConfig(
+  status: Service["serviceStatus"]
+) {
+  switch (status) {
+    case "active":
+      return {
+        label: "正常受理",
+        className:
+          "bg-green-50 text-green-700",
+      };
+
+    case "paused":
+      return {
+        label: "暂停受理",
+        className:
+          "bg-amber-50 text-amber-700",
+      };
+
+    case "hidden":
+      return {
+        label: "前台隐藏",
+        className:
+          "bg-gray-100 text-gray-500",
+      };
+
+    default:
+      return {
+        label: "未知状态",
+        className:
+          "bg-gray-100 text-gray-500",
+      };
+  }
 }
 
 export default function ServiceRow({
   service,
 }: Props) {
+  const status =
+    getServiceStatusConfig(
+      service.serviceStatus
+    );
+
   return (
     <div className="rounded-xl border bg-white p-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -33,16 +70,10 @@ export default function ServiceRow({
                 py-1
                 text-xs
                 font-medium
-                ${
-                  service.isActive
-                    ? "bg-green-50 text-green-700"
-                    : "bg-gray-100 text-gray-500"
-                }
+                ${status.className}
               `}
             >
-              {service.isActive
-                ? "启用"
-                : "停用"}
+              {status.label}
             </span>
 
             {service.popular && (
@@ -61,30 +92,22 @@ export default function ServiceRow({
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
             <span>
               Slug：
-              {
-                service.slug
-              }
+              {service.slug}
             </span>
 
             <span>
               分类：
-              {
-                service.category
-              }
+              {service.category}
             </span>
 
             <span>
               价格：
-              {
-                service.price
-              }
+              {service.price}
             </span>
 
             <span>
               办理：
-              {
-                service.duration
-              }
+              {service.duration}
             </span>
           </div>
         </div>
@@ -106,13 +129,6 @@ export default function ServiceRow({
           >
             编辑
           </Link>
-
-          <ServiceActiveButton
-            id={service.id}
-            active={
-              service.isActive
-            }
-          />
         </div>
       </div>
     </div>

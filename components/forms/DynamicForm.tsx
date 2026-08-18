@@ -1,16 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useMemo,
+  useState,
+} from "react";
 
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import {
+  useForm,
+} from "react-hook-form";
+
+import {
+  useRouter,
+} from "next/navigation";
 
 import PaymentOptionSelector from "@/components/payments/PaymentOptionSelector";
 
-import { createOrder } from "@/lib/orders/createOrder";
+import {
+  createOrder,
+} from "@/lib/orders/createOrder";
 
-import type { ServicePrice } from "@/types/servicePrice";
-import type { FormFieldSchema } from "@/types/form";
+import type {
+  ServicePrice,
+} from "@/types/servicePrice";
+
+import type {
+  FormFieldSchema,
+} from "@/types/form";
+
+import type {
+  EligibilityItem,
+  EligibilityMode,
+} from "@/types/service";
 
 type DynamicFormData =
   Record<string, string>;
@@ -23,19 +43,47 @@ interface Props {
 
   prices:
     ServicePrice[];
+
+  eligibilityMode:
+    EligibilityMode;
+
+  eligibilitySchema:
+    EligibilityItem[];
+
 }
 
 export default function DynamicForm({
   serviceId,
   schema,
   prices,
+  eligibilityMode,
+  eligibilitySchema,
 }: Props) {
   const [
     selectedPriceId,
     setSelectedPriceId,
-  ] = useState(
-    prices[0]?.id ?? ""
-  );
+  ] =
+    useState(
+      prices[0]?.id ??
+        ""
+    );
+
+  const [
+    acknowledgedEligibility,
+    setAcknowledgedEligibility,
+  ] =
+    useState<
+      Record<
+        string,
+        boolean
+      >
+    >({});
+
+  const [
+    submitting,
+    setSubmitting,
+  ] =
+    useState(false);
 
   const router =
     useRouter();
@@ -43,6 +91,7 @@ export default function DynamicForm({
   const {
     register,
     handleSubmit,
+
     formState: {
       errors,
     },
@@ -50,11 +99,62 @@ export default function DynamicForm({
     useForm<DynamicFormData>();
 
   const hasPrices =
-    prices.length > 0;
+    prices.length >
+    0;
+
+  const requiresEligibility =
+    eligibilityMode ===
+      "self_check" &&
+    eligibilitySchema.length >
+      0;
+
+  const requiredEligibilityItems =
+    useMemo(
+      () =>
+        eligibilitySchema.filter(
+          item =>
+            item.required !==
+            false
+        ),
+      [
+        eligibilitySchema,
+      ]
+    );
+
+  const allEligibilityConfirmed =
+    !requiresEligibility ||
+    requiredEligibilityItems.every(
+      item =>
+        acknowledgedEligibility[
+          item.key
+        ] ===
+        true
+    );
+
+  function toggleEligibility(
+    key: string,
+    checked: boolean
+  ) {
+    setAcknowledgedEligibility(
+      current => ({
+        ...current,
+
+        [key]:
+          checked,
+      })
+    );
+  }
 
   async function submitForm(
-    data: DynamicFormData
+    data:
+      DynamicFormData
   ) {
+    if (
+      submitting
+    ) {
+      return;
+    }
+
     try {
       if (
         !selectedPriceId
@@ -66,13 +166,45 @@ export default function DynamicForm({
         return;
       }
 
+      if (
+        !allEligibilityConfirmed
+      ) {
+        alert(
+          "请先确认全部必填办理条件"
+        );
+
+        return;
+      }
+
+      setSubmitting(
+        true
+      );
+
+      const eligibilityAcknowledgementKeys =
+        requiredEligibilityItems
+          .filter(
+            item =>
+              acknowledgedEligibility[
+                item.key
+              ] ===
+              true
+          )
+          .map(
+            item =>
+              item.key
+          );
+
       const order =
         await createOrder({
           serviceId,
+
           priceId:
             selectedPriceId,
+
           formData:
             data,
+
+          eligibilityAcknowledgementKeys,
         });
 
       router.push(
@@ -88,27 +220,216 @@ export default function DynamicForm({
           ? error.message
           : "提交失败，请稍后再试"
       );
+
+      setSubmitting(
+        false
+      );
     }
   }
 
   return (
     <form
-      onSubmit={handleSubmit(
-        submitForm,
-        (
-          formErrors
-        ) => {
-          console.log(
-            "validation errors:",
-            formErrors
-          );
-        }
-      )}
-      className="space-y-6"
+      onSubmit={
+        handleSubmit(
+          submitForm,
+
+          formErrors => {
+            console.log(
+              "validation errors:",
+              formErrors
+            );
+          }
+        )
+      }
+      className="space-y-8"
     >
-      {/* =====================================
-          Payment Options
-      ===================================== */}
+      {/* Eligibility */}
+
+      {requiresEligibility && (
+        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+          <div>
+            <h2 className="text-xl font-semibold text-blue-950">
+              办理前请确认
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-blue-800">
+              请确认您符合以下办理条件。
+              未满足必填条件时，请不要继续付款。
+            </p>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {eligibilitySchema.map(
+              item => (
+                <label
+                  key={
+                    item.key
+                  }
+                  className="
+                    flex
+                    cursor-pointer
+                    items-start
+                    gap-3
+                    rounded-xl
+                    border
+                    border-blue-100
+                    bg-white
+                    p-4
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 shrink-0"
+                    checked={
+                      acknowledgedEligibility[
+                        item.key
+                      ] ??
+                      false
+                    }
+                    onChange={
+                      event =>
+                        toggleEligibility(
+                          item.key,
+                          event
+                            .target
+                            .checked
+                        )
+                    }
+                  />
+
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {
+                        item.label
+                      }
+
+                      {item.required !==
+                        false && (
+                        <span className="ml-1 text-red-500">
+                          *
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </label>
+              )
+            )}
+          </div>
+
+          {!allEligibilityConfirmed && (
+            <p className="mt-4 text-sm font-medium text-blue-900">
+              请确认所有标有 * 的办理条件后再继续。
+            </p>
+          )}
+        </section>
+      )}
+
+      {/* Form fields */}
+
+      {schema.length >
+        0 && (
+        <section>
+          <h2 className="text-xl font-semibold">
+            填写办理资料
+          </h2>
+
+          <div className="mt-5 space-y-6">
+            {schema.map(
+              field => (
+                <div
+                  key={
+                    field.name
+                  }
+                  className="space-y-2"
+                >
+                  <label className="font-medium">
+                    {
+                      field.label
+                    }
+
+                    {field.required && (
+                      <span className="ml-1 text-red-500">
+                        *
+                      </span>
+                    )}
+                  </label>
+
+                  {field.type ===
+                  "textarea" ? (
+                    <textarea
+                      placeholder={
+                        field.placeholder
+                      }
+                      {...register(
+                        field.name,
+                        {
+                          required:
+                            field.required
+                              ? `${field.label} 为必填`
+                              : false,
+                        }
+                      )}
+                      rows={
+                        4
+                      }
+                      className={`w-full rounded-lg border p-3 ${
+                        errors[
+                          field
+                            .name
+                        ]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                    />
+                  ) : (
+                    <input
+                      type={
+                        field.type
+                      }
+                      placeholder={
+                        field.placeholder
+                      }
+                      {...register(
+                        field.name,
+                        {
+                          required:
+                            field.required
+                              ? `${field.label} 为必填`
+                              : false,
+                        }
+                      )}
+                      className={`w-full rounded-lg border p-3 ${
+                        errors[
+                          field
+                            .name
+                        ]
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
+                    />
+                  )}
+
+                  {errors[
+                    field.name
+                  ] && (
+                    <p className="text-sm text-red-500">
+                      {
+                        errors[
+                          field
+                            .name
+                        ]
+                          ?.message as string
+                      }
+                    </p>
+                  )}
+                </div>
+              )
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Payment */}
 
       <section>
         <h2 className="text-xl font-semibold">
@@ -142,109 +463,32 @@ export default function DynamicForm({
         )}
       </section>
 
-      {/* =====================================
-          Dynamic Fields
-      ===================================== */}
+      {/* Commerce Notice */}
 
-      {schema.map(
-        (field) => (
-          <div
-            key={
-              field.name
-            }
-            className="space-y-2"
-          >
-            <label className="font-medium">
-              {
-                field.label
-              }
+      <section className="rounded-xl bg-gray-50 p-4 text-sm leading-6 text-gray-600">
+        <p>
+          提交申请代表您确认所填写的信息和办理条件真实有效，
+          并已了解本服务的内容、范围及办理条件。
+        </p>
 
-              {field.required && (
-                <span className="ml-1 text-red-500">
-                  *
-                </span>
-              )}
-            </label>
+        <p className="mt-2">
+          如后续出现无法继续办理、资料条件不符或其他特殊情况，
+          将根据实际情况和平台规则进行人工处理。
+        </p>
+      </section>
 
-            {field.type ===
-            "textarea" ? (
-              <textarea
-                placeholder={
-                  field.placeholder
-                }
-                {...register(
-                  field.name,
-                  {
-                    required:
-                      field.required
-                        ? `${field.label} 为必填`
-                        : false,
-                  }
-                )}
-                rows={4}
-                className={`w-full rounded-lg border p-3 ${
-                  errors[
-                    field.name
-                  ]
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-              />
-            ) : (
-              <input
-                type={
-                  field.type
-                }
-                placeholder={
-                  field.placeholder
-                }
-                {...register(
-                  field.name,
-                  {
-                    required:
-                      field.required
-                        ? `${field.label} 为必填`
-                        : false,
-                  }
-                )}
-                className={`w-full rounded-lg border p-3 ${
-                  errors[
-                    field.name
-                  ]
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-              />
-            )}
-
-            {errors[
-              field.name
-            ] && (
-              <p className="text-sm text-red-500">
-                {
-                  errors[
-                    field.name
-                  ]
-                    ?.message as string
-                }
-              </p>
-            )}
-          </div>
-        )
-      )}
-
-      {/* =====================================
-          Submit
-      ===================================== */}
+      {/* Submit */}
 
       <button
         type="submit"
         disabled={
-          !hasPrices
+          !hasPrices ||
+          !allEligibilityConfirmed ||
+          submitting
         }
         className="
           w-full
-          rounded-lg
+          rounded-xl
           bg-blue-600
           px-6
           py-3
@@ -257,7 +501,9 @@ export default function DynamicForm({
           disabled:opacity-60
         "
       >
-        提交申请
+        {submitting
+          ? "正在创建订单..."
+          : "提交申请"}
       </button>
     </form>
   );

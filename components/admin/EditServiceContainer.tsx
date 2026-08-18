@@ -29,7 +29,8 @@ export default function EditServiceContainer({
     useRouter();
 
   async function handleSubmit(
-    data: ServiceFormData
+    data:
+      ServiceFormData
   ) {
     try {
       await updateService(
@@ -37,11 +38,18 @@ export default function EditServiceContainer({
         data
       );
 
-      router.push(
-        "/admin/services"
-      );
+      /*
+       * 不跳回列表。
+       *
+       * 保存后刷新当前页面，
+       * Admin 可以继续配置付款方式。
+       */
 
       router.refresh();
+
+      alert(
+        "服务资料已更新"
+      );
     } catch (error) {
       console.error(
         error

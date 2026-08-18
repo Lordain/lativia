@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -25,6 +26,8 @@ import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 
 import DynamicFormBuilder from "@/components/admin/DynamicFormBuilder";
+import EligibilityBuilder from "@/components/admin/EligibilityBuilder";
+import CompletionMilestoneBuilder from "@/components/admin/CompletionMilestoneBuilder";
 
 interface Props {
   initialData?: ServiceFormData;
@@ -47,6 +50,8 @@ export default function ServiceForm({
     register,
     control,
     handleSubmit,
+    watch,
+    reset,
     formState: {
       errors,
     },
@@ -59,6 +64,12 @@ export default function ServiceForm({
 
       defaultValues:
         initialData ?? {
+          /*
+           * =====================================
+           * Basic
+           * =====================================
+           */
+
           slug: "",
 
           title: "",
@@ -87,38 +98,74 @@ export default function ServiceForm({
           popular:
             false,
 
-          isActive:
-            true,
+          /*
+           * =====================================
+           * Settings
+           * =====================================
+           */
+
+          serviceType:
+            "online_query",
+
+          launchPriority:
+            "second",
+
+          serviceStatus:
+            "active",
+
+          /*
+           * =====================================
+           * Eligibility
+           * =====================================
+           */
+
+          eligibilityMode:
+            "none",
+
+          eligibilitySchema:
+            [],
+
+          /*
+           * =====================================
+           * Customer Form
+           * =====================================
+           */
 
           formSchema:
             [],
 
           /*
            * =====================================
-           * Service Business Design
+           * Execution
            * =====================================
            */
 
-          customerValue:
-            "",
+          workspaceRequired:
+            false,
+
+          completionMode:
+            "manual",
+
+          accessDurationDays:
+            null,
+
+          completionMilestones:
+            [],
+
+          /*
+           * =====================================
+           * Result
+           * =====================================
+           */
 
           expectedOutcome:
             "",
 
-          /*
-           * =====================================
-           * Fulfillment / Automation
-           * =====================================
-           */
+          resultIsOfficial:
+            false,
 
-          fulfillmentType:
-            "semi_automatic",
-
-          humanReviewRequired:
-            true,
-
-          humanReviewNotes:
-            "",
+          hasResultFile:
+            false,
 
           /*
            * =====================================
@@ -128,25 +175,78 @@ export default function ServiceForm({
 
           refundEligibleWhenFailed:
             true,
-
-          /*
-           * =====================================
-           * Privacy / Result
-           * =====================================
-           */
-
-          personalDataPolicy:
-            "客户提交的个人资料仅用于完成本次服务，不用于建立长期个人身份档案。服务完成或退款流程结束后，将按照数据保留政策删除不再必要的办理资料。",
-
-          resultType:
-            "",
         },
     });
+
+  /*
+   * =====================================
+   * Keep React Hook Form synchronized
+   *
+   * 编辑服务保存后 router.refresh()
+   * 会重新取得服务器 initialData。
+   *
+   * React Hook Form 的 defaultValues
+   * 不会自动响应 initialData 变化，
+   * 因此这里主动 reset。
+   * =====================================
+   */
+
+  useEffect(
+    () => {
+      if (
+        initialData
+      ) {
+        reset(
+          initialData
+        );
+      }
+    },
+    [
+      initialData,
+      reset,
+    ]
+  );
+
+  /*
+   * =====================================
+   * Conditional Fields
+   * =====================================
+   */
+
+  const eligibilityMode =
+    watch(
+      "eligibilityMode"
+    );
+
+  const completionMode =
+    watch(
+      "completionMode"
+    );
+
+  const showDuration =
+    completionMode ===
+      "time_based" ||
+    completionMode ===
+      "time_or_milestone";
+
+  const showMilestones =
+    completionMode ===
+      "milestone_based" ||
+    completionMode ===
+      "time_or_milestone";
+
+  /*
+   * =====================================
+   * Submit
+   * =====================================
+   */
 
   async function submitForm(
     data: ServiceFormData
   ) {
-    setLoading(true);
+    setLoading(
+      true
+    );
 
     try {
       await onSubmit(
@@ -163,13 +263,24 @@ export default function ServiceForm({
     <form
       onSubmit={
         handleSubmit(
-          submitForm
+          submitForm,
+
+          validationErrors => {
+            console.error(
+              "ServiceForm validation failed:",
+              validationErrors
+            );
+
+            alert(
+              "表单中仍有未通过验证的内容，请检查页面中的红色提示。"
+            );
+          }
         )
       }
       className="mt-6 space-y-6"
     >
       {/* =====================================
-          Basic Information
+          1. Basic
       ===================================== */}
 
       <section className="rounded-2xl border bg-white p-6">
@@ -179,7 +290,7 @@ export default function ServiceForm({
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            定义服务名称、分类、基本说明和前台展示信息。
+            设置客户在前台看到的服务名称、说明和基本办理信息。
           </p>
         </div>
 
@@ -193,7 +304,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：RFC 查询与结果确认"
+              placeholder="例如：个人 RFC 首次申请"
               error={
                 !!errors.title
               }
@@ -212,7 +323,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：rfc"
+              placeholder="例如：personal-rfc"
               error={
                 !!errors.slug
               }
@@ -231,7 +342,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：Tax"
+              placeholder="例如：税务 / 移民 / 投资咨询"
               error={
                 !!errors.category
               }
@@ -263,7 +374,7 @@ export default function ServiceForm({
 
         <div className="mt-6 space-y-6">
           <FormField
-            label="简短描述"
+            label="简短说明"
             error={
               errors
                 .shortDescription
@@ -272,7 +383,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：快速查询并确认您的墨西哥 RFC 信息"
+              placeholder="一句话说明客户为什么需要这个服务"
               error={
                 !!errors
                   .shortDescription
@@ -293,7 +404,7 @@ export default function ServiceForm({
           >
             <Textarea
               rows={5}
-              placeholder="说明这个服务解决什么问题、适合什么客户，以及办理的大致流程。"
+              placeholder="说明适用对象、服务内容和主要办理流程。"
               error={
                 !!errors
                   .description
@@ -315,7 +426,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：MX$400"
+              placeholder="例如：MX$800"
               error={
                 !!errors.price
               }
@@ -323,6 +434,10 @@ export default function ServiceForm({
                 "price"
               )}
             />
+
+            <p className="mt-2 text-xs leading-5 text-gray-500">
+              当前仅用于页面展示；实际付款金额由付款方式配置决定。
+            </p>
           </FormField>
 
           <FormField
@@ -334,7 +449,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：10～30 分钟"
+              placeholder="例如：1～3 个工作日"
               error={
                 !!errors.duration
               }
@@ -347,15 +462,16 @@ export default function ServiceForm({
 
         <div className="mt-6">
           <FormField
-            label="所需文件 / 资料"
+            label="客户需要准备的资料"
             error={
-              errors.requirements
+              errors
+                .requirements
                 ?.message
             }
           >
             <Textarea
               rows={3}
-              placeholder="例如：CURP, 护照"
+              placeholder="例如：护照、居留卡、CURP"
               error={
                 !!errors
                   .requirements
@@ -366,14 +482,8 @@ export default function ServiceForm({
             />
           </FormField>
         </div>
-      </section>
 
-      {/* =====================================
-          Flags
-      ===================================== */}
-
-      <section className="grid gap-4 rounded-2xl border bg-gray-50 p-5 md:grid-cols-2">
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-4">
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl bg-gray-50 p-4">
           <input
             type="checkbox"
             className="mt-1 h-4 w-4"
@@ -383,98 +493,348 @@ export default function ServiceForm({
           />
 
           <div>
-            <p className="text-sm font-medium">
+            <p className="font-medium">
               热门服务
             </p>
 
-            <p className="mt-1 text-xs leading-5 text-gray-500">
-              在前台优先展示此服务。
-            </p>
-          </div>
-        </label>
-
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-4">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4"
-            {...register(
-              "isActive"
-            )}
-          />
-
-          <div>
-            <p className="text-sm font-medium">
-              启用服务
-            </p>
-
-            <p className="mt-1 text-xs leading-5 text-gray-500">
-              停用后客户前台不会显示此服务。
+            <p className="mt-1 text-sm text-gray-500">
+              在客户前台优先展示。
             </p>
           </div>
         </label>
       </section>
 
       {/* =====================================
-          Dynamic Form
-      ===================================== */}
-
-      <DynamicFormBuilder
-        control={
-          control
-        }
-        register={
-          register
-        }
-        errors={
-          errors
-        }
-      />
-
-      {/* =====================================
-          Service Business Design
+          2. Settings
       ===================================== */}
 
       <section className="rounded-2xl border bg-white p-6">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Service Design
-          </p>
-
-          <h2 className="mt-1 text-xl font-semibold">
-            服务价值与交付结果
+          <h2 className="text-xl font-semibold">
+            服务设置
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            不要只描述“我们做什么”。
-            请明确客户为什么值得付费，以及完成后实际会获得什么。
-            这会直接影响前台专业度和客户对结果的确定性。
+            设置服务类型、上线优先级和当前受理状态。
           </p>
         </div>
 
-        <div className="mt-6 space-y-6">
-          <FormField
-            label="客户增值点"
-            error={
-              errors
-                .customerValue
-                ?.message
-            }
-          >
-            <Textarea
-              rows={4}
-              placeholder="例如：客户无需自行研究复杂的 SAT 查询流程。系统会先检查资料完整性，并在查询异常时安排人工确认。"
-              error={
-                !!errors
-                  .customerValue
-              }
-              {...register(
-                "customerValue"
-              )}
-            />
-          </FormField>
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              服务类型
+            </label>
 
+            <select
+              {...register(
+                "serviceType"
+              )}
+              className="w-full rounded-lg border bg-white p-3"
+            >
+              <option value="online_query">
+                在线查询
+              </option>
+
+              <option value="accompaniment">
+                陪同办理
+              </option>
+
+              <option value="agency">
+                代办服务
+              </option>
+
+              <option value="consultation">
+                咨询服务
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              上线优先级
+            </label>
+
+            <select
+              {...register(
+                "launchPriority"
+              )}
+              className="w-full rounded-lg border bg-white p-3"
+            >
+              <option value="first">
+                第一优先级
+              </option>
+
+              <option value="second">
+                第二优先级
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              服务状态
+            </label>
+
+            <select
+              {...register(
+                "serviceStatus"
+              )}
+              className="w-full rounded-lg border bg-white p-3"
+            >
+              <option value="active">
+                正常受理
+              </option>
+
+              <option value="paused">
+                暂停受理
+              </option>
+
+              <option value="hidden">
+                前台隐藏
+              </option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================
+          3. Customer Conditions / Data
+      ===================================== */}
+
+      <section className="rounded-2xl border bg-white p-6">
+        <div>
+          <h2 className="text-xl font-semibold">
+            客户条件与下单资料
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            设置客户付款前需要确认的办理条件，以及下单时需要填写的信息。
+          </p>
+        </div>
+
+        <div className="mt-6">
+          <label className="mb-2 block text-sm font-medium">
+            付款前条件确认
+          </label>
+
+          <select
+            {...register(
+              "eligibilityMode"
+            )}
+            className="w-full rounded-lg border bg-white p-3"
+          >
+            <option value="none">
+              无需确认
+            </option>
+
+            <option value="self_check">
+              客户付款前确认
+            </option>
+          </select>
+
+          {errors
+            .eligibilitySchema
+            ?.message && (
+            <p className="mt-2 text-sm text-red-600">
+              {
+                errors
+                  .eligibilitySchema
+                  .message
+              }
+            </p>
+          )}
+        </div>
+
+        {eligibilityMode ===
+          "self_check" && (
+          <div className="mt-6 rounded-xl bg-gray-50 p-4">
+            <EligibilityBuilder
+              control={
+                control
+              }
+              register={
+                register
+              }
+              errors={
+                errors
+              }
+            />
+          </div>
+        )}
+
+        <div className="mt-8 border-t pt-6">
+          <div className="mb-4">
+            <h3 className="font-semibold">
+              下单时需要填写
+            </h3>
+
+            <p className="mt-1 text-sm leading-6 text-gray-500">
+              只添加完成本服务真正必要的信息。
+            </p>
+          </div>
+
+          <DynamicFormBuilder
+            control={
+              control
+            }
+            register={
+              register
+            }
+            errors={
+              errors
+            }
+          />
+        </div>
+      </section>
+
+      {/* =====================================
+          4. Execution
+      ===================================== */}
+
+      <section className="rounded-2xl border bg-white p-6">
+        <div>
+          <h2 className="text-xl font-semibold">
+            服务执行
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            普通服务通常由管理员确认完成；复杂咨询或代办服务可开启服务空间、期限或完成节点。
+          </p>
+        </div>
+
+        <label className="mt-6 flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+          <input
+            type="checkbox"
+            className="mt-1 h-4 w-4"
+            {...register(
+              "workspaceRequired"
+            )}
+          />
+
+          <div>
+            <p className="font-medium">
+              开启订单专属服务空间
+            </p>
+
+            <p className="mt-1 text-sm leading-6 text-gray-500">
+              适用于购买后需要咨询、人工沟通、培训或持续协助的服务。
+            </p>
+          </div>
+        </label>
+
+        <div className="mt-6">
+          <label className="mb-2 block text-sm font-medium">
+            服务完成方式
+          </label>
+
+          <select
+            {...register(
+              "completionMode"
+            )}
+            className="w-full rounded-lg border bg-white p-3"
+          >
+            <option value="manual">
+              管理员确认完成
+            </option>
+
+            <option value="time_based">
+              服务期限届满
+            </option>
+
+            <option value="milestone_based">
+              完成全部节点
+            </option>
+
+            <option value="time_or_milestone">
+              到期或完成节点，以较早者为准
+            </option>
+          </select>
+        </div>
+
+        {showDuration && (
+          <div className="mt-6">
+            <FormField
+              label="服务有效天数"
+              error={
+                errors
+                  .accessDurationDays
+                  ?.message
+              }
+            >
+              <Input
+                type="number"
+                placeholder="例如：14"
+                error={
+                  !!errors
+                    .accessDurationDays
+                }
+                {...register(
+                  "accessDurationDays",
+                  {
+                    setValueAs:
+                      value =>
+                        value ===
+                          "" ||
+                        value ===
+                          undefined
+                          ? null
+                          : Number(
+                              value
+                            ),
+                  }
+                )}
+              />
+            </FormField>
+          </div>
+        )}
+
+        {showMilestones && (
+          <div className="mt-6 rounded-xl bg-gray-50 p-4">
+            {errors
+              .completionMilestones
+              ?.message && (
+              <p className="mb-3 text-sm text-red-600">
+                {
+                  errors
+                    .completionMilestones
+                    .message
+                }
+              </p>
+            )}
+
+            <CompletionMilestoneBuilder
+              control={
+                control
+              }
+              register={
+                register
+              }
+              errors={
+                errors
+              }
+            />
+          </div>
+        )}
+      </section>
+
+      {/* =====================================
+          5. Result / Refund
+      ===================================== */}
+
+      <section className="rounded-2xl border bg-white p-6">
+        <div>
+          <h2 className="text-xl font-semibold">
+            结果与退款
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            说明客户最终获得什么，以及是否需要交付官方或结果文件。
+          </p>
+        </div>
+
+        <div className="mt-6">
           <FormField
-            label="明确交付结果"
+            label="客户最终获得"
             error={
               errors
                 .expectedOutcome
@@ -483,7 +843,7 @@ export default function ServiceForm({
           >
             <Textarea
               rows={4}
-              placeholder="例如：完成后提供查询到的 RFC 信息、结果状态及必要的中文说明。"
+              placeholder="例如：获得 SAT 官方 RFC 查询结果及必要的中文说明。"
               error={
                 !!errors
                   .expectedOutcome
@@ -494,125 +854,50 @@ export default function ServiceForm({
             />
           </FormField>
         </div>
-      </section>
 
-      {/* =====================================
-          Fulfillment / Automation
-      ===================================== */}
-
-      <section className="rounded-2xl border bg-white p-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Fulfillment
-          </p>
-
-          <h2 className="mt-1 text-xl font-semibold">
-            办理与自动化方式
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-gray-500">
-            自动化目标是减少客户等待和人工重复工作。
-            CAPTCHA、本人认证、政府网站异常或结果无法确定等情况，
-            应进入人工审核，而不是强行绕过。
-          </p>
-        </div>
-
-        <div className="mt-6">
-          <label className="mb-2 block text-sm font-medium">
-            Fulfillment Type
-          </label>
-
-          <select
-            {...register(
-              "fulfillmentType"
-            )}
-            className="w-full rounded-lg border bg-white p-3"
-          >
-            <option value="automatic">
-              Automatic — 理论上可全自动完成
-            </option>
-
-            <option value="semi_automatic">
-              Semi-Automatic — 自动处理为主，必要时人工介入
-            </option>
-
-            <option value="manual">
-              Manual — 主要由人工办理
-            </option>
-          </select>
-
-          <p className="mt-2 text-xs leading-5 text-gray-500">
-            对政府网站存在 CAPTCHA、本人认证或无公开 API 的服务，
-            第一阶段通常建议使用 Semi-Automatic。
-          </p>
-        </div>
-
-        <label className="mt-6 flex items-start gap-3 rounded-xl bg-gray-50 p-4">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4"
-            {...register(
-              "humanReviewRequired"
-            )}
-          />
-
-          <div>
-            <p className="font-medium">
-              支持 / 需要人工审核
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-gray-500">
-              当系统无法确定结果时，不直接判定失败，
-              而是进入人工确认，提高服务完成的确定性。
-            </p>
-          </div>
-        </label>
-
-        <div className="mt-5">
-          <FormField
-            label="人工审核场景"
-            error={
-              errors
-                .humanReviewNotes
-                ?.message
-            }
-          >
-            <Textarea
-              rows={4}
-              placeholder="例如：SAT CAPTCHA、政府网站异常、资料不一致、查询结果需要人工确认。"
-              error={
-                !!errors
-                  .humanReviewNotes
-              }
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4"
               {...register(
-                "humanReviewNotes"
+                "resultIsOfficial"
               )}
             />
-          </FormField>
+
+            <div>
+              <p className="font-medium">
+                最终结果由官方机构出具
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-gray-500">
+                只有政府或相关官方机构实际出具的结果才可以勾选。
+              </p>
+            </div>
+          </label>
+
+          <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4"
+              {...register(
+                "hasResultFile"
+              )}
+            />
+
+            <div>
+              <p className="font-medium">
+                有结果文件需要交付
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-gray-500">
+                勾选后由系统按既定交付和临时资料保留规则处理。
+              </p>
+            </div>
+          </label>
         </div>
-      </section>
 
-      {/* =====================================
-          Refund
-      ===================================== */}
-
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-            Refund Policy
-          </p>
-
-          <h2 className="mt-1 text-xl font-semibold">
-            办理保障与退款
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-gray-600">
-            退款用于处理确实无法完成的服务，
-            不是服务完成后的撤销机制。
-          </p>
-        </div>
-
-        <label className="mt-5 flex items-start gap-3 rounded-xl bg-white p-4">
+        <label className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
           <input
             type="checkbox"
             className="mt-1 h-4 w-4"
@@ -626,108 +911,42 @@ export default function ServiceForm({
               服务无法完成时，可进入退款审核
             </p>
 
-            <p className="mt-1 text-sm leading-6 text-gray-500">
-              是否最终退款将根据失败原因、客户资料情况、
-              已产生的必要成本和退款规则进行判断。
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              是否最终退款仍根据失败原因、已发生费用及退款规则处理。
             </p>
           </div>
         </label>
 
-        <div className="mt-5 rounded-xl border border-red-200 bg-white p-4">
-          <p className="font-semibold text-red-700">
-            已完成并交付的服务不支持退款
-          </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="font-semibold text-red-700">
+              完成交付后不退款
+            </p>
 
-          <p className="mt-1 text-sm leading-6 text-gray-600">
-            服务一旦成功完成并已经向客户交付办理结果，
-            即视为服务履行完成，不支持退款。
-            此规则属于系统级规则，管理员不能在此关闭。
-          </p>
+            <p className="mt-1 text-sm leading-6 text-red-700">
+              服务成功完成并向客户交付后，不支持退款。该规则由系统统一执行。
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-blue-50 p-4">
+            <p className="font-semibold text-blue-800">
+              临时资料默认 48 小时清理
+            </p>
+
+            <p className="mt-1 text-sm leading-6 text-blue-700">
+              当资料用途结束、订单完成或确认不再需要后，相关临时资料默认进入 48 小时删除流程。
+            </p>
+          </div>
         </div>
       </section>
 
       {/* =====================================
-          Personal Data / Result
+          Payment Reminder
       ===================================== */}
 
-      <section className="rounded-2xl border bg-white p-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Data & Result
-          </p>
-
-          <h2 className="mt-1 text-xl font-semibold">
-            个人资料与结果
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-gray-500">
-            mex-helper 不以建立长期身份档案为目的。
-            办理资料只应收集完成当前服务真正必要的信息，
-            并在服务完成或退款流程结束后进入数据删除生命周期。
-          </p>
-        </div>
-
-        <div className="mt-6 space-y-6">
-          <FormField
-            label="个人资料处理说明"
-            error={
-              errors
-                .personalDataPolicy
-                ?.message
-            }
-          >
-            <Textarea
-              rows={4}
-              placeholder="例如：CURP 等资料仅用于本次 RFC 查询；服务完成或退款流程结束后，将按数据保留政策删除不再必要的办理资料。"
-              error={
-                !!errors
-                  .personalDataPolicy
-              }
-              {...register(
-                "personalDataPolicy"
-              )}
-            />
-          </FormField>
-
-          <FormField
-            label="结果类型"
-            error={
-              errors
-                .resultType
-                ?.message
-            }
-          >
-            <Input
-              type="text"
-              placeholder="例如：RFC 查询结果及状态说明"
-              error={
-                !!errors
-                  .resultType
-              }
-              {...register(
-                "resultType"
-              )}
-            />
-          </FormField>
-        </div>
-
-        <div className="mt-5 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-blue-800">
-          建议结果描述强调“客户最终获得什么”，
-          而不是只写内部操作名称。
-          例如使用「RFC 查询结果及状态说明」，
-          而不是简单写「RFC 查询」。
-        </div>
-      </section>
-
-      {/* =====================================
-          Price Information
-      ===================================== */}
-
-      <div className="rounded-xl bg-blue-50 p-4 text-sm leading-6 text-blue-800">
-        「展示价格」仅用于页面显示。
-        实际 Stripe、Mercado Pago
-        和未来微信支付金额仍由
-        service_prices 管理。
+      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
+        服务资料保存后，请在页面下方「付款方式」区域配置实际可用的付款方案。
+        实际收费金额以 service_prices 中启用的付款方案为准。
       </div>
 
       {/* =====================================
@@ -757,7 +976,7 @@ export default function ServiceForm({
           ? "保存中..."
           : initialData
             ? "更新服务"
-            : "新增服务"}
+            : "创建服务"}
       </button>
     </form>
   );

@@ -14,6 +14,10 @@ import {
   getAdminServicePrices,
 } from "@/lib/services/getAdminServicePrices";
 
+import {
+  toServiceFormData,
+} from "@/lib/services/toServiceFormData";
+
 import EditServiceContainer from "@/components/admin/EditServiceContainer";
 
 import ServicePaymentOptions from "@/components/admin/ServicePaymentOptions";
@@ -52,6 +56,11 @@ export default async function EditServicePage({
     notFound();
   }
 
+  const initialData =
+    toServiceFormData(
+      service
+    );
+
   return (
     <div className="mx-auto max-w-4xl">
       <div>
@@ -70,80 +79,33 @@ export default async function EditServicePage({
           id={
             service.id
           }
-          initialData={{
-            slug:
-              service.slug,
-
-            title:
-              service.title,
-
-            shortDescription:
-              service.shortDescription,
-
-            description:
-              service.description,
-
-            category:
-              service.category,
-
-            icon:
-              service.icon,
-
-            price:
-              service.price,
-
-            duration:
-              service.duration,
-
-            requirements:
-              service.requirements.join(
-                ", "
-              ),
-
-            popular:
-              service.popular,
-
-            isActive:
-              service.isActive,
-
-            formSchema:
-              service.formSchema,
-
-              customerValue:
-                service.customerValue,
-
-              expectedOutcome:
-                service.expectedOutcome,
-
-              fulfillmentType:
-                service.fulfillmentType,
-
-              humanReviewRequired:
-                service.humanReviewRequired,
-
-              humanReviewNotes:
-                service.humanReviewNotes,
-
-              refundEligibleWhenFailed:
-                service.refundEligibleWhenFailed,
-
-              personalDataPolicy:
-                service.personalDataPolicy,
-
-              resultType:
-                service.resultType,
-          }}
+          initialData={
+            initialData
+          }
         />
       </div>
 
-      <ServicePaymentOptions
-        serviceId={
-          service.id
-        }
-        prices={
-          prices
-        }
-      />
+      <div className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-2xl font-semibold">
+            付款方式
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            配置客户实际可以选择的付款方式、币种和收费金额。
+            实际订单金额以这里启用的付款方案为准。
+          </p>
+        </div>
+
+        <ServicePaymentOptions
+          serviceId={
+            service.id
+          }
+          prices={
+            prices
+          }
+        />
+      </div>
     </div>
   );
 }

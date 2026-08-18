@@ -23,9 +23,9 @@ export async function getService(
       "slug",
       slug
     )
-    .eq(
-      "is_active",
-      true
+    .neq(
+      "service_status",
+      "hidden"
     )
     .maybeSingle();
 

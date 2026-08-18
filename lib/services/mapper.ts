@@ -1,7 +1,16 @@
 import type {
+  CompletionMode,
+  CompletionMilestone,
+  EligibilityItem,
+  EligibilityMode,
   FulfillmentType,
+  LaunchPriority,
+  ResultDeliveryMode,
   Service,
+  ServiceStatus,
+  ServiceType,
 } from "@/types/service";
+
 
 export function normalizeService(
   data: any
@@ -55,7 +64,9 @@ export function normalizeService(
               ) =>
                 item.trim()
             )
-            .filter(Boolean)
+            .filter(
+              Boolean
+            )
         : [],
 
     formSchema:
@@ -68,6 +79,101 @@ export function normalizeService(
     isActive:
       data.is_active !==
       false,
+
+
+    /*
+     * =====================================
+     * Service Architecture
+     * =====================================
+     */
+
+    serviceType:
+      (
+        data.service_type ??
+        "online_query"
+      ) as ServiceType,
+
+    launchPriority:
+      (
+        data.launch_priority ??
+        "second"
+      ) as LaunchPriority,
+
+    serviceStatus:
+      (
+        data.service_status ??
+        "active"
+      ) as ServiceStatus,
+
+
+    /*
+     * =====================================
+     * Eligibility
+     * =====================================
+     */
+
+    eligibilityMode:
+      (
+        data.eligibility_mode ??
+        "none"
+      ) as EligibilityMode,
+
+    eligibilitySchema:
+      Array.isArray(
+        data.eligibility_schema
+      )
+        ? data
+            .eligibility_schema as
+              EligibilityItem[]
+        : [],
+
+
+    /*
+     * =====================================
+     * Workspace
+     * =====================================
+     */
+
+    workspaceRequired:
+      Boolean(
+        data.workspace_required
+      ),
+
+
+    /*
+     * =====================================
+     * Access / Completion
+     * =====================================
+     */
+
+    accessDurationDays:
+      typeof
+        data.access_duration_days ===
+      "number"
+        ? data.access_duration_days
+        : null,
+
+    completionMode:
+      (
+        data.completion_mode ??
+        "manual"
+      ) as CompletionMode,
+
+    completionMilestones:
+      Array.isArray(
+        data.completion_milestones
+      )
+        ? data
+            .completion_milestones as
+              CompletionMilestone[]
+        : [],
+
+
+    /*
+     * =====================================
+     * Value / Fulfillment
+     * =====================================
+     */
 
     customerValue:
       data.customer_value ??
@@ -93,6 +199,13 @@ export function normalizeService(
         .human_review_notes ??
       "",
 
+
+    /*
+     * =====================================
+     * Refund
+     * =====================================
+     */
+
     refundEligibleWhenFailed:
       data
         .refund_eligible_when_failed !==
@@ -103,6 +216,13 @@ export function normalizeService(
         .no_refund_after_completion !==
       false,
 
+
+    /*
+     * =====================================
+     * Data / Result
+     * =====================================
+     */
+
     personalDataPolicy:
       data
         .personal_data_policy ??
@@ -111,6 +231,25 @@ export function normalizeService(
     resultType:
       data.result_type ??
       "",
+
+    resultIsOfficial:
+      Boolean(
+        data.result_is_official
+      ),
+
+    resultDeliveryMode:
+      (
+        data.result_delivery_mode ??
+        "none"
+      ) as ResultDeliveryMode,
+
+    resultRetentionHours:
+      typeof
+        data.result_retention_hours ===
+      "number"
+        ? data.result_retention_hours
+        : null,
+
 
     createdAt:
       data.created_at ??

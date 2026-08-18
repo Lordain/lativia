@@ -10,7 +10,8 @@ export type NotificationType =
   | "refund_approved"
   | "refund_rejected"
   | "refund_processing"
-  | "refund_succeeded";
+  | "refund_succeeded"
+  | "workspace_message";
 
 
 export type NotificationStatus =

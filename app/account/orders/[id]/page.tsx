@@ -10,9 +10,23 @@ import {
   getMyCustomerActionRequest,
 } from "@/lib/customerActions/getMyCustomerActionRequest";
 
+import {
+  getMyLatestRejectedSubmission,
+} from "@/lib/customerActions/getMyLatestRejectedSubmission";
+
+import {
+  getMyOrderWorkspace,
+} from "@/lib/workspaces/getMyOrderWorkspace";
+
+import {
+  getMyOrderAppointment,
+} from "@/lib/appointments/getMyOrderAppointment";
+
 import StatusBadge from "@/components/orders/StatusBadge";
 
 import CustomerActionCorrectionForm from "@/components/orders/CustomerActionCorrectionForm";
+
+import CustomerOrderWorkspace from "@/components/orders/CustomerOrderWorkspace";
 
 import type {
   OrderStatus,
@@ -22,16 +36,31 @@ import type {
   FormFieldSchema,
 } from "@/types/form";
 
-import {
-  getMyLatestRejectedSubmission,
-} from "@/lib/customerActions/getMyLatestRejectedSubmission";
+import type {
+  OrderAppointmentData,
+} from "@/types/appointment";
+
 
 interface Props {
   params:
     Promise<{
-      id: string;
+      id:
+        string;
     }>;
 }
+
+
+const EMPTY_APPOINTMENT_DATA:
+  OrderAppointmentData = {
+    appointment:
+      null,
+
+    slots:
+      [],
+
+    rule:
+      null,
+  };
 
 
 export default async function OrderDetailPage({
@@ -43,9 +72,16 @@ export default async function OrderDetailPage({
     await params;
 
 
+  /*
+   * =========================================
+   * Core Order Data
+   * =========================================
+   */
+
   const [
     order,
     customerActionRequest,
+    workspaceData,
   ] =
     await Promise.all([
       getMyOrder(
@@ -55,9 +91,25 @@ export default async function OrderDetailPage({
       getMyCustomerActionRequest(
         id
       ),
+
+      getMyOrderWorkspace(
+        id
+      ),
     ]);
-  
-    const latestRejectedSubmission =
+
+
+  if (!order) {
+    notFound();
+  }
+
+
+  /*
+   * =========================================
+   * Customer Action
+   * =========================================
+   */
+
+  const latestRejectedSubmission =
     customerActionRequest
       ? await getMyLatestRejectedSubmission(
           customerActionRequest.id
@@ -65,10 +117,29 @@ export default async function OrderDetailPage({
       : null;
 
 
-  if (!order) {
-    notFound();
-  }
+  /*
+   * =========================================
+   * Appointment
+   *
+   * Appointment belongs to Workspace,
+   * so we read it only after Workspace
+   * has been resolved.
+   * =========================================
+   */
 
+  const appointmentData =
+    workspaceData
+      ? await getMyOrderAppointment(
+          workspaceData.workspace.id
+        )
+      : EMPTY_APPOINTMENT_DATA;
+
+
+  /*
+   * =========================================
+   * Application Schema
+   * =========================================
+   */
 
   const formSchema =
     (
@@ -79,70 +150,173 @@ export default async function OrderDetailPage({
       FormFieldSchema[];
 
 
+  /*
+   * =========================================
+   * Cetes Consultation Guide
+   * =========================================
+   *
+   * Phase 1 rule:
+   *
+   * 1. Must be Cetes consultation service.
+   * 2. Order must be paid.
+   * 3. Customer owns the order because
+   *    getMyOrder() already works within
+   *    customer authorization.
+   *
+   * IMPORTANT:
+   *
+   * This only controls whether the UI shows
+   * the link.
+   *
+   * The /consultation page itself will again
+   * validate:
+   *
+   * - authenticated user
+   * - order ownership
+   * - payment_status = paid
+   * - Cetes service slug
+   *
+   * Therefore copying the URL will not
+   * bypass payment authorization.
+   * =========================================
+   */
+
+  const isPaidCetesOrder =
+    order.services
+      ?.slug ===
+      "cetesdirecto-consultation" &&
+    order.payment_status ===
+      "paid";
+
+
+  const consultationGuideHref =
+    isPaidCetesOrder
+      ? `/account/orders/${order.id}/consultation`
+      : null;
+
+
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <h1 className="text-3xl font-bold">
-        {order.services
-          ?.title ??
-          "申请详情"}
-      </h1>
+    <main className="mx-auto max-w-5xl p-6 md:p-8">
+      {/* =====================================
+          Header
+      ===================================== */}
 
+      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-500">
+              订单服务
+            </p>
 
-      <div className="mt-4">
-        <StatusBadge
-          status={
-            order.status as
-              OrderStatus
-          }
-        />
+            <h1 className="mt-1 text-3xl font-bold">
+              {order.services
+                ?.title ??
+                "申请详情"}
+            </h1>
+
+            <p className="mt-4 text-sm text-gray-500">
+              申请时间：
+              {new Date(
+                order.created_at
+              ).toLocaleString()}
+            </p>
+          </div>
+
+          <StatusBadge
+            status={
+              order.status as
+                OrderStatus
+            }
+          />
+        </div>
       </div>
 
 
-      <p className="mt-4 text-sm text-gray-500">
-        申请时间：
-        {new Date(
-          order.created_at
-        ).toLocaleString()}
-      </p>
-
-
       {/* =====================================
-          Customer Action
+          Workspace
       ===================================== */}
 
-    {customerActionRequest && (
-      <CustomerActionCorrectionForm
-        request={
-          customerActionRequest
-        }
-        currentFormData={
-          (
-            order.form_data ??
-            {}
-          ) as
-            Record<
+      {workspaceData && (
+        <CustomerOrderWorkspace
+          data={
+            workspaceData
+          }
+
+          customerActionRequest={
+            customerActionRequest
+          }
+
+          currentFormData={
+            (
+              order.form_data ??
+              {}
+            ) as Record<
               string,
               string
             >
-        }
-        latestRejectReason={
-          latestRejectedSubmission
-            ?.reviewReason ??
-          null
-        }
-      />
-    )}
+          }
+
+          latestRejectReason={
+            latestRejectedSubmission
+              ?.reviewReason ??
+            null
+          }
+
+          appointmentData={
+            appointmentData
+          }
+
+          consultationGuideHref={
+            consultationGuideHref
+          }
+        />
+      )}
+
+
+      {/* =====================================
+          Customer Action Fallback
+
+          Workspace 服务：
+          Customer Action 已显示在 Workspace。
+
+          非 Workspace 服务：
+          保留原来的资料修正 UI。
+      ===================================== */}
+
+      {!workspaceData &&
+        customerActionRequest && (
+          <CustomerActionCorrectionForm
+            request={
+              customerActionRequest
+            }
+
+            currentFormData={
+              (
+                order.form_data ??
+                {}
+              ) as Record<
+                string,
+                string
+              >
+            }
+
+            latestRejectReason={
+              latestRejectedSubmission
+                ?.reviewReason ??
+              null
+            }
+          />
+        )}
 
 
       {/* =====================================
           Application Data
       ===================================== */}
 
-      <section className="mt-8">
+      <section className="mt-8 rounded-2xl border bg-white p-6">
         <h2 className="text-xl font-semibold">
           申请资料
         </h2>
-
 
         <p className="mt-2 text-sm leading-6 text-gray-500">
           以下为您提交本次服务申请时提供的资料。
@@ -187,7 +361,6 @@ export default async function OrderDetailPage({
                         ?.label ??
                         key}
                     </p>
-
 
                     <p className="mt-1 whitespace-pre-wrap">
                       {value ===

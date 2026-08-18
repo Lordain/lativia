@@ -10,10 +10,14 @@ export type OrderMilestoneStatus =
   | "completed";
 
 
-export type WorkspaceMessageSenderType =
+  export type WorkspaceMessageSenderType =
   | "admin"
-  | "customer";
+  | "customer"
+  | "system";
 
+  export type WorkspaceMessageKind =
+  | "message"
+  | "welcome";
 
 /*
  * =========================================
@@ -116,9 +120,50 @@ export interface WorkspaceMessage {
     WorkspaceMessageSenderType;
 
   senderUserId:
-    string;
+    string | null;
 
   message:
+    string;
+
+  createdAt:
+    string;
+
+  editedAt:
+    string | null;
+
+  deletedAt:
+    string | null;
+
+  deletedBy:
+    string | null;
+
+  messageKind:
+    WorkspaceMessageKind;
+}
+
+export interface WorkspaceMessageRevision {
+  id:
+    string;
+
+  messageId:
+    string;
+
+  workspaceId:
+    string;
+
+  orderId:
+    string;
+
+  editedBy:
+    string;
+
+  editorType:
+    "admin" | "customer";
+
+  previousMessage:
+    string;
+
+  newMessage:
     string;
 
   createdAt:

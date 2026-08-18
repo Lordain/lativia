@@ -26,6 +26,26 @@ import {
   formatBusinessDateTime,
 } from "@/lib/time/formatBusinessDateTime";
 
+import {
+  getAdminRefund,
+} from "@/lib/refunds/getAdminRefund";
+
+import {
+  getAdminCustomerActionRequest,
+} from "@/lib/customerActions/getAdminCustomerActionRequest";
+
+import {
+  getAdminCustomerActionSubmission,
+} from "@/lib/customerActions/getAdminCustomerActionSubmission";
+
+import {
+  getAdminOrderWorkspace,
+} from "@/lib/workspaces/getAdminOrderWorkspace";
+
+import {
+  getAdminOrderAppointment,
+} from "@/lib/appointments/getAdminOrderAppointment";
+
 import StatusBadge from "@/components/orders/StatusBadge";
 
 import OrderPaymentInfo from "@/components/admin/OrderPaymentInfo";
@@ -35,6 +55,16 @@ import AdminFulfillmentControl from "@/components/admin/AdminFulfillmentControl"
 import AddFulfillmentNoteForm from "@/components/admin/AddFulfillmentNoteForm";
 
 import AdminOrderTimeline from "@/components/admin/AdminOrderTimeline";
+
+import AdminRefundReview from "@/components/admin/AdminRefundReview";
+
+import AdminRefundExecution from "@/components/admin/AdminRefundExecution";
+
+import AdminCustomerActionRequest from "@/components/admin/AdminCustomerActionRequest";
+
+import AdminCustomerActionReview from "@/components/admin/AdminCustomerActionReview";
+
+import AdminOrderWorkspace from "@/components/admin/AdminOrderWorkspace";
 
 import type {
   OrderStatus,
@@ -50,31 +80,31 @@ import type {
   PaymentProvider,
 } from "@/types/payment";
 
-import {
-  getAdminRefund,
-} from "@/lib/refunds/getAdminRefund";
+import type {
+  OrderAppointmentData,
+} from "@/types/appointment";
 
-import AdminRefundReview from "@/components/admin/AdminRefundReview";
-
-import AdminRefundExecution from "@/components/admin/AdminRefundExecution";
-
-import {
-  getAdminCustomerActionRequest,
-} from "@/lib/customerActions/getAdminCustomerActionRequest";
-
-import AdminCustomerActionRequest from "@/components/admin/AdminCustomerActionRequest";
-
-import {
-  getAdminCustomerActionSubmission,
-} from "@/lib/customerActions/getAdminCustomerActionSubmission";
-
-import AdminCustomerActionReview from "@/components/admin/AdminCustomerActionReview";
 
 interface Props {
-  params: Promise<{
-    id: string;
-  }>;
+  params:
+    Promise<{
+      id:
+        string;
+    }>;
 }
+
+
+const EMPTY_APPOINTMENT_DATA:
+  OrderAppointmentData = {
+    appointment:
+      null,
+
+    slots:
+      [],
+
+    rule:
+      null,
+  };
 
 
 export default async function AdminOrderDetailPage({
@@ -117,6 +147,8 @@ export default async function AdminOrderDetailPage({
    * Additional Admin Data
    *
    * Payment Audit / Fulfillment / Refund
+   * Customer Action / Workspace
+   *
    * 并行读取，减少页面等待时间。
    * =====================================
    */
@@ -126,31 +158,85 @@ export default async function AdminOrderDetailPage({
     fulfillmentData,
     refundData,
     customerActionRequest,
+    workspaceData,
   ] =
     await Promise.all([
       getPaymentAuditLogs(
         order.id
       ),
-  
+
       getAdminFulfillment(
         order.id
       ),
-  
+
       getAdminRefund(
         order.id
       ),
-  
+
       getAdminCustomerActionRequest(
+        order.id
+      ),
+
+      getAdminOrderWorkspace(
         order.id
       ),
     ]);
 
+
+  /*
+   * =====================================
+   * Customer Action Submission
+   * =====================================
+   */
+
   const customerActionSubmission =
-  customerActionRequest
-    ? await getAdminCustomerActionSubmission(
-        customerActionRequest.id
-      )
-    : null;
+    customerActionRequest
+      ? await getAdminCustomerActionSubmission(
+          customerActionRequest.id
+        )
+      : null;
+
+
+  /*
+   * =====================================
+   * Appointment / Meeting
+   *
+   * Appointment belongs to Workspace.
+   * =====================================
+   */
+
+  const appointmentData =
+    workspaceData
+      ? await getAdminOrderAppointment(
+          workspaceData.workspace.id
+        )
+      : EMPTY_APPOINTMENT_DATA;
+
+
+  /*
+   * =====================================
+   * Service-specific Consultation Type
+   * =====================================
+   *
+   * Current Phase 1:
+   *
+   * Cetes consultation gets its own
+   * structured consultation type.
+   *
+   * Future services may add:
+   *
+   * rfc_initial_consultation
+   * efirma_initial_consultation
+   * etc.
+   * =====================================
+   */
+
+  const defaultConsultationType =
+    order.services
+      ?.slug ===
+      "cetesdirecto-consultation"
+      ? "cetes_initial_consultation"
+      : null;
 
 
   /*
@@ -164,7 +250,8 @@ export default async function AdminOrderDetailPage({
       order.services
         ?.form_schema ??
       []
-    ) as FormFieldSchema[];
+    ) as
+      FormFieldSchema[];
 
 
   /*
@@ -335,9 +422,7 @@ export default async function AdminOrderDetailPage({
               ]) => {
                 const field =
                   formSchema.find(
-                    (
-                      item
-                    ) =>
+                    item =>
                       item.name ===
                       key
                   );
@@ -393,26 +478,98 @@ export default async function AdminOrderDetailPage({
           order.payment_status as
             PaymentStatus
         }
+
         amount={
           order.amount
         }
+
         currency={
           order.currency
         }
+
         paymentMethod={
           order.payment_method as
             | PaymentMethod
             | null
         }
+
         paymentProvider={
           order.payment_provider as
             | PaymentProvider
             | null
         }
+
         paidAt={
           order.paid_at
         }
       />
+
+
+      {/* =====================================
+          Order Workspace
+
+          只有 workspace_required 服务付款后
+          建立了 Workspace 才显示。
+
+          Appointment / Online Meeting
+          现在也统一位于 Workspace 内。
+      ===================================== */}
+
+      {workspaceData && (
+        <AdminOrderWorkspace
+          data={
+            workspaceData
+          }
+
+          orderId={
+            order.id
+          }
+
+          fulfillmentId={
+            fulfillmentData
+              .fulfillment
+              ?.id ??
+            null
+          }
+
+          fulfillmentStatus={
+            fulfillmentData
+              .fulfillment
+              ?.status ??
+            null
+          }
+
+          formSchema={
+            formSchema
+          }
+
+          formData={
+            (
+              order.form_data ??
+              {}
+            ) as Record<
+              string,
+              string
+            >
+          }
+
+          customerActionRequest={
+            customerActionRequest
+          }
+
+          customerActionSubmission={
+            customerActionSubmission
+          }
+
+          appointmentData={
+            appointmentData
+          }
+
+          defaultConsultationType={
+            defaultConsultationType
+          }
+        />
+      )}
 
 
       {/* =====================================
@@ -428,71 +585,92 @@ export default async function AdminOrderDetailPage({
           fulfillmentData
             .fulfillment
         }
+
         paymentStatus={
           order.payment_status
         }
       />
 
 
-    <AdminCustomerActionRequest
-      orderId={
-        order.id
-      }
-      fulfillmentId={
-        fulfillmentData
-          .fulfillment
-          ?.id ??
-        null
-      }
-      fulfillmentStatus={
-        fulfillmentData
-          .fulfillment
-          ?.status ??
-        null
-      }
-      formSchema={
-        formSchema
-      }
-      formData={
-        (
-          order.form_data ??
-          {}
-        ) as
-          Record<
-            string,
-            string
-          >
-      }
-      activeRequest={
-        customerActionRequest
-      }
-    />
+      {/* =====================================
+          Customer Action Fallback
 
-    {customerActionRequest && (
-      <AdminCustomerActionReview
-        request={
-          customerActionRequest
-        }
-        submission={
-          customerActionSubmission
-        }
-        currentFormData={
-          (
-            order.form_data ??
-            {}
-          ) as Record<
-            string,
-            string
-          >
-        }
-      />
-    )}
+          有 Workspace：
+          已显示在 AdminOrderWorkspace 内。
+
+          无 Workspace：
+          继续保留原来的独立 Customer Action，
+          避免非 Workspace 服务失去补件能力。
+      ===================================== */}
+
+      {!workspaceData && (
+        <>
+          <AdminCustomerActionRequest
+            orderId={
+              order.id
+            }
+
+            fulfillmentId={
+              fulfillmentData
+                .fulfillment
+                ?.id ??
+              null
+            }
+
+            fulfillmentStatus={
+              fulfillmentData
+                .fulfillment
+                ?.status ??
+              null
+            }
+
+            formSchema={
+              formSchema
+            }
+
+            formData={
+              (
+                order.form_data ??
+                  {}
+              ) as Record<
+                string,
+                string
+              >
+            }
+
+            activeRequest={
+              customerActionRequest
+            }
+          />
+
+
+          {customerActionRequest && (
+            <AdminCustomerActionReview
+              request={
+                customerActionRequest
+              }
+
+              submission={
+                customerActionSubmission
+              }
+
+              currentFormData={
+                (
+                  order.form_data ??
+                    {}
+                ) as Record<
+                  string,
+                  string
+                >
+              }
+            />
+          )}
+        </>
+      )}
+
 
       {/* =====================================
           Refund Management
-
-          只有真正建立 Refund Case
-          才显示退款审核区。
       ===================================== */}
 
       {refundData.refund && (
@@ -500,6 +678,7 @@ export default async function AdminOrderDetailPage({
           refund={
             refundData.refund
           }
+
           activity={
             refundData.activity
           }
@@ -547,8 +726,6 @@ export default async function AdminOrderDetailPage({
           Failure
           Refund Review
           Completion
-
-          全部按时间统一展示。
       ===================================== */}
 
       <AdminOrderTimeline

@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
-    "galaxy-shoe-said-surround.trycloudflare.com",
+    "regular-limit-professional-broadcast.trycloudflare.com",
   ],
 };
 

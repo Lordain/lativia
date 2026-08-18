@@ -22,6 +22,12 @@ import EditServiceContainer from "@/components/admin/EditServiceContainer";
 
 import ServicePaymentOptions from "@/components/admin/ServicePaymentOptions";
 
+import {
+  getServiceWorkspaceWelcomeMessage,
+} from "@/lib/services/getServiceWorkspaceWelcomeMessage";
+
+import ServiceWorkspaceWelcomeEditor from "@/components/admin/ServiceWorkspaceWelcomeEditor";
+
 interface Props {
   params: Promise<{
     id: string;
@@ -38,19 +44,24 @@ export default async function EditServicePage({
   } =
     await params;
 
-  const [
-    service,
-    prices,
-  ] =
-    await Promise.all([
-      getServiceById(
-        id
-      ),
-
-      getAdminServicePrices(
-        id
-      ),
-    ]);
+    const [
+      service,
+      prices,
+      workspaceWelcomeMessage,
+    ] =
+      await Promise.all([
+        getServiceById(
+          id
+        ),
+    
+        getAdminServicePrices(
+          id
+        ),
+    
+        getServiceWorkspaceWelcomeMessage(
+          id
+        ),
+      ]);
 
   if (!service) {
     notFound();
@@ -84,6 +95,20 @@ export default async function EditServicePage({
           }
         />
       </div>
+
+      <ServiceWorkspaceWelcomeEditor
+          serviceId={
+            service.id
+          }
+
+          initialMessage={
+            workspaceWelcomeMessage
+          }
+
+          workspaceRequired={
+            service.workspaceRequired
+          }
+        />
 
       <div className="mt-8">
         <div className="mb-4">

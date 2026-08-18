@@ -64,6 +64,9 @@ function getTypeLabel(
     case "refund_succeeded":
       return "退款完成";
 
+    case "workspace_message":
+      return "新的服务消息";
+
     default:
       return "通知";
   }

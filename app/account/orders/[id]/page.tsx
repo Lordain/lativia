@@ -149,52 +149,6 @@ export default async function OrderDetailPage({
     ) as
       FormFieldSchema[];
 
-
-  /*
-   * =========================================
-   * Cetes Consultation Guide
-   * =========================================
-   *
-   * Phase 1 rule:
-   *
-   * 1. Must be Cetes consultation service.
-   * 2. Order must be paid.
-   * 3. Customer owns the order because
-   *    getMyOrder() already works within
-   *    customer authorization.
-   *
-   * IMPORTANT:
-   *
-   * This only controls whether the UI shows
-   * the link.
-   *
-   * The /consultation page itself will again
-   * validate:
-   *
-   * - authenticated user
-   * - order ownership
-   * - payment_status = paid
-   * - Cetes service slug
-   *
-   * Therefore copying the URL will not
-   * bypass payment authorization.
-   * =========================================
-   */
-
-  const isPaidCetesOrder =
-    order.services
-      ?.slug ===
-      "cetesdirecto-consultation" &&
-    order.payment_status ===
-      "paid";
-
-
-  const consultationGuideHref =
-    isPaidCetesOrder
-      ? `/account/orders/${order.id}/consultation`
-      : null;
-
-
   return (
     <main className="mx-auto max-w-5xl p-6 md:p-8">
       {/* =====================================
@@ -264,10 +218,6 @@ export default async function OrderDetailPage({
 
           appointmentData={
             appointmentData
-          }
-
-          consultationGuideHref={
-            consultationGuideHref
           }
         />
       )}

@@ -27,8 +27,6 @@ interface Props {
   data:
     OrderAppointmentData;
 
-  consultationGuideHref?:
-    string | null;
 }
 
 
@@ -178,7 +176,6 @@ function getMexicoCityDateKey(
 export default function CustomerWorkspaceAppointment({
   workspaceId,
   data,
-  consultationGuideHref = null,
 }: Props) {
   const router =
     useRouter();
@@ -427,31 +424,6 @@ export default function CustomerWorkspaceAppointment({
             </div>
           )}
         </div>
-
-
-        {consultationGuideHref && (
-          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
-            <h4 className="font-semibold text-blue-950">
-              Cetes 咨询课件
-            </h4>
-
-            <p className="mt-2 text-sm leading-6 text-blue-800">
-              可在咨询前预习、咨询过程中跟随讲解，
-              或在服务期间再次查看。
-              课件仅提供在线访问，不提供下载。
-            </p>
-
-            <a
-              href={
-                consultationGuideHref
-              }
-              className="mt-3 inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              打开咨询课件
-            </a>
-          </div>
-        )}
-
 
         <p className="mt-4 text-sm leading-6 text-gray-500">
           如需调整预约时间，

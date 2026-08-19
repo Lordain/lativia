@@ -41,16 +41,6 @@ interface Props {
   appointmentData:
     OrderAppointmentData;
 
-
-  /*
-   * Paid Cetes orders only.
-   *
-   * Example:
-   * /account/orders/[id]/consultation
-   */
-
-  consultationGuideHref?:
-    string | null;
 }
 
 
@@ -144,7 +134,6 @@ export default function CustomerOrderWorkspace({
   currentFormData,
   latestRejectReason,
   appointmentData,
-  consultationGuideHref = null,
 }: Props) {
   const {
     workspace,
@@ -449,9 +438,6 @@ export default function CustomerOrderWorkspace({
           appointmentData
         }
 
-        consultationGuideHref={
-          consultationGuideHref
-        }
       />
       </div>
     </section>

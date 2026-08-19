@@ -2,6 +2,8 @@ import {
   notFound,
 } from "next/navigation";
 
+import Link from "next/link";
+
 import {
   requireAdmin,
 } from "@/lib/auth/requireAdmin";
@@ -570,6 +572,66 @@ export default async function AdminOrderDetailPage({
           }
         />
       )}
+
+      {/* =====================================
+    Cetes Consultation Presentation
+
+    Admin-only internal presentation.
+===================================== */}
+
+{order.services?.slug ===
+  "cetesdirecto-consultation" &&
+  order.payment_status ===
+    "paid" && (
+    <section className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-6">
+      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div>
+          <div className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">
+            INTERNAL CONSULTATION
+          </div>
+
+          <h2 className="mt-3 text-xl font-semibold text-blue-950">
+            Cetesdirecto 咨询课件
+          </h2>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-800">
+            管理员内部咨询演示工具。
+            在线会议过程中可通过屏幕共享向客户讲解，
+            客户账户本身不会获得课件访问权限。
+          </p>
+
+          <p className="mt-2 text-xs leading-5 text-blue-700">
+            课件包含订单专属动态浮水印，
+            不提供客户下载入口。
+          </p>
+        </div>
+
+        <Link
+          href={`/admin/orders/${order.id}/consultation`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="
+            inline-flex
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            bg-blue-600
+            px-5
+            py-3
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-blue-700
+          "
+        >
+          打开咨询课件 ↗
+        </Link>
+      </div>
+    </section>
+  )}
 
 
       {/* =====================================

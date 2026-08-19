@@ -426,7 +426,7 @@ export default function ServiceForm({
           >
             <Input
               type="text"
-              placeholder="例如：MX$800"
+              placeholder="例如：MX$1,500"
               error={
                 !!errors.price
               }

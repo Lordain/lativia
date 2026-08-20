@@ -26,6 +26,11 @@ export async function getMyOrder(id: string) {
       created_at,
       updated_at,
       form_data,
+      data_purpose_ended_at,
+      data_cleanup_due_at,
+      data_cleanup_status,
+      data_cleaned_at,
+      data_cleanup_last_error,
       service_id,
 
       services (

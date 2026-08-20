@@ -28,6 +28,10 @@ import CustomerActionCorrectionForm from "@/components/orders/CustomerActionCorr
 
 import CustomerOrderWorkspace from "@/components/orders/CustomerOrderWorkspace";
 
+import {
+  CustomerDataRetentionStatus,
+} from "@/components/orders/CustomerDataRetentionStatus";
+
 import type {
   OrderStatus,
 } from "@/types/order";
@@ -39,7 +43,6 @@ import type {
 import type {
   OrderAppointmentData,
 } from "@/types/appointment";
-
 
 interface Props {
   params:
@@ -257,6 +260,28 @@ export default async function OrderDetailPage({
             }
           />
         )}
+
+            {/* =====================================
+                Data Retention
+            ===================================== */}
+
+           <div className="mt-8">
+              <CustomerDataRetentionStatus
+                status={
+                  order.data_cleanup_status
+                }
+
+                cleanupDueAt={
+                  order.data_cleanup_due_at
+                }
+
+                cleanedAt={
+                  order.data_cleaned_at
+                }
+              />
+            </div>
+
+
 
 
       {/* =====================================

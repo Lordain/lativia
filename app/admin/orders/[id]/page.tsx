@@ -45,6 +45,10 @@ import {
 } from "@/lib/workspaces/getAdminOrderWorkspace";
 
 import {
+  AdminDataCleanupStatus,
+} from "@/components/admin/AdminDataCleanupStatus";
+
+import {
   getAdminOrderAppointment,
 } from "@/lib/appointments/getAdminOrderAppointment";
 
@@ -464,6 +468,38 @@ export default async function AdminOrderDetailPage({
           </div>
         )}
       </section>
+
+
+
+
+      {/* =====================================
+          Data Retention / Privacy
+      ===================================== */}
+
+        <div className="mt-8">
+                <AdminDataCleanupStatus
+                  status={
+                    order.data_cleanup_status
+                  }
+
+                  purposeEndedAt={
+                    order.data_purpose_ended_at
+                  }
+
+                  cleanupDueAt={
+                    order.data_cleanup_due_at
+                  }
+
+                  cleanedAt={
+                    order.data_cleaned_at
+                  }
+
+                  lastError={
+                    order.data_cleanup_last_error
+                  }
+                />
+              </div>
+
 
 
       {/* =====================================

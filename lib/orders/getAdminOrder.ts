@@ -29,6 +29,13 @@ export async function getAdminOrder(
         status,
         form_data,
         admin_note,
+
+        data_purpose_ended_at,
+        data_cleanup_due_at,
+        data_cleanup_status,
+        data_cleaned_at,
+        data_cleanup_last_error,
+
         created_at,
         updated_at,
 

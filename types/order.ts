@@ -13,6 +13,13 @@ export type OrderStatus =
   | "completed"
   | "cancelled";
 
+export type DataCleanupStatus =
+  | "not_scheduled"
+  | "scheduled"
+  | "processing"
+  | "completed"
+  | "failed";
+
 /*
  * =========================================
  * Eligibility
@@ -73,6 +80,21 @@ export interface Order {
     EligibilityAcknowledgement[];
 
   eligibilityConfirmedAt:
+    string | null;
+
+    dataPurposeEndedAt:
+    string | null;
+
+  dataCleanupDueAt:
+    string | null;
+
+  dataCleanupStatus:
+    DataCleanupStatus;
+
+  dataCleanedAt:
+    string | null;
+
+  dataCleanupLastError:
     string | null;
 }
 

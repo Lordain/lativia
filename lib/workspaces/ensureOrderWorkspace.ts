@@ -11,6 +11,12 @@ import {
 } from "@/lib/workspaces/safeEnsureWorkspaceWelcomeMessage";
 
 
+interface OrderServiceOptionSnapshot {
+  workspaceRequired?:
+    boolean;
+}
+
+
 interface OrderRow {
   id:
     string;
@@ -23,6 +29,12 @@ interface OrderRow {
 
   payment_status:
     string;
+
+  service_option_id:
+    string | null;
+
+  service_option_snapshot:
+    OrderServiceOptionSnapshot | null;
 }
 
 
@@ -129,7 +141,9 @@ export async function ensureOrderWorkspace(
         id,
         user_id,
         service_id,
-        payment_status
+        payment_status,
+        service_option_id,
+        service_option_snapshot
       `)
       .eq(
         "id",
@@ -247,34 +261,100 @@ export async function ensureOrderWorkspace(
       ServiceRow;
 
 
-  /*
-   * =========================================
-   * 4. Service Does Not Need Workspace
-   * =========================================
-   */
+/*
+ * =========================================
+ * 4. Resolve Workspace Requirement
+ * =========================================
+ *
+ * 新订单如绑定 Service Option：
+ * 优先使用 Order 创建时保存的
+ * service_option_snapshot.workspaceRequired。
+ *
+ * 这样后续即使 Admin 修改 Service Option，
+ * 已购买订单的服务范围也不会改变。
+ *
+ * 没有 Service Option 的旧订单：
+ * 继续使用 services.workspace_required。
+ */
+
+const optionSnapshot =
+  order
+    .service_option_snapshot;
+
+
+const hasServiceOption =
+  Boolean(
+    order.service_option_id
+  );
 
   if (
-    !service.workspace_required
+    hasServiceOption &&
+    !optionSnapshot
   ) {
+    console.error(
+      "ensureOrderWorkspace missing service option snapshot:",
+      {
+        orderId:
+          order.id,
+  
+        serviceOptionId:
+          order.service_option_id,
+      }
+    );
+  
     return {
       created:
         false,
-
+  
       skipped:
         true,
-
+  
       reason:
-        "WORKSPACE_NOT_REQUIRED",
-
+        "SERVICE_OPTION_SNAPSHOT_MISSING",
+  
       workspaceId:
         null as string | null,
     };
   }
 
 
+const workspaceRequired =
+  hasServiceOption
+    ? optionSnapshot
+        ?.workspaceRequired ===
+      true
+    : service
+        .workspace_required;
+
+
+/*
+ * =========================================
+ * 5. Workspace Not Required
+ * =========================================
+ */
+
+if (
+  !workspaceRequired
+) {
+  return {
+    created:
+      false,
+
+    skipped:
+      true,
+
+    reason:
+      "WORKSPACE_NOT_REQUIRED",
+
+    workspaceId:
+      null as string | null,
+  };
+}
+
+
   /*
    * =========================================
-   * 5. Check Existing Workspace
+   * 6. Check Existing Workspace
    * =========================================
    */
 
@@ -316,7 +396,7 @@ export async function ensureOrderWorkspace(
 
   /*
    * =========================================
-   * 6. Existing or Create Workspace
+   * 7. Existing or Create Workspace
    * =========================================
    *
    * 不论：
@@ -460,7 +540,7 @@ export async function ensureOrderWorkspace(
 
   /*
    * =========================================
-   * 7. Ensure Completion Milestones Snapshot
+   * 8. Ensure Completion Milestones Snapshot
    * =========================================
    *
    * 即使 Workspace 已存在，
@@ -570,7 +650,7 @@ export async function ensureOrderWorkspace(
 
   /*
    * =========================================
-   * 8. Ensure Service Welcome Message
+   * 9. Ensure Service Welcome Message
    * =========================================
    *
    * 这里只调用一次。
@@ -613,7 +693,7 @@ export async function ensureOrderWorkspace(
 
   /*
    * =========================================
-   * 9. Done
+   * 10. Done
    * =========================================
    */
 

@@ -19,15 +19,17 @@ import type {
   OrderAppointmentData,
 } from "@/types/appointment";
 
-import AdminCustomerActionRequest from "@/components/admin/AdminCustomerActionRequest";
-
-import AdminCustomerActionReview from "@/components/admin/AdminCustomerActionReview";
+import AdminCustomerMaterials from "@/components/admin/AdminCustomerMaterials";
 
 import AdminWorkspaceChat from "@/components/admin/AdminWorkspaceChat";
 
 import AdminWorkspaceAppointment from "@/components/admin/AdminWorkspaceAppointment";
 
 import AdminOrderResult from "@/components/admin/AdminOrderResult";
+
+import type {
+  OrderDocument,
+} from "@/types/orderDocument";
 
 interface Props {
   data:
@@ -57,6 +59,11 @@ interface Props {
   customerActionSubmission:
     CustomerActionSubmission | null;
 
+  requiresDocumentReview:
+    boolean;
+  
+  documents:
+    OrderDocument[];
 
   /*
    * Appointment / Meeting
@@ -148,6 +155,8 @@ function getStatusLabel(
 
 export default function AdminOrderWorkspace({
   data,
+  requiresDocumentReview,
+  documents,
   orderId,
   fulfillmentId,
   fulfillmentStatus,
@@ -450,59 +459,43 @@ export default function AdminOrderWorkspace({
         </div>
 
 
-        {formSchema.length >
-        0 ? (
-          <>
-            <AdminCustomerActionRequest
-              orderId={
-                orderId
-              }
+        <AdminCustomerMaterials
+          orderId={
+            orderId
+          }
 
-              fulfillmentId={
-                fulfillmentId
-              }
+          fulfillmentId={
+            fulfillmentId
+          }
 
-              fulfillmentStatus={
-                fulfillmentStatus
-              }
+          fulfillmentStatus={
+            fulfillmentStatus
+          }
 
-              formSchema={
-                formSchema
-              }
+          formSchema={
+            formSchema
+          }
 
-              formData={
-                formData
-              }
+          formData={
+            formData
+          }
 
-              activeRequest={
-                customerActionRequest
-              }
-            />
+          customerActionRequest={
+            customerActionRequest
+          }
 
+          customerActionSubmission={
+            customerActionSubmission
+          }
 
-            {customerActionRequest && (
-              <AdminCustomerActionReview
-                request={
-                  customerActionRequest
-                }
+          requiresDocumentReview={
+            requiresDocumentReview
+          }
 
-                submission={
-                  customerActionSubmission
-                }
-
-                currentFormData={
-                  formData
-                }
-              />
-            )}
-          </>
-        ) : (
-          <div className="rounded-lg border border-dashed p-4 text-sm text-gray-500">
-            此服务没有可修正的订单申请字段。
-            如需客户完成操作，请使用服务沟通、
-            Milestone 或 Workspace Task。
-          </div>
-        )}
+          documents={
+            documents
+          }
+        />
       </div>
 
 

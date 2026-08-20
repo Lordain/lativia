@@ -90,27 +90,47 @@ export function toDatabase(
      */
 
     form_schema:
-      formData
-        .formSchema
-        .map(
-          field => ({
-            ...field,
-
-            name:
-              field.name
-                .trim(),
-
-            label:
-              field.label
-                .trim(),
-
-            placeholder:
-              field
-                .placeholder
-                ?.trim() ||
-              undefined,
-          })
-        ),
+    formData
+      .formSchema
+      .map(
+        field => ({
+          ...field,
+  
+          name:
+            field.name
+              .trim(),
+  
+          label:
+            field.label
+              .trim(),
+  
+          placeholder:
+            field
+              .placeholder
+              ?.trim() ||
+            undefined,
+  
+          helperText:
+            field
+              .helperText
+              ?.trim() ||
+            undefined,
+  
+          options:
+            field.options
+              ?.map(
+                option => ({
+                  label:
+                    option.label
+                      .trim(),
+  
+                  value:
+                    option.value
+                      .trim(),
+                })
+              ),
+        })
+      ),
 
     /*
      * =====================================

@@ -1,7 +1,18 @@
-export interface FormFieldSchema {
-  name: string;
+export interface FormFieldOption {
+  label:
+    string;
 
-  label: string;
+  value:
+    string;
+}
+
+
+export interface FormFieldSchema {
+  name:
+    string;
+
+  label:
+    string;
 
   type:
     | "text"
@@ -9,9 +20,18 @@ export interface FormFieldSchema {
     | "tel"
     | "number"
     | "date"
-    | "textarea";
+    | "textarea"
+    | "select";
 
-  placeholder?: string;
+  placeholder?:
+    string;
 
-  required?: boolean;
+  helperText?:
+    string;
+
+  required?:
+    boolean;
+
+  options?:
+    FormFieldOption[];
 }

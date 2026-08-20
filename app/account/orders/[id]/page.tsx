@@ -44,6 +44,12 @@ import type {
   OrderAppointmentData,
 } from "@/types/appointment";
 
+import {
+  getMyOrderDocuments,
+} from "@/lib/documents/getMyOrderDocuments";
+
+import CustomerOrderDocuments from "@/components/orders/CustomerOrderDocuments";
+
 interface Props {
   params:
     Promise<{
@@ -85,17 +91,22 @@ export default async function OrderDetailPage({
     order,
     customerActionRequest,
     workspaceData,
+    orderDocuments,
   ] =
     await Promise.all([
       getMyOrder(
         id
       ),
-
+  
       getMyCustomerActionRequest(
         id
       ),
-
+  
       getMyOrderWorkspace(
+        id
+      ),
+  
+      getMyOrderDocuments(
         id
       ),
     ]);
@@ -151,6 +162,41 @@ export default async function OrderDetailPage({
       []
     ) as
       FormFieldSchema[];
+
+    const serviceOptionSnapshot =
+      order
+        .service_option_snapshot as
+          | {
+              requiresDocumentReview?:
+                boolean;
+            }
+          | null;
+    
+    
+    const requiresDocumentReview =
+      serviceOptionSnapshot
+        ?.requiresDocumentReview ===
+      true;
+
+      const serviceSlug =
+      order.services?.slug ??
+      "";
+    
+    
+    const documentProfile:
+      "personal" |
+      "company" =
+      serviceSlug.startsWith(
+        "company-"
+      )
+        ? "company"
+        : "personal";
+    
+    
+    const canUploadDocuments =
+      requiresDocumentReview &&
+      order.payment_status ===
+        "paid";
 
   return (
     <main className="mx-auto max-w-5xl p-6 md:p-8">
@@ -266,6 +312,31 @@ export default async function OrderDetailPage({
             ===================================== */}
 
            <div className="mt-8">
+           {requiresDocumentReview && (
+              canUploadDocuments ? (
+                <CustomerOrderDocuments
+                  orderId={
+                    order.id
+                  }
+                  documents={
+                    orderDocuments
+                  }
+                  documentProfile={
+                    documentProfile
+                  }
+                />
+              ) : (
+                <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                  <h2 className="font-semibold text-amber-900">
+                    办理资料检查
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-6 text-amber-800">
+                    完成付款后即可上传办理资料，由工作人员在现场办理前提前检查。
+                  </p>
+                </section>
+              )
+            )}
               <CustomerDataRetentionStatus
                 status={
                   order.data_cleanup_status

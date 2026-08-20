@@ -37,12 +37,42 @@ export interface EligibilityAcknowledgement {
   label: string;
 }
 
+export interface ServiceOptionSnapshot {
+  optionKey:
+    string;
+
+  title:
+    string;
+
+  serviceMode:
+    | "appointment_only"
+    | "appointment_plus_onsite";
+
+  onsiteAvailable:
+    boolean;
+
+  requiresDocumentReview:
+    boolean;
+
+  workspaceRequired:
+    boolean;
+
+  allowedRegions:
+    string[];
+}
+
 export interface Order {
   id: string;
 
   userId: string;
 
   serviceId: string;
+
+  serviceOptionId:
+    string | null;
+
+  serviceOptionSnapshot:
+    ServiceOptionSnapshot | null;
 
   status: OrderStatus;
 
@@ -82,7 +112,7 @@ export interface Order {
   eligibilityConfirmedAt:
     string | null;
 
-    dataPurposeEndedAt:
+  dataPurposeEndedAt:
     string | null;
 
   dataCleanupDueAt:

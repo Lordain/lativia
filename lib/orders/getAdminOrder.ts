@@ -26,6 +26,10 @@ export async function getAdminOrder(
         id,
         user_id,
         service_id,
+
+        service_option_id,
+        service_option_snapshot,
+
         status,
         form_data,
         admin_note,

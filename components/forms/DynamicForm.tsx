@@ -15,6 +15,8 @@ import {
 
 import PaymentOptionSelector from "@/components/payments/PaymentOptionSelector";
 
+import ServiceOptionSelector from "@/components/service/ServiceOptionSelector";
+
 import {
   createOrder,
 } from "@/lib/orders/createOrder";
@@ -59,14 +61,101 @@ export default function DynamicForm({
   eligibilityMode,
   eligibilitySchema,
 }: Props) {
-  const [
-    selectedPriceId,
-    setSelectedPriceId,
-  ] =
-    useState(
-      prices[0]?.id ??
+  const serviceOptions =
+  useMemo(
+    () => {
+      const map =
+        new Map<
+          string,
+          NonNullable<
+            ServicePrice["serviceOption"]
+          >
+        >();
+
+
+      for (
+        const price
+        of prices
+      ) {
+        if (
+          price.serviceOption &&
+          price.serviceOptionId
+        ) {
+          map.set(
+            price.serviceOptionId,
+            price.serviceOption
+          );
+        }
+      }
+
+
+      return Array.from(
+        map.values()
+      ).sort(
+        (
+          a,
+          b
+        ) =>
+          a.sortOrder -
+          b.sortOrder
+      );
+    },
+    [
+      prices,
+    ]
+  );
+
+
+const hasServiceOptions =
+  serviceOptions.length >
+  0;
+
+
+const [
+  selectedServiceOptionId,
+  setSelectedServiceOptionId,
+] =
+  useState(
+    serviceOptions[0]?.id ??
+      ""
+  );
+
+
+const filteredPrices =
+  useMemo(
+    () => {
+      if (
+        !hasServiceOptions
+      ) {
+        return prices;
+      }
+
+
+      return prices.filter(
+        price =>
+          price.serviceOptionId ===
+          selectedServiceOptionId
+      );
+    },
+    [
+      prices,
+      hasServiceOptions,
+      selectedServiceOptionId,
+    ]
+  );
+
+
+const [
+  selectedPriceId,
+  setSelectedPriceId,
+] =
+  useState(
+    hasServiceOptions
+      ? filteredPrices[0]?.id ??
         ""
-    );
+      : prices[0]?.id ??
+        ""
+  );
 
   const [
     acknowledgedEligibility,
@@ -99,7 +188,7 @@ export default function DynamicForm({
     useForm<DynamicFormData>();
 
   const hasPrices =
-    prices.length >
+    filteredPrices.length >
     0;
 
   const requiresEligibility =
@@ -131,6 +220,30 @@ export default function DynamicForm({
         true
     );
 
+    function handleServiceOptionChange(
+      serviceOptionId:
+        string
+    ) {
+      setSelectedServiceOptionId(
+        serviceOptionId
+      );
+    
+    
+      const firstPrice =
+        prices.find(
+          price =>
+            price.serviceOptionId ===
+            serviceOptionId
+        );
+    
+    
+      setSelectedPriceId(
+        firstPrice?.id ??
+          ""
+      );
+    }
+
+
   function toggleEligibility(
     key: string,
     checked: boolean
@@ -156,6 +269,43 @@ export default function DynamicForm({
     }
 
     try {
+
+      const email =
+        data.email
+          ?.trim()
+          .toLowerCase();
+
+
+      const emailConfirmation =
+        data
+          .email_confirmation
+          ?.trim()
+          .toLowerCase();
+
+
+      if (
+        emailConfirmation &&
+        email !==
+          emailConfirmation
+      ) {
+        alert(
+          "两次输入的电子邮箱不一致，请重新确认。"
+        );
+
+        return;
+      }
+
+      if (
+        hasServiceOptions &&
+        !selectedServiceOptionId
+      ) {
+        alert(
+          "请选择服务方案"
+        );
+      
+        return;
+      }
+
       if (
         !selectedPriceId
       ) {
@@ -164,6 +314,51 @@ export default function DynamicForm({
         );
 
         return;
+      }
+
+      const selectedServiceOption =
+        serviceOptions.find(
+          option =>
+            option.id ===
+            selectedServiceOptionId
+        );
+
+
+      if (
+        selectedServiceOption
+          ?.serviceMode ===
+        "appointment_plus_onsite"
+      ) {
+        const selectedRegion =
+          data
+            .service_region
+            ?.trim();
+
+
+        if (
+          !selectedRegion
+        ) {
+          alert(
+            "请选择现场办理地区"
+          );
+
+          return;
+        }
+
+
+        if (
+          !selectedServiceOption
+            .allowedRegions
+            .includes(
+              selectedRegion
+            )
+        ) {
+          alert(
+            "现场办理陪同（翻译）目前仅提供墨西哥城（CDMX）及墨西哥州（Estado de México），其他地区请选择预约协助服务"
+          );
+
+          return;
+        }
       }
 
       if (
@@ -355,58 +550,114 @@ export default function DynamicForm({
                   </label>
 
                   {field.type ===
-                  "textarea" ? (
-                    <textarea
-                      placeholder={
-                        field.placeholder
-                      }
-                      {...register(
-                        field.name,
-                        {
-                          required:
-                            field.required
-                              ? `${field.label} 为必填`
-                              : false,
+                    "textarea" ? (
+                      <textarea
+                        placeholder={
+                          field.placeholder
                         }
-                      )}
-                      rows={
-                        4
-                      }
-                      className={`w-full rounded-lg border p-3 ${
-                        errors[
-                          field
-                            .name
-                        ]
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                    />
-                  ) : (
-                    <input
-                      type={
-                        field.type
-                      }
-                      placeholder={
-                        field.placeholder
-                      }
-                      {...register(
-                        field.name,
-                        {
-                          required:
-                            field.required
-                              ? `${field.label} 为必填`
-                              : false,
+                        {...register(
+                          field.name,
+                          {
+                            required:
+                              field.required
+                                ? `${field.label} 为必填`
+                                : false,
+                          }
+                        )}
+                        rows={
+                          4
                         }
-                      )}
-                      className={`w-full rounded-lg border p-3 ${
-                        errors[
-                          field
-                            .name
-                        ]
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                    />
+                        className={`w-full rounded-lg border p-3 ${
+                          errors[
+                            field.name
+                          ]
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+
+                    ) : field.type ===
+                      "select" ? (
+
+                      <select
+                        {...register(
+                          field.name,
+                          {
+                            required:
+                              field.required
+                                ? `${field.label} 为必填`
+                                : false,
+                          }
+                        )}
+                        defaultValue=""
+                        className={`w-full rounded-lg border bg-white p-3 ${
+                          errors[
+                            field.name
+                          ]
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        <option
+                          value=""
+                          disabled
+                        >
+                          {field.placeholder ??
+                            "请选择"}
+                        </option>
+
+                        {(field.options ??
+                          []).map(
+                          option => (
+                            <option
+                              key={
+                                option.value
+                              }
+                              value={
+                                option.value
+                              }
+                            >
+                              {
+                                option.label
+                              }
+                            </option>
+                          )
+                        )}
+                      </select>
+
+                    ) : (
+                      <input
+                        type={
+                          field.type
+                        }
+                        placeholder={
+                          field.placeholder
+                        }
+                        {...register(
+                          field.name,
+                          {
+                            required:
+                              field.required
+                                ? `${field.label} 为必填`
+                                : false,
+                          }
+                        )}
+                        className={`w-full rounded-lg border p-3 ${
+                          errors[
+                            field.name
+                          ]
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+                    )}
+
+                  {field.helperText && (
+                    <p className="text-sm leading-6 text-gray-500">
+                      {
+                        field.helperText
+                      }
+                    </p>
                   )}
 
                   {errors[
@@ -429,6 +680,37 @@ export default function DynamicForm({
         </section>
       )}
 
+      {/* Service Option */}
+
+      {hasServiceOptions && (
+        <section>
+          <h2 className="text-xl font-semibold">
+            选择服务方案
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            不同服务方案的服务范围、办理地区和价格可能不同。
+          </p>
+
+          <div className="mt-4">
+            <ServiceOptionSelector
+              prices={
+                prices
+              }
+
+              value={
+                selectedServiceOptionId
+              }
+
+              onChange={
+                handleServiceOptionChange
+              }
+            />
+          </div>
+        </section>
+      )}
+
+
       {/* Payment */}
 
       <section>
@@ -440,7 +722,7 @@ export default function DynamicForm({
           <div className="mt-4">
             <PaymentOptionSelector
               prices={
-                prices
+                filteredPrices
               }
               value={
                 selectedPriceId
@@ -482,6 +764,10 @@ export default function DynamicForm({
       <button
         type="submit"
         disabled={
+          (
+            hasServiceOptions &&
+            !selectedServiceOptionId
+          ) ||
           !hasPrices ||
           !allEligibilityConfirmed ||
           submitting

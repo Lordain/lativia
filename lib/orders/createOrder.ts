@@ -203,6 +203,49 @@ function validateAndSanitizeFormData(
   return cleanData;
 }
 
+function normalizeUppercaseValue(
+  value:
+    unknown
+) {
+  return typeof value ===
+    "string"
+    ? value
+        .trim()
+        .toUpperCase()
+    : "";
+}
+
+
+function isValidCurp(
+  value:
+    string
+) {
+  return /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(
+    value
+  );
+}
+
+
+function isValidRfc(
+  value:
+    string
+) {
+  /*
+   * Persona Física:
+   * 13 characters
+   *
+   * Persona Moral:
+   * 12 characters
+   *
+   * 这里只做基础格式检查，
+   * 不代表 SAT 已确认 RFC 存在或有效。
+   */
+  return /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(
+    value
+  );
+}
+
+
 export async function createOrder(
   input:
     CreateOrderInput
@@ -482,6 +525,125 @@ export async function createOrder(
         {}
     );
 
+    const email =
+    cleanFormData
+      .email
+      ?.trim()
+      .toLowerCase();
+  
+  
+  const emailConfirmation =
+    cleanFormData
+      .email_confirmation
+      ?.trim()
+      .toLowerCase();
+  
+  
+  if (
+    emailConfirmation &&
+    email !==
+      emailConfirmation
+  ) {
+    throw new Error(
+      "两次输入的电子邮箱不一致"
+    );
+  }
+
+  if (
+    cleanFormData.curp
+  ) {
+    const curp =
+      normalizeUppercaseValue(
+        cleanFormData.curp
+      );
+  
+  
+    if (
+      !isValidCurp(
+        curp
+      )
+    ) {
+      throw new Error(
+        "CURP 格式不正确，请检查后重新填写"
+      );
+    }
+  
+  
+    cleanFormData.curp =
+      curp;
+  }
+
+  const rfcFieldNames = [
+    "rfc",
+    "company_rfc",
+    "legal_representative_rfc",
+  ] as const;
+  
+  
+  for (
+    const fieldName
+    of rfcFieldNames
+  ) {
+    const rawValue =
+      cleanFormData[
+        fieldName
+      ];
+  
+  
+    if (
+      !rawValue
+    ) {
+      continue;
+    }
+  
+  
+    const rfc =
+      normalizeUppercaseValue(
+        rawValue
+      );
+  
+  
+    if (
+      !isValidRfc(
+        rfc
+      )
+    ) {
+      throw new Error(
+        "RFC 格式不正确，请检查后重新填写"
+      );
+    }
+  
+  
+    cleanFormData[
+      fieldName
+    ] =
+      rfc;
+  }
+
+  if (
+    cleanFormData
+      .siger_registered
+  ) {
+    const allowedSigerValues = [
+      "yes",
+      "no",
+      "unknown",
+    ];
+  
+  
+    if (
+      !allowedSigerValues
+        .includes(
+          cleanFormData
+            .siger_registered
+        )
+    ) {
+      throw new Error(
+        "SIGER 登记状态无效"
+      );
+    }
+  }
+
   /*
    * ========================================
    * Payment Option
@@ -507,11 +669,26 @@ export async function createOrder(
       .select(`
         id,
         service_id,
+        service_option_id,
         amount,
         currency,
         payment_method,
         payment_provider,
-        active
+        active,
+      
+        service_options (
+          id,
+          option_key,
+          title,
+          service_mode,
+          onsite_available,
+          allowed_regions,
+          requires_document_review,
+          workspace_required,
+          active
+        )
+        
+
       `)
       .eq(
         "id",
@@ -536,6 +713,187 @@ export async function createOrder(
     );
   }
 
+    /*
+   * ========================================
+   * Service Option
+   * ========================================
+   */
+
+    const serviceOption =
+    Array.isArray(
+      price.service_options
+    )
+      ? (
+          price.service_options[0] ??
+          null
+        )
+      : (
+          price.service_options ??
+          null
+        );
+
+
+  /*
+   * 旧服务允许没有 Service Option。
+   *
+   * Batch 33-A 新服务会通过
+   * service_prices.service_option_id
+   * 绑定明确的业务方案。
+   */
+
+  if (
+    price.service_option_id &&
+    !serviceOption
+  ) {
+    throw new Error(
+      "服务方案不存在或配置不完整"
+    );
+  }
+
+
+  if (
+    serviceOption &&
+    serviceOption.active !==
+      true
+  ) {
+    throw new Error(
+      "所选服务方案目前不可使用"
+    );
+  }
+
+  if (
+    serviceOption &&
+    serviceOption.id !==
+      price.service_option_id
+  ) {
+    throw new Error(
+      "服务方案与付款方案不匹配"
+    );
+  }
+
+    /*
+   * ========================================
+   * Onsite Region Validation
+   * ========================================
+   */
+
+    if (
+      cleanFormData
+        .service_region
+    ) {
+      const allowedServiceRegions = [
+        "ciudad_de_mexico",
+        "estado_de_mexico",
+        "other",
+      ];
+    
+    
+      if (
+        !allowedServiceRegions
+          .includes(
+            cleanFormData
+              .service_region
+          )
+      ) {
+        throw new Error(
+          "办理地区无效"
+        );
+      }
+    }
+
+    if (
+      serviceOption
+        ?.service_mode ===
+      "appointment_plus_onsite"
+    ) {
+      const selectedRegion =
+        cleanFormData
+          .service_region
+          ?.trim();
+  
+  
+      if (
+        !selectedRegion
+      ) {
+        throw new Error(
+          "请选择现场办理地区"
+        );
+      }
+  
+  
+      const allowedRegions =
+        Array.isArray(
+          serviceOption
+            .allowed_regions
+        )
+          ? serviceOption
+              .allowed_regions
+              .filter(
+                (
+                  region
+                ): region is string =>
+                  typeof region ===
+                  "string"
+              )
+          : [];
+  
+  
+      if (
+        !allowedRegions.includes(
+          selectedRegion
+        )
+      ) {
+        throw new Error(
+          "当前现场办理陪同(翻译)仅提供墨西哥城（CDMX）及墨西哥州（Estado de México），其他地区请选择预约协助服务"
+        );
+      }
+    }
+
+
+      /*
+   * ========================================
+   * Service Option Snapshot
+   * ========================================
+   */
+
+  const serviceOptionSnapshot =
+  serviceOption
+    ? {
+        optionKey:
+          serviceOption
+            .option_key,
+
+        title:
+          serviceOption
+            .title,
+
+        serviceMode:
+          serviceOption
+            .service_mode,
+
+        onsiteAvailable:
+          serviceOption
+            .onsite_available,
+
+        requiresDocumentReview:
+          serviceOption
+            .requires_document_review,
+
+        workspaceRequired:
+            serviceOption
+              .workspace_required,
+
+        allowedRegions:
+          Array.isArray(
+            serviceOption
+              .allowed_regions
+          )
+            ? serviceOption
+                .allowed_regions
+            : [],
+      }
+    : null;
+
   /*
    * ========================================
    * Create Order
@@ -556,6 +914,14 @@ export async function createOrder(
 
         service_id:
           serviceId,
+
+        service_option_id:
+          serviceOption
+            ?.id ??
+          null,
+
+        service_option_snapshot:
+          serviceOptionSnapshot,
 
         /*
          * 只写入 Server 清理后的
@@ -602,6 +968,8 @@ export async function createOrder(
       })
       .select(`
         id,
+        service_option_id,
+        service_option_snapshot,
         amount,
         currency,
         payment_method,

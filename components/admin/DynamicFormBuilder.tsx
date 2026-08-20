@@ -55,6 +55,7 @@ const FIELD_TYPES = [
     value: "textarea",
     label: "多行文字",
   },
+
 ] as const;
 
 export default function DynamicFormBuilder({
@@ -76,14 +77,26 @@ export default function DynamicFormBuilder({
 
   function addField() {
     append({
-      name: "",
-      label: "",
+      name:
+        "",
+    
+      label:
+        "",
+    
       type:
         "text",
+    
       placeholder:
         "",
+    
+      helperText:
+        "",
+    
       required:
         false,
+    
+      options:
+        [],
     });
   }
 
@@ -375,6 +388,43 @@ export default function DynamicFormBuilder({
                         className="w-full rounded-lg border px-3 py-2 text-sm"
                       />
                     </div>
+
+                    {/* Helper Text */}
+
+                  <div className="md:col-span-2">
+                    <label className="mb-1 block text-sm font-medium">
+                      中文说明
+                    </label>
+
+                    <textarea
+                      rows={
+                        2
+                      }
+                      placeholder="例如：CURP 是墨西哥个人身份登记号码..."
+                      {...register(
+                        `formSchema.${index}.helperText`
+                      )}
+                      className="w-full rounded-lg border px-3 py-2 text-sm"
+                    />
+
+                    <p className="mt-1 text-xs text-gray-400">
+                      用于说明 CURP、RFC、SIGER 等墨西哥专用字段；Email 等通用字段可留空。
+                    </p>
+                  </div>
+                  {field.type ===
+                    "select" && (
+                    <div className="md:col-span-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                      <p className="text-sm font-medium text-amber-900">
+                        下拉选项
+                      </p>
+
+                      <p className="mt-1 text-xs leading-5 text-amber-800">
+                        当前服务的下拉选项由服务配置保存。现阶段请勿在管理员页面修改此字段类型或选项，以免覆盖已有配置。
+                      </p>
+                    </div>
+                  )}
+
+
                   </div>
 
                   {/* Required */}

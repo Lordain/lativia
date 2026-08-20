@@ -8,47 +8,110 @@ import {
  * =====================================
  */
 
-export const formFieldSchema =
-  z.object({
-    name: z
-      .string()
-      .trim()
-      .min(
-        1,
-        "请输入字段名称"
-      )
-      .regex(
-        /^[a-zA-Z][a-zA-Z0-9_]*$/,
-        "字段名称只能使用英文字母、数字和下划线，并且必须以英文字母开头"
-      ),
+const formFieldSchema =
+  z
+    .object({
+      name:
+        z
+          .string()
+          .trim()
+          .min(
+            1,
+            "请输入字段名称"
+          )
+          .regex(
+            /^[a-zA-Z][a-zA-Z0-9_]*$/,
+            "字段名称只能使用英文字母、数字和下划线，并且必须以英文字母开头"
+          ),
 
-    label: z
-      .string()
-      .trim()
-      .min(
-        1,
-        "请输入显示名称"
-      ),
+      label:
+        z
+          .string()
+          .trim()
+          .min(
+            1,
+            "请输入显示名称"
+          ),
 
-    type: z.enum([
-      "text",
-      "email",
-      "tel",
-      "number",
-      "date",
-      "textarea",
-    ]),
+      type:
+        z.enum([
+          "text",
+          "email",
+          "tel",
+          "number",
+          "date",
+          "textarea",
+          "select",
+        ]),
 
-    placeholder:
-      z
-        .string()
-        .optional(),
+      placeholder:
+        z
+          .string()
+          .optional(),
 
-    required:
-      z
-        .boolean()
-        .optional(),
-  });
+      helperText:
+        z
+          .string()
+          .optional(),
+
+      required:
+        z
+          .boolean()
+          .optional(),
+
+      options:
+        z
+          .array(
+            z.object({
+              label:
+                z
+                  .string()
+                  .trim()
+                  .min(
+                    1,
+                    "请输入选项显示名称"
+                  ),
+
+              value:
+                z
+                  .string()
+                  .trim()
+                  .min(
+                    1,
+                    "请输入选项值"
+                  ),
+            })
+          )
+          .optional(),
+    })
+    .superRefine(
+      (
+        field,
+        ctx
+      ) => {
+        if (
+          field.type ===
+            "select" &&
+          (
+            !field.options ||
+            field.options.length ===
+              0
+          )
+        ) {
+          ctx.addIssue({
+            code:
+              "custom",
+
+            path: [
+              "options",
+            ],
+
+            message:
+              "下拉选项至少需要一个选项",
+          });
+        }
+      }
+    );
 
 /*
  * =====================================

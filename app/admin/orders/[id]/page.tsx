@@ -13,6 +13,10 @@ import {
 } from "@/lib/orders/getAdminOrder";
 
 import {
+  getAdminOrderDocuments,
+} from "@/lib/documents/getAdminOrderDocuments";
+
+import {
   getPaymentAuditLogs,
 } from "@/lib/payments/getPaymentAuditLogs";
 
@@ -165,6 +169,7 @@ export default async function AdminOrderDetailPage({
     refundData,
     customerActionRequest,
     workspaceData,
+    orderDocuments,
   ] =
     await Promise.all([
       getPaymentAuditLogs(
@@ -184,6 +189,10 @@ export default async function AdminOrderDetailPage({
       ),
 
       getAdminOrderWorkspace(
+        order.id
+      ),
+      
+      getAdminOrderDocuments(
         order.id
       ),
     ]);
@@ -287,6 +296,30 @@ export default async function AdminOrderDetailPage({
         fulfillmentData
           .activity,
     });
+
+    /*
+   * =========================================
+   * Service Option Snapshot
+   * =========================================
+   */
+
+    const serviceOptionSnapshot =
+    order
+      .service_option_snapshot as
+        | {
+            requiresDocumentReview?:
+              boolean;
+
+            workspaceRequired?:
+              boolean;
+          }
+        | null;
+
+
+  const requiresDocumentReview =
+    serviceOptionSnapshot
+      ?.requiresDocumentReview ===
+    true;
 
 
   return (
@@ -597,6 +630,14 @@ export default async function AdminOrderDetailPage({
 
           customerActionSubmission={
             customerActionSubmission
+          }
+
+          requiresDocumentReview={
+            requiresDocumentReview
+          }
+          
+          documents={
+            orderDocuments
           }
 
           appointmentData={

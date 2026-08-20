@@ -454,7 +454,7 @@ export default function CustomerWorkspaceAppointment({
             </h3>
 
             <p className="mt-1 text-sm leading-6 text-gray-500">
-              未来两周可预约时间，均为墨西哥城时间。
+              未来 10 天可预约时间，均为墨西哥城时间。
             </p>
           </div>
 
@@ -537,12 +537,6 @@ export default function CustomerWorkspaceAppointment({
                         )
                       }
                     </h4>
-
-                    <span className="text-[11px] text-gray-400 lg:hidden">
-                      {
-                        slots.length
-                      } 个
-                    </span>
                   </div>
 
 
@@ -559,58 +553,64 @@ export default function CustomerWorkspaceAppointment({
 
 
                           return (
-                            <button
-                              key={
-                                slot.id
-                              }
-                              type="button"
-                              disabled={
-                                pending
-                              }
-                              onClick={() =>
-                                handleBook(
+                      <button
+                        key={
+                          slot.id
+                        }
+                        type="button"
+                        disabled={
+                          pending ||
+                          !slot.isAvailable
+                        }
+                        onClick={() =>
+                          handleBook(
+                            slot.startsAt
+                          )
+                        }
+                        className={`
+                          min-w-[76px]
+                          rounded-md
+                          border
+                          px-2.5
+                          py-2
+                          text-xs
+                          font-medium
+                          transition
+                          disabled:cursor-not-allowed
+
+                          ${
+                            slot.isAvailable
+                              ? "border-green-300 bg-green-50 text-green-800 hover:border-green-500 hover:bg-green-100"
+                              : "border-gray-200 bg-gray-100 text-gray-400"
+                          }
+                        `}
+                      >
+                        <span className="block">
+                          {
+                            loading
+                              ? "..."
+                              : formatTime(
                                   slot.startsAt
                                 )
-                              }
-                              className="
-                                min-w-[68px]
-                                rounded-md
-                                border
-                                border-gray-300
-                                bg-white
-                                px-2.5
-                                py-2
-                                text-xs
-                                font-medium
-                                text-gray-800
-                                transition
-                                hover:border-blue-500
-                                hover:bg-blue-50
-                                hover:text-blue-700
-                                disabled:cursor-not-allowed
-                                disabled:opacity-50
-                              "
-                            >
-                              {
-                                loading
-                                  ? "..."
-                                  : formatTime(
-                                      slot.startsAt
-                                    )
-                              }
-                            </button>
+                          }
+                        </span>
+
+                        {!loading && (
+                          <span className="mt-1 block text-[10px] font-normal">
+                            {
+                              slot.isAvailable
+                                ? "可预约"
+                                : "已占用"
+                            }
+                          </span>
+                        )}
+                      </button>
                           );
                         }
                       )}
                     </div>
                   </div>
 
-
-                  <span className="hidden shrink-0 text-[11px] text-gray-400 lg:block">
-                    {
-                      slots.length
-                    } 个
-                  </span>
                 </div>
               </div>
             )

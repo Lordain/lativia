@@ -16,6 +16,7 @@ import CustomerWorkspaceChat from "@/components/orders/CustomerWorkspaceChat";
 
 import CustomerWorkspaceAppointment from "@/components/orders/CustomerWorkspaceAppointment";
 
+import CustomerOrderResult from "@/components/orders/CustomerOrderResult";
 
 interface Props {
   data:
@@ -139,6 +140,7 @@ export default function CustomerOrderWorkspace({
     workspace,
     milestones,
     messages,
+    results,
   } =
     data;
 
@@ -364,6 +366,18 @@ export default function CustomerOrderWorkspace({
           </div>
         )}
       </div>
+
+      {/* =====================================
+            Service Result
+        ===================================== */}
+
+        <div className="mt-8 border-t pt-6">
+          <CustomerOrderResult
+            results={
+              results
+            }
+          />
+        </div>
 
 
       {/* =====================================

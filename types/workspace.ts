@@ -1,3 +1,7 @@
+import type {
+  OrderResult,
+} from "@/types/result";
+
 export type OrderWorkspaceStatus =
   | "active"
   | "completed"
@@ -188,4 +192,7 @@ export interface OrderWorkspaceData {
 
   messages:
     WorkspaceMessage[];
+
+  results:
+    OrderResult[];
 }

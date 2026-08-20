@@ -237,6 +237,11 @@ export function normalizeService(
         data.result_is_official
       ),
 
+    resultRequired:
+      Boolean(
+        data.result_required
+      ),
+
     resultDeliveryMode:
       (
         data.result_delivery_mode ??

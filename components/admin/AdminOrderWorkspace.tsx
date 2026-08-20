@@ -27,6 +27,7 @@ import AdminWorkspaceChat from "@/components/admin/AdminWorkspaceChat";
 
 import AdminWorkspaceAppointment from "@/components/admin/AdminWorkspaceAppointment";
 
+import AdminOrderResult from "@/components/admin/AdminOrderResult";
 
 interface Props {
   data:
@@ -161,6 +162,7 @@ export default function AdminOrderWorkspace({
     workspace,
     milestones,
     messages,
+    results,
   } =
     data;
 
@@ -408,6 +410,22 @@ export default function AdminOrderWorkspace({
         )}
       </div>
 
+
+      {/* =====================================
+          Result Delivery
+      ===================================== */}
+
+      <div className="mt-8 border-t pt-6">
+        <AdminOrderResult
+          orderId={
+            orderId
+          }
+
+          results={
+            results
+          }
+        />
+      </div>
 
       {/* =====================================
           Customer Action

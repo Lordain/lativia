@@ -101,20 +101,27 @@ import type {
        */
   
       expectedOutcome:
-        service
-          .expectedOutcome ||
-        service
-          .resultType ||
-        "",
-  
-      resultIsOfficial:
-        service
-          .resultIsOfficial,
-  
-      hasResultFile:
-        service
-          .resultDeliveryMode !==
-        "none",
+      service
+        .expectedOutcome ||
+      service
+        .resultType ||
+      "",
+    
+    resultIsOfficial:
+      service
+        .resultIsOfficial,
+    
+    resultRequired:
+      service
+        .resultRequired,
+    
+    hasResultFile:
+      service
+        .resultDeliveryMode ===
+        "email" ||
+      service
+        .resultDeliveryMode ===
+        "email_and_workspace",
   
       /*
        * Refund

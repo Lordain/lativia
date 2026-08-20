@@ -301,6 +301,9 @@ export const serviceSchema =
       resultIsOfficial:
         z.boolean(),
 
+      resultRequired:
+        z.boolean(),
+
       hasResultFile:
         z.boolean(),
 

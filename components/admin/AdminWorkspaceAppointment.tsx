@@ -379,7 +379,7 @@ export default function AdminWorkspaceAppointment({
         </h3>
 
         <p className="mt-2 text-sm leading-6 text-gray-500">
-          系统会根据预约规则自动开放未来两周日历，
+          系统会根据预约规则自动开放未来10天时段，
           客户自行选择当前可用时间。
         </p>
       </div>
@@ -479,7 +479,7 @@ export default function AdminWorkspaceAppointment({
             最少提前 {
               data.rule.minimumNoticeHours
             } 小时预约。
-            已被其他客户预约的时间会自动从 Calendar 中移除。
+            已被其他客户预约的时间会显示为“已占用”。
           </p>
         </div>
       ) : (
@@ -502,9 +502,7 @@ export default function AdminWorkspaceAppointment({
           </p>
 
           <p className="mt-2 text-sm leading-6 text-blue-700">
-            客户可以在订单服务空间中查看未来两周的
-            Available Calendar，并自行选择咨询时间。
-            Admin 不需要手动建立预约时段。
+            客户可以在订单服务空间中查看未来 10 天的预约时间，并从中选择咨询时间。
           </p>
         </div>
       )}

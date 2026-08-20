@@ -12,6 +12,10 @@ import {
     WorkspaceMessage,
     OrderWorkspaceData,
   } from "@/types/workspace";
+
+  import type {
+    OrderResult,
+  } from "@/types/result";
   
   
   interface WorkspaceRow {
@@ -116,6 +120,53 @@ import {
   
     deleted_by:
       string | null;
+  }
+
+  interface ResultRow {
+    id:
+      string;
+  
+    order_id:
+      string;
+  
+    service_id:
+      string;
+  
+    workspace_id:
+      string | null;
+  
+    result_type:
+      string;
+  
+    result_is_official:
+      boolean;
+  
+    title:
+      string;
+  
+    summary:
+      string;
+  
+    metadata:
+      Record<string, unknown>;
+  
+    status:
+      OrderResult["status"];
+  
+    delivery_mode:
+      OrderResult["deliveryMode"];
+  
+    delivered_at:
+      string | null;
+  
+    delivered_by:
+      string | null;
+  
+    created_at:
+      string;
+  
+    updated_at:
+      string;
   }
   
   
@@ -235,6 +286,58 @@ import {
   
       deletedBy:
         row.deleted_by,
+    };
+  }
+
+  function mapResult(
+    row:
+      ResultRow
+  ): OrderResult {
+    return {
+      id:
+        row.id,
+  
+      orderId:
+        row.order_id,
+  
+      serviceId:
+        row.service_id,
+  
+      workspaceId:
+        row.workspace_id,
+  
+      resultType:
+        row.result_type,
+  
+      resultIsOfficial:
+        row.result_is_official,
+  
+      title:
+        row.title,
+  
+      summary:
+        row.summary,
+  
+      metadata:
+        row.metadata ?? {},
+  
+      status:
+        row.status,
+  
+      deliveryMode:
+        row.delivery_mode,
+  
+      deliveredAt:
+        row.delivered_at,
+  
+      deliveredBy:
+        row.delivered_by,
+  
+      createdAt:
+        row.created_at,
+  
+      updatedAt:
+        row.updated_at,
     };
   }
   
@@ -429,6 +532,65 @@ import {
         "读取订单服务消息失败"
       );
     }
+
+
+    /*
+ * =========================================
+ * Results
+ * =========================================
+ */
+
+const {
+  data:
+    resultData,
+
+  error:
+    resultError,
+} =
+  await admin
+    .from(
+      "order_results"
+    )
+    .select(`
+      id,
+      order_id,
+      service_id,
+      workspace_id,
+      result_type,
+      result_is_official,
+      title,
+      summary,
+      metadata,
+      status,
+      delivery_mode,
+      delivered_at,
+      delivered_by,
+      created_at,
+      updated_at
+    `)
+    .eq(
+      "order_id",
+      cleanOrderId
+    )
+    .order(
+      "created_at",
+      {
+        ascending:
+          true,
+      }
+    );
+
+
+if (resultError) {
+  console.error(
+    "getAdminOrderWorkspace result error:",
+    resultError
+  );
+
+  throw new Error(
+    "读取订单交付结果失败"
+  );
+}
   
   
     return {
@@ -457,5 +619,17 @@ import {
                 MessageRow
             )
         ),
+
+        results:
+          (
+            resultData ??
+            []
+          ).map(
+            row =>
+              mapResult(
+                row as
+                  ResultRow
+              )
+          ),
     };
   }

@@ -252,6 +252,10 @@ export async function cancelAdminOrderAppointment(
     `/account/orders/${appointment.order_id}`
   );
 
+  revalidatePath(
+    "/admin/appointments/availability"
+  );
+
 
   return {
     success:

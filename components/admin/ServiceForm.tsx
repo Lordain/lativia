@@ -161,9 +161,12 @@ export default function ServiceForm({
           expectedOutcome:
             "",
 
-          resultIsOfficial:
+            resultIsOfficial:
             false,
-
+          
+          resultRequired:
+            false,
+          
           hasResultFile:
             false,
 
@@ -855,7 +858,7 @@ export default function ServiceForm({
           </FormField>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
           <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
             <input
               type="checkbox"
@@ -869,6 +872,25 @@ export default function ServiceForm({
               <p className="font-medium">
                 最终结果由官方机构出具
               </p>
+              <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4"
+                  {...register(
+                    "resultRequired"
+                  )}
+                />
+
+                <div>
+                  <p className="font-medium">
+                    服务完成前需要正式交付结果
+                  </p>
+
+                  <p className="mt-1 text-sm leading-6 text-gray-500">
+                    适用于需要在订单服务空间中留下正式完成或结果记录的服务。
+                  </p>
+                </div>
+              </label>
 
               <p className="mt-1 text-sm leading-6 text-gray-500">
                 只有政府或相关官方机构实际出具的结果才可以勾选。

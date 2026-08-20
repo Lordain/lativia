@@ -276,11 +276,18 @@ export function toDatabase(
      * 不产生结果文件 retention
      */
 
+    result_required:
+      formData
+        .resultRequired,
+    
     result_delivery_mode:
-      hasResultFile
-        ? "email_and_workspace"
-        : "none",
-
+      !formData
+        .resultRequired
+        ? "none"
+        : hasResultFile
+          ? "email_and_workspace"
+          : "workspace",
+    
     result_retention_hours:
       hasResultFile
         ? DEFAULT_RESULT_RETENTION_HOURS

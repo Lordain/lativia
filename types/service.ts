@@ -184,6 +184,9 @@ export interface Service {
   resultIsOfficial:
     boolean;
 
+  resultRequired:
+    boolean;
+
   resultDeliveryMode:
     ResultDeliveryMode;
 
@@ -287,25 +290,27 @@ export interface ServiceFormData {
    */
 
   expectedOutcome:
-    string;
+  string;
 
   resultIsOfficial:
     boolean;
 
   /*
-   * Admin 只需要回答：
-   * “有没有结果文件？”
-   *
-   * 系统自动转换：
-   *
-   * true
-   * → email_and_workspace
-   * → 48h
-   *
-   * false
-   * → none
-   * → null
-   */
+  * 是否必须在服务完成前
+  * 正式交付 Result record。
+  */
+  resultRequired:
+    boolean;
+
+  /*
+  * 是否存在结果文件。
+  *
+  * 只影响：
+  * - Email + Workspace 文件交付
+  * - Result file retention
+  *
+  * 不再决定是否存在 Result。
+  */
   hasResultFile:
     boolean;
 

@@ -26,6 +26,243 @@ interface Props {
 }
 
 
+type OfficialRateCard = {
+  id: string;
+  product: string;
+  term: string;
+  rate: number;
+};
+
+type OfficialRateSnapshot = {
+  sourceName: string;
+  sourceDate: string | null;
+  rates: OfficialRateCard[];
+};
+
+const OFFICIAL_RATES_URL =
+  "https://www.cetesdirecto.com/sites/portal/historia.cetesdirecto";
+
+function normalizeOfficialText(
+  html: string
+) {
+  return html
+    .replace(
+      /<script[\s\S]*?<\/script>/gi,
+      " "
+    )
+    .replace(
+      /<style[\s\S]*?<\/style>/gi,
+      " "
+    )
+    .replace(
+      /&nbsp;/gi,
+      " "
+    )
+    .replace(
+      /&aacute;/gi,
+      "á"
+    )
+    .replace(
+      /&eacute;/gi,
+      "é"
+    )
+    .replace(
+      /&iacute;/gi,
+      "í"
+    )
+    .replace(
+      /&oacute;/gi,
+      "ó"
+    )
+    .replace(
+      /&uacute;/gi,
+      "ú"
+    )
+    .replace(
+      /&ntilde;/gi,
+      "ñ"
+    )
+    .replace(
+      /<[^>]+>/g,
+      " "
+    )
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .trim();
+}
+
+function extractRate(
+  text: string,
+  pattern: RegExp
+) {
+  const match =
+    text.match(
+      pattern
+    );
+
+  if (
+    !match?.[1]
+  ) {
+    return null;
+  }
+
+  const value =
+    Number(
+      match[1]
+    );
+
+  return Number.isFinite(
+    value
+  )
+    ? value
+    : null;
+}
+
+async function getOfficialReferenceRates():
+  Promise<OfficialRateSnapshot | null> {
+  try {
+    const response =
+      await fetch(
+        OFFICIAL_RATES_URL,
+        {
+          next: {
+            revalidate:
+              60 * 60,
+          },
+        }
+      );
+
+    if (
+      !response.ok
+    ) {
+      return null;
+    }
+
+    const html =
+      await response.text();
+
+    const text =
+      normalizeOfficialText(
+        html
+      );
+
+    const dateMatch =
+      text.match(
+        /(\d{1,2}-[a-záéíóú]{3}-\d{4})/i
+      );
+
+    const definitions = [
+      {
+        id:
+          "cetes-1m",
+        product:
+          "CETES",
+        term:
+          "1 个月",
+        pattern:
+          /CETES\s+1\s+mes:\s*\+?0?(\d+(?:\.\d+)?)%/i,
+      },
+      {
+        id:
+          "cetes-3m",
+        product:
+          "CETES",
+        term:
+          "3 个月",
+        pattern:
+          /CETES\s+3\s+mes(?:es)?:\s*\+?0?(\d+(?:\.\d+)?)%/i,
+      },
+      {
+        id:
+          "cetes-6m",
+        product:
+          "CETES",
+        term:
+          "6 个月",
+        pattern:
+          /CETES\s+6\s+mes(?:es)?:\s*\+?0?(\d+(?:\.\d+)?)%/i,
+      },
+      {
+        id:
+          "cetes-1y",
+        product:
+          "CETES",
+        term:
+          "1 年",
+        pattern:
+          /CETES\s+1\s+año:\s*\+?0?(\d+(?:\.\d+)?)%/i,
+      },
+      {
+        id:
+          "bonddia-1d",
+        product:
+          "BONDDIA",
+        term:
+          "1 日",
+        pattern:
+          /BONDDIA\s+1\s+día:\s*\+?0?(\d+(?:\.\d+)?)%/i,
+      },
+      {
+        id:
+          "bonos-3y",
+        product:
+          "BONOS",
+        term:
+          "3 年",
+        pattern:
+          /BONOS\s+3\s+años:\s*\+?0?(\d+(?:\.\d+)?)%/i,
+      },
+    ] as const;
+
+    const officialRates =
+      definitions.flatMap(
+        definition => {
+          const rate =
+            extractRate(
+              text,
+              definition.pattern
+            );
+
+          return rate ===
+            null
+            ? []
+            : [
+                {
+                  id:
+                    definition.id,
+                  product:
+                    definition.product,
+                  term:
+                    definition.term,
+                  rate,
+                },
+              ];
+        }
+      );
+
+    if (
+      officialRates.length ===
+      0
+    ) {
+      return null;
+    }
+
+    return {
+      sourceName:
+        "Cetesdirecto",
+      sourceDate:
+        dateMatch?.[1] ??
+        null,
+      rates:
+        officialRates,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function formatDate(
   value: string
 ) {
@@ -36,7 +273,6 @@ function formatDate(
   ] =
     value.split("-");
 
-
   if (
     !year ||
     !month ||
@@ -45,17 +281,48 @@ function formatDate(
     return value;
   }
 
-
   return `${year}-${month}-${day}`;
 }
 
-
-export default function CetesLanding({
+export default async function CetesLanding({
   service,
   prices,
   rates,
 }: Props) {
-  const sourceDate =
+  const officialSnapshot =
+    await getOfficialReferenceRates();
+
+  const fallbackRateCards:
+    OfficialRateCard[] =
+    rates.map(
+      item => ({
+        id:
+          item.id,
+        product:
+          "CETES",
+        term:
+          `${item.termDays} 天`,
+        rate:
+          item.rate,
+      })
+    );
+
+  const displayedRates =
+    officialSnapshot
+      ?.rates.length
+      ? officialSnapshot.rates
+      : fallbackRateCards;
+
+  const rateSourceName =
+    officialSnapshot
+      ?.sourceName ??
+    rates[0]
+      ?.sourceName ??
+    "Cetesdirecto";
+
+  const rateSourceDate =
+    officialSnapshot
+      ?.sourceDate ??
     rates[0]
       ?.sourceDate ??
     null;
@@ -73,367 +340,633 @@ export default function CetesLanding({
     null;
 
 
-  const displayAmount =
+    const currentCurrency =
+    primaryPrice?.currency ??
+    "MXN";
+  
+  const currentAmount =
     primaryPrice
-      ? new Intl.NumberFormat(
-          "es-MX",
-          {
-            style:
-              "currency",
-
-            currency:
-              primaryPrice.currency,
-
-            minimumFractionDigits:
-              0,
-
-            maximumFractionDigits:
-              0,
-          }
-        ).format(
-          Number(
-            primaryPrice.amount
-          )
+      ? Number(
+          primaryPrice.amount
         )
-      : service.price;
+      : 2000;
+  
+  const originalAmount =
+    4000;
+  
+  const moneyFormatter =
+    new Intl.NumberFormat(
+      "es-MX",
+      {
+        style:
+          "currency",
+  
+        currency:
+          currentCurrency,
+  
+        minimumFractionDigits:
+          0,
+  
+        maximumFractionDigits:
+          0,
+      }
+    );
+  
+  const displayAmount =
+    `${currentCurrency} ${moneyFormatter.format(
+      currentAmount
+    )}`;
+  
+  const originalDisplayAmount =
+    `${currentCurrency} ${moneyFormatter.format(
+      originalAmount
+    )}`;
+  
+  const discountPercent =
+    Math.round(
+      (
+        1 -
+        currentAmount /
+          originalAmount
+      ) *
+        100
+    );
+  
+  const coursePreviews = [
+    {
+      id:
+        "opening",
+  
+      number:
+        "01",
+  
+      title:
+        "Cetesdirecto 开户实操",
+  
+      description:
+        "从账号创建、定位、身份资料到本人银行账户与合同签署。",
+  
+      image:
+        "/consultation/cetes/previews/preview-opening.png",
+    },
+  
+    {
+      id:
+        "efirma",
+  
+      number:
+        "02",
+  
+      title:
+        "e.firma 账户升级",
+  
+      description:
+        "了解账户等级，以及使用本人 e.firma 完成线上升级的完整流程。",
+  
+      image:
+        "/consultation/cetes/previews/preview-efirma.png",
+    },
+  
+    {
+      id:
+        "purchase",
+  
+      number:
+        "03",
+  
+      title:
+        "墨西哥国债购买实操",
+  
+      description:
+        "从 Invertir、选择期限、Subasta 到提交并确认购买指令。",
+  
+      image:
+        "/consultation/cetes/previews/preview-purchase.png",
+    },
+  
+    {
+      id:
+        "withdrawal",
+  
+      number:
+        "04",
+  
+      title:
+        "出金操作实操",
+  
+      description:
+        "掌握首次出金测试，并理解从 Cetesdirecto 返回本人银行账户的资金闭环。",
+  
+      image:
+        "/consultation/cetes/previews/preview-withdrawal.png",
+    },
+  ];
 
 
   return (
     <main>
       {/* =====================================
-          Hero
-      ===================================== */}
+    Hero
+===================================== */}
 
-      <section className="border-b bg-gradient-to-b from-blue-50 to-white">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:py-24">
-          <div className="max-w-5xl">
-            <div className="mb-5 inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-              Cetesdirecto 中文操作咨询
-            </div>
+<section className="border-b bg-gradient-to-b from-blue-50 via-white to-white">
+  <div className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+    <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_420px]">
+      {/* ===============================
+          Hero Copy
+      =============================== */}
 
-
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-950 md:whitespace-nowrap md:text-5xl lg:text-6xl">
-              墨西哥国债开户与操作咨询
-            </h1>
-
-
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
-              用中文了解 CETES、BONOS、BONDDIA，
-              并指导您完成 Cetesdirecto 开户、账户升级、
-              首次入金与首次出金测试。
-              账户、资金及投资决定始终由您本人管理。
-            </p>
-
-
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <div className="text-3xl font-bold text-gray-950">
-                {displayAmount}
-              </div>
-
-              <div className="text-sm text-gray-500">
-                一次性中文线上咨询服务
-              </div>
-            </div>
-
-
-            <div className="mt-8 max-w-4xl rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 shadow-sm">
-              <p className="font-semibold text-amber-900">
-                ⚠ 重要安全说明
-              </p>
-
-              <p className="mt-2 text-sm leading-7 text-amber-800">
-                本服务仅提供操作流程咨询与中文指导，
-                不提供投资建议，不推荐具体投资产品、
-                期限、金额或买卖时点。
-              </p>
-
-              <p className="mt-3 font-semibold leading-7 text-amber-950">
-                不代客户登录或操作账户，
-                也不接触、接收或保管客户资金、
-                账户密码、银行密码、验证码、
-                OTP、Token、CVV 或其他安全凭证。
-              </p>
-            </div>
-          </div>
+      <div>
+        <div className="mb-5 inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+          Cetesdirecto 中文操作咨询
         </div>
-      </section>
 
+        <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-gray-950 md:text-5xl lg:text-6xl">
+          墨西哥国债开户与操作咨询
+        </h1>
 
-      {/* =====================================
-          Current Rates
-      ===================================== */}
+        <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+          从认识墨西哥国债，到真正会操作
+          Cetesdirecto。
+          中文指导您完成开户、本人银行账户设置、
+          首次入金、e.firma 账户升级、
+          Subasta（拍卖）购买国债、
+          首次出金以及账户记录检查。
+        </p>
 
-      <section className="border-b bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-14">
-          <div>
-            <p className="text-sm font-semibold text-blue-700">
-              BANXICO OFFICIAL DATA
-            </p>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-500">
+          账户、密码、e.firma、资金以及所有投资决定，
+          始终由您本人控制和操作。
+        </p>
 
-            <h2 className="mt-2 text-3xl font-bold">
-              最新 CETES 参考收益率
-            </h2>
+        {/* Selling Points */}
 
-            <p className="mt-3 max-w-3xl leading-7 text-gray-600">
-              以下为 Banco de México
-              公布的政府证券拍卖参考数据。
-              所显示的是年化收益率参考值，
-              不代表未来收益，也不构成收益保证。
-            </p>
-          </div>
+        <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
+          {[
+            "端到端中文详细咨询课件",
+            "Cetesdirecto Web + App 实操",
+            "开户 → 入金 → 出金完整资金闭环",
+          ].map(
+            item => (
+              <div
+                key={
+                  item
+                }
+                className="flex items-start gap-2 rounded-xl border bg-white p-4 text-sm font-medium text-gray-800 shadow-sm"
+              >
+                <span className="font-bold text-blue-600">
+                  ✓
+                </span>
 
-
-          {rates.length >
-          0 ? (
-            <>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {rates.map(
-                  item => (
-                    <div
-                      key={
-                        item.id
-                      }
-                      className="rounded-2xl border bg-gray-50 p-5"
-                    >
-                      <p className="text-sm font-medium text-gray-500">
-                        CETES
-                      </p>
-
-                      <p className="mt-1 text-lg font-semibold">
-                        {
-                          item.termDays
-                        } 天
-                      </p>
-
-                      <p className="mt-4 text-4xl font-bold tracking-tight text-gray-950">
-                        {
-                          item.rate.toFixed(
-                            2
-                          )
-                        }
-                        %
-                      </p>
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        年化参考收益率
-                      </p>
-                    </div>
-                  )
-                )}
-              </div>
-
-
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs leading-5 text-gray-500">
                 <span>
-                  来源：
                   {
-                    rates[0]
-                      ?.sourceName
+                    item
                   }
                 </span>
-
-                {sourceDate && (
-                  <span>
-                    数据日期：
-                    {
-                      formatDate(
-                        sourceDate
-                      )
-                    }
-                  </span>
-                )}
-
-                <span>
-                  实际购买条件与最终成交收益率可能不同。
-                </span>
               </div>
-            </>
-          ) : (
-            <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
-              <p className="font-medium text-amber-900">
-                当前参考收益率暂时无法读取
-              </p>
-
-              <p className="mt-1 text-sm text-amber-800">
-                收益率展示不会影响咨询服务本身。
-                请以 Banco de México
-                或 Cetesdirecto 最新官方信息为准。
-              </p>
-            </div>
+            )
           )}
         </div>
-      </section>
+
+        {/* Security */}
+
+        <div className="mt-8 max-w-4xl rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <p className="font-semibold text-amber-950">
+            账户和资金始终由您本人控制
+          </p>
+
+          <p className="mt-2 text-sm leading-7 text-amber-800">
+            本服务只提供中文流程咨询与操作指导。
+            不提供投资建议，
+            不推荐具体产品、期限、金额或买卖时点；
+            不代客户登录账户，也不接触或保管客户资金、
+            账户密码、银行密码、OTP、Token、CVV
+            或 e.firma 私钥密码。
+          </p>
+        </div>
+      </div>
+
+      {/* ===============================
+          Pricing
+      =============================== */}
+
+      <div className="rounded-3xl border bg-white p-7 shadow-xl shadow-gray-200/60 md:p-8">
+        <div className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+          当前优惠
+        </div>
+
+        <div className="mt-5">
+          <p className="text-sm text-gray-500">
+            原价
+          </p>
+
+          <p className="mt-1 text-xl font-semibold text-gray-400 line-through decoration-2">
+            {
+              originalDisplayAmount
+            }
+          </p>
+        </div>
+
+        <div className="mt-5">
+          <p className="text-sm font-medium text-gray-600">
+            当前优惠价
+          </p>
+
+          <div className="mt-1 flex flex-wrap items-end gap-3">
+            <p className="text-4xl font-bold tracking-tight text-gray-950 md:text-5xl">
+              {
+                displayAmount
+              }
+            </p>
+
+            {discountPercent >
+              0 && (
+              <span className="mb-1 rounded-full bg-red-100 px-3 py-1 text-sm font-bold text-red-700">
+                {discountPercent}% OFF
+              </span>
+            )}
+          </div>
+
+          <p className="mt-3 text-sm text-gray-500">
+            一次性中文线上咨询服务
+          </p>
+        </div>
+
+        <div className="my-7 border-t" />
+
+        <div className="rounded-xl bg-gray-50 p-4 text-xs leading-5 text-gray-500">
+          实际付款金额以结账页面显示的
+          MXN 金额为准。
+        </div>
+
+        <a
+          href="#cetes-overview"
+          className="mt-6 flex items-center justify-between rounded-2xl border border-blue-200 bg-blue-50 px-5 py-5 transition hover:border-blue-300 hover:bg-blue-100"
+        >
+          <div>
+            <p className="font-semibold text-blue-950">
+              想要了解详情？
+            </p>
+
+            <p className="mt-1 text-sm text-blue-700">
+              请阅读以下服务内容与操作说明
+            </p>
+          </div>
+
+          <span
+            aria-hidden="true"
+            className="text-3xl leading-none text-blue-600"
+          >
+            ↓
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
 
-      {/* =====================================
-          CETES
-      ===================================== */}
+{/* =====================================
+    Product Overview
+===================================== */}
 
-      <section className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-6 py-14">
-          <div className="grid gap-10 lg:grid-cols-2">
+<section
+  id="cetes-overview"
+  className="border-b bg-gray-50"
+>
+  <div className="mx-auto max-w-6xl px-6 py-16">
+    <div className="max-w-3xl">
+      <p className="text-sm font-semibold text-blue-700">
+        PRODUCT OVERVIEW
+      </p>
+
+      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+        CETES、BONOS、BONDDIA 一页看懂
+      </h2>
+
+      <p className="mt-4 leading-7 text-gray-600">
+        先分清三种产品是什么、主要用于什么。
+        更详细的收益方式、购买流程、账户操作与风险，
+        会在正式咨询中结合实际页面说明。
+      </p>
+    </div>
+
+    <div className="mt-10 overflow-hidden rounded-2xl border bg-white">
+      <div className="hidden grid-cols-[180px_1fr_1fr] border-b bg-gray-100 px-6 py-4 text-sm font-semibold text-gray-700 md:grid">
+        <div>
+          产品
+        </div>
+
+        <div>
+          是什么
+        </div>
+
+        <div>
+          主要用途
+        </div>
+      </div>
+
+      {[
+        {
+          product:
+            "CETES",
+          type:
+            "墨西哥短期国债",
+          use:
+            "用于较短期限的国债投资",
+        },
+        {
+          product:
+            "BONOS",
+          type:
+            "墨西哥中长期固定利率国债",
+          use:
+            "用于中长期国债持有",
+        },
+        {
+          product:
+            "BONDDIA",
+          type:
+            "每日流动性的债务投资基金，不是单一国债",
+          use:
+            "用于流动资金、等待后续购买或提款",
+        },
+      ].map(
+        item => (
+          <div
+            key={
+              item.product
+            }
+            className="grid gap-4 border-b px-6 py-6 last:border-b-0 md:grid-cols-[180px_1fr_1fr] md:items-center"
+          >
             <div>
-              <p className="text-sm font-semibold text-blue-700">
-                CETES
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 md:hidden">
+                产品
               </p>
 
-              <h2 className="mt-2 text-3xl font-bold">
-                CETES 是什么？
-              </h2>
-
-              <p className="mt-5 leading-7 text-gray-600">
-                CETES 全称 Certificados
-                de la Tesorería de la
-                Federación，是墨西哥联邦政府发行的
-                短期政府证券。
-              </p>
-
-              <p className="mt-4 leading-7 text-gray-600">
-                CETES 通常以低于面值的价格购买，
-                到期按照面值兑付。
-                投资者取得的差额构成其收益。
+              <p className="mt-1 text-xl font-bold text-gray-950 md:mt-0">
+                {
+                  item.product
+                }
               </p>
             </div>
 
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 md:hidden">
+                是什么
+              </p>
 
-            <div className="rounded-2xl border bg-white p-6">
-              <h3 className="text-xl font-semibold">
-                常见期限
-              </h3>
+              <p className="mt-1 text-sm leading-6 text-gray-700 md:mt-0">
+                {
+                  item.type
+                }
+              </p>
+            </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                {[
-                  "28 天",
-                  "91 天",
-                  "182 天",
-                  "364 天",
-                ].map(
-                  item => (
-                    <div
-                      key={
-                        item
-                      }
-                      className="rounded-xl bg-gray-50 p-4 text-center font-medium"
-                    >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 md:hidden">
+                主要用途
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-gray-700 md:mt-0">
+                {
+                  item.use
+                }
+              </p>
+            </div>
+          </div>
+        )
+      )}
+    </div>
+  </div>
+</section>
+
+
+{/* =====================================
+    Current Rates
+===================================== */}
+
+<section className="border-b bg-white">
+  <div className="mx-auto max-w-6xl px-6 py-16">
+    <div className="max-w-4xl">
+      <p className="text-sm font-semibold text-blue-700">
+        OFFICIAL REFERENCE DATA
+      </p>
+
+      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+        最新参考收益率
+        <span className="mt-2 block text-base font-medium text-gray-500 md:inline md:ml-3">
+          （供参考，以官方实际利率为主）
+        </span>
+      </h2>
+
+      <p className="mt-4 leading-7 text-gray-600">
+        页面优先从 Cetesdirecto 官方公开数据读取最新参考收益率。
+        官方数据、开放期限和实际成交条件可能随时间变化，
+        以下数据不代表未来收益，也不构成收益保证。
+      </p>
+    </div>
+
+    {displayedRates.length >
+    0 ? (
+      <>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {displayedRates.map(
+            item => (
+              <div
+                key={
+                  item.id
+                }
+                className="rounded-2xl border bg-gray-50 p-5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-500">
                       {
-                        item
+                        item.product
                       }
-                    </div>
-                  )
-                )}
+                    </p>
+
+                    <p className="mt-1 text-lg font-semibold text-gray-950">
+                      {
+                        item.term
+                      }
+                    </p>
+                  </div>
+
+                  {item.product ===
+                    "BONDDIA" && (
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                      每日流动
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-5 text-4xl font-bold tracking-tight text-gray-950">
+                  {
+                    item.rate.toFixed(
+                      2
+                    )
+                  }
+                  %
+                </p>
+
+                <p className="mt-2 text-xs leading-5 text-gray-500">
+                  官方参考收益率
+                  {item.product ===
+                    "BONDDIA"
+                    ? " · 税前"
+                    : ""}
+                </p>
               </div>
-            </div>
-          </div>
+            )
+          )}
         </div>
-      </section>
+
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs leading-5 text-gray-500">
+          <span>
+            来源：
+            {
+              rateSourceName
+            }
+          </span>
+
+          {rateSourceDate && (
+            <span>
+              官方数据日期：
+              {
+                formatDate(
+                  rateSourceDate
+                )
+              }
+            </span>
+          )}
+
+          <span>
+            页面数据最多缓存约 1 小时，以减少对官方网站的重复请求。
+          </span>
+        </div>
+      </>
+    ) : (
+      <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
+        <p className="font-medium text-amber-900">
+          当前官方参考收益率暂时无法读取
+        </p>
+
+        <p className="mt-1 text-sm leading-6 text-amber-800">
+          收益率展示不会影响咨询服务本身。
+          请以 Cetesdirecto 或 Banco de México
+          当时公布的官方信息为准。
+        </p>
+      </div>
+    )}
+  </div>
+</section>
 
 
-      {/* =====================================
-          CETESDIRECTO PRODUCTS
-      ===================================== */}
+{/* =====================================
+    Consultation Value
+===================================== */}
 
-      <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-14">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold text-blue-700">
-              CETESDIRECTO PRODUCTS
+<section className="border-b bg-white">
+  <div className="mx-auto max-w-6xl px-6 py-16">
+    <div className="mx-auto max-w-3xl text-center">
+      <p className="text-sm font-semibold text-blue-700">
+        CONSULTATION VALUE
+      </p>
+
+      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+        不只是告诉您“去哪里点”
+      </h2>
+
+      <p className="mt-4 leading-7 text-gray-600">
+        整套咨询围绕实际 Cetesdirecto
+        使用过程设计，
+        从建立产品概念到完成真实账户和资金操作，
+        帮助您最终能够自己继续使用平台。
+      </p>
+    </div>
+
+    <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      {[
+        {
+          value:
+            "端到端",
+
+          title:
+            "中文详细咨询课件",
+
+          text:
+            "从产品理解、开户到实际资金操作，按完整流程逐步讲解。",
+        },
+
+        {
+          value:
+            "7 大",
+
+          title:
+            "实操环节",
+
+          text:
+            "开户、入金、e.firma、购买、出金、账户记录及官方 App。",
+        },
+
+        {
+          value:
+            "Web + App",
+
+          title:
+            "真实操作页面",
+
+          text:
+            "结合 Cetesdirecto 实际页面进行中文讲解，而不是只提供文字说明。",
+        },
+
+        {
+          value:
+            service.accessDurationDays
+              ? `${service.accessDurationDays} 天`
+              : "持续",
+
+          title:
+            "后续问题跟进",
+
+          text:
+            "如因银行、身份验证或系统状态无法当场完成，可在服务期限内继续跟进。",
+        },
+      ].map(
+        item => (
+          <div
+            key={
+              item.title
+            }
+            className="rounded-2xl border bg-gray-50 p-6"
+          >
+            <p className="text-3xl font-bold tracking-tight text-blue-700">
+              {
+                item.value
+              }
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">
-              Cetesdirecto 不只有 CETES
-            </h2>
+            <h3 className="mt-3 text-lg font-semibold text-gray-950">
+              {
+                item.title
+              }
+            </h3>
 
-            <p className="mt-4 leading-7 text-gray-600">
-              Cetesdirecto 可用于持有不同类型的
-              墨西哥政府债务工具。
-              本咨询服务帮助您理解这些产品的基本区别、
-              收益方式与平台操作逻辑，
-              但不会根据您的情况推荐具体产品。
+            <p className="mt-3 text-sm leading-6 text-gray-600">
+              {
+                item.text
+              }
             </p>
           </div>
+        )
+      )}
+    </div>
+  </div>
+</section>
 
-
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {/* CETES */}
-
-            <div className="rounded-2xl border p-6">
-              <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                短期政府证券
-              </div>
-
-              <h3 className="mt-4 text-xl font-semibold">
-                CETES
-              </h3>
-
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                墨西哥联邦政府发行的短期政府证券，
-                通常以折价方式购买，
-                到期按面值兑付。
-              </p>
-
-              <p className="mt-4 text-sm font-medium text-gray-900">
-                常见期限：28、91、182、364 天
-              </p>
-            </div>
-
-
-            {/* BONOS */}
-
-            <div className="rounded-2xl border p-6">
-              <div className="inline-flex rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
-                中长期政府债券
-              </div>
-
-              <h3 className="mt-4 text-xl font-semibold">
-                BONOS
-              </h3>
-
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                墨西哥联邦政府发行的中长期固定利率债券，
-                与短期 CETES 相比，
-                通常具有更长的期限。
-              </p>
-
-              <p className="mt-4 text-sm font-medium text-gray-900">
-                用于了解中长期政府债券的基本运作方式
-              </p>
-            </div>
-
-
-            {/* BONDDIA */}
-
-            <div className="rounded-2xl border p-6">
-              <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                每日流动性基金
-              </div>
-
-              <h3 className="mt-4 text-xl font-semibold">
-                BONDDIA
-              </h3>
-
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                BONDDIA 并不是一张长期国债，
-                而是主要投资政府债务工具的
-                每日流动性基金。
-              </p>
-
-              <p className="mt-4 text-sm font-medium text-gray-900">
-                主要特点：较高的日常资金流动性
-              </p>
-            </div>
-          </div>
-
-
-          <div className="mt-6 rounded-xl bg-gray-50 p-4 text-sm leading-6 text-gray-600">
-            以上内容仅用于帮助理解产品类型和平台操作，
-            不构成对 CETES、BONOS、BONDDIA
-            或任何投资产品的推荐。
-          </div>
-        </div>
-      </section>
-
-
-      {/* =====================================
+{/* =====================================
           Service Scope
       ===================================== */}
 
@@ -451,7 +984,9 @@ export default function CetesLanding({
             <p className="mt-4 leading-7 text-gray-600">
               从了解 Cetesdirecto 到实际操作，
               我们会通过中文线上咨询，
-              指导您完成开户、账户设置以及基本资金进出流程。
+              指导您理解产品与平台，并完成开户、账户设置、
+              e.firma 升级流程说明、国债购买操作、
+              首次入金、首次出金以及账户记录检查。
             </p>
 
             <p className="mt-3 leading-7 text-gray-600">
@@ -483,7 +1018,7 @@ export default function CetesLanding({
               </p>
 
               <p className="mt-4 text-xs leading-5 text-gray-500">
-                同时说明哪些政府证券需要等待
+                同时说明哪些国债需要等待
                 拍卖（Subasta），
                 以及与 BONDDIA 等资金使用方式的区别。
               </p>
@@ -567,14 +1102,14 @@ export default function CetesLanding({
               </div>
 
               <h3 className="mt-5 text-lg font-semibold">
-                购买流程与拍卖机制说明
+                国债购买与拍卖操作
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-gray-600">
-                帮助您理解政府证券购买指令、
-                一级市场拍卖（Subasta）
-                以及 Cetesdirecto
-                执行购买指令的基本逻辑。
+              通过真实 Web 与 App 页面，
+                说明 Invertir、产品与期限选择、
+                Subasta（拍卖）、金额、资金来源以及
+                购买指令确认的完整操作流程。
               </p>
 
               <p className="mt-4 text-xs leading-5 text-gray-500">
@@ -792,6 +1327,103 @@ export default function CetesLanding({
 
 
       {/* =====================================
+    Course Preview
+===================================== */}
+
+<section className="border-b bg-gray-950 text-white">
+  <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
+    <div className="max-w-3xl">
+      <p className="text-sm font-semibold text-blue-300">
+        CONSULTATION MATERIAL
+      </p>
+
+      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+        实际咨询课件预览
+      </h2>
+
+      <p className="mt-4 leading-7 text-gray-400">
+        咨询过程中会结合整理后的中文课件和
+        Cetesdirecto 实际页面进行讲解。
+        以下仅展示部分课件版式，
+        正文内容已模糊处理。
+      </p>
+    </div>
+
+    <div className="mt-10 grid gap-6 md:grid-cols-2">
+      {coursePreviews.map(
+        item => (
+          <div
+            key={
+              item.id
+            }
+            className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
+          >
+            {/* Screenshot */}
+
+            <div className="relative aspect-[16/9] overflow-hidden bg-slate-900">
+              <img
+                src={
+                  item.image
+                }
+                alt=""
+                aria-hidden="true"
+                draggable={
+                  false
+                }
+                className="
+                  h-full
+                  w-full
+                  scale-[1.03]
+                  select-none
+                  object-cover
+                  blur-[5px]
+                  opacity-65
+                "
+              />
+
+              <div className="absolute inset-0 bg-slate-950/25" />
+
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="rounded-full border border-white/20 bg-black/45 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur-sm">
+                  🔒 咨询课件预览
+                </div>
+              </div>
+
+              <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-xs font-semibold text-gray-200 backdrop-blur">
+                {
+                  item.number
+                }
+              </div>
+            </div>
+
+            {/* Description */}
+
+            <div className="p-6">
+              <h3 className="text-xl font-semibold">
+                {
+                  item.title
+                }
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-gray-400">
+                {
+                  item.description
+                }
+              </p>
+            </div>
+          </div>
+        )
+      )}
+    </div>
+
+    <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-center text-sm leading-6 text-gray-400">
+      实际咨询由顾问在线结合课件进行讲解。
+      页面预览仅用于展示课程结构和内容深度。
+    </div>
+  </div>
+</section>
+
+      {/* =====================================
           Service Boundaries
       ===================================== */}
 
@@ -866,7 +1498,7 @@ export default function CetesLanding({
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              政府证券并不代表没有风险。
+              国债并不代表没有风险。
               在决定是否使用 Cetesdirecto
               或购买任何产品之前，
               您应自行理解以下主要风险。
@@ -883,7 +1515,7 @@ export default function CetesLanding({
 
               [
                 "利率与市场价格风险",
-                "市场利率变化可能影响政府证券的市场价格，以及提前出售时可能取得的价格。",
+                "市场利率变化可能影响国债的市场价格，以及提前出售时可能取得的价格。",
               ],
 
               [

@@ -245,7 +245,7 @@ export async function bookMyWorkspaceAppointment(
       )
     ) {
       throw new Error(
-        "请选择未来两周内的预约时间"
+        "请选择未来 10 天内的预约时间"
       );
     }
 
@@ -266,6 +266,26 @@ export async function bookMyWorkspaceAppointment(
       );
     }
 
+    if (
+      message.includes(
+        "ORDER_NOT_PAID"
+      )
+    ) {
+      throw new Error(
+        "当前订单尚未完成付款，暂时无法预约"
+      );
+    }
+    
+    
+    if (
+      message.includes(
+        "ORDER_NOT_ACTIVE"
+      )
+    ) {
+      throw new Error(
+        "当前订单已经无法预约"
+      );
+    }
 
     if (
       message.includes(
@@ -392,6 +412,10 @@ export async function bookMyWorkspaceAppointment(
 
   revalidatePath(
     `/admin/orders/${workspace.order_id}`
+  );
+
+  revalidatePath(
+    "/admin/appointments/availability"
   );
 
 

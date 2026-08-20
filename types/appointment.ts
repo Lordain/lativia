@@ -59,6 +59,18 @@ export interface AvailableAppointmentSlot {
 
   endsAt:
     string;
+
+  /*
+   * Customer-facing state:
+   *
+   * true  = 可预约
+   * false = 已占用
+   *
+   * Customer does not need to know whether
+   * the slot is closed by Admin or already booked.
+   */
+  isAvailable:
+    boolean;
 }
 
 
@@ -93,7 +105,6 @@ export interface OrderAppointment {
   cancelledBy:
     string | null;
 
-
   /*
    * Online Meeting
    */
@@ -115,7 +126,6 @@ export interface OrderAppointment {
 
   consultationType:
     string | null;
-
 
   createdAt:
     string;

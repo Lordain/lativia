@@ -58,6 +58,14 @@ function getFriendlyError(
     return "此服务已经完成并交付，不能重新处理，也不能进入退款审核。";
   }
 
+  if (
+    message.includes(
+      "RESULT_NOT_DELIVERED"
+    )
+  ) {
+    return "此服务需要先完成结果交付，才能标记为服务完成。";
+  }
+
 
   if (
     message.includes(

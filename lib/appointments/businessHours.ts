@@ -56,4 +56,4 @@ export const APPOINTMENT_OPEN_WEEKDAYS =
 
 
 export const CETES_DEFAULT_APPOINTMENT_MINUTES =
-  30;
+  60;

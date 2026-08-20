@@ -21,8 +21,8 @@ export type CetesPresentationLayout =
   | "process"
   | "risk"
   | "screenshots"
-  | "placeholder"
-  | "status";
+  | "status"
+  | "yield-explainer";
 
 
 export type PresentationIcon =
@@ -60,6 +60,23 @@ export interface PresentationStatusItem {
   title: string;
 
   description: string;
+}
+
+export interface YieldComparisonItem {
+  title: string;
+
+  value: string;
+
+  description: string;
+}
+
+
+export interface YieldDifferenceRow {
+  label: string;
+
+  cetes: string;
+
+  bonddia: string;
 }
 
 
@@ -137,10 +154,6 @@ export interface CetesPresentationSlide {
 
   statusItems?: PresentationStatusItem[];
 
-  placeholderTitle?: string;
-
-  placeholderDescription?: string;
-
   summary: string;
 
   source?: string | null;
@@ -150,6 +163,18 @@ export interface CetesPresentationSlide {
   comparisonRows?: ComparisonRow[];
 
   levelRows?: LevelRow[];
+
+  yieldTimeline?: YieldComparisonItem[];
+
+  yieldDifferenceRows?: YieldDifferenceRow[];
+
+  yieldFormula?: {
+    title: string;
+
+    expression: string;
+
+    example: string;
+  };
 
   formula?: {
     title: string;
@@ -672,7 +697,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
           "外国人需要在墨西哥有合法居留",
 
         description:
-          "官方 FAQ 要求外国申请人具有在墨西哥的固定居留，并能证明合法居留身份。",
+          "外国申请人需要具有墨西哥临时居留或永久居留身份，并提供相应证明；开户操作时本人不一定必须位于墨西哥境内。",
       },
 
       {
@@ -891,163 +916,393 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
   },
 
 
-  /*
-   * =========================================
-   * 9
-   * Opening Practice
-   * =========================================
-   */
+/*
+ * =========================================
+ * 09
+ * Opening Practice
+ * =========================================
+ */
+{
+  id: "opening-practice",
 
-  {
-    id: "opening-practice",
+  section: "practice",
 
-    section: "practice",
+  number: 9,
 
-    number: 9,
+  eyebrow: "PRACTICE",
 
-    eyebrow: "PRACTICE",
+  title: "开始测试：Cetesdirecto 实际开户",
 
-    title: "开始测试：Cetesdirecto 实际开户",
+  shortTitle: "开户实操",
 
-    shortTitle: "开户实操",
+  layout: "screenshots",
 
-    layout: "screenshots",
+  summary:
+    "从 Cetesdirecto 官网开始，按真实开户顺序完成 Usuario 创建、定位、安全问题、手机与邮箱验证、个人资料、银行账户登记、合同签署，直到开户成功并测试登录。",
 
-    summary:
-      "从这里开始不再只是讲理论。我们直接看 Cetesdirecto 官方注册画面，并逐步完成开户测试。",
+  source:
+    "画面：Cetesdirecto 官方网页。截图中的个人资料、银行资料及其他敏感信息已做隐私处理。",
 
-    source:
-      "画面：Cetesdirecto 官方注册页面。",
+  screenshots: [
+    {
+      src:
+        "/consultation/cetes/opening-00-home.jpg",
 
-      screenshots: [
-        {
-          src:
-            "/consultation/cetes/opening-01-create-user.png",
-      
-          label:
-            "STEP 1",
-      
-          title:
-            "建立 Usuario（用户名）和密码",
-      
-          description:
-            "填写姓名、Email，并另外建立 Usuario 和 Contraseña（密码）。",
-      
-          highlights: [
-            "Email 只是电子邮箱，不等于 Usuario",
-            "Usuario 是以后登录 Cetesdirecto 要输入的用户名",
-            "Usuario 与 Contraseña（密码）都必须自己保存好",
-            "密码必须符合页面显示的复杂度要求",
-            "确认无误后再点击 Continuar（继续）",
-          ],
-        },
-      
-        {
-          src:
-            "/consultation/cetes/opening-02-location.png",
-      
-          label:
-            "STEP 2",
-      
-          title:
-            "允许 Geolocalización（地理定位）",
-      
-          description:
-            "系统会要求浏览器提供当前设备地理位置。",
-      
-          highlights: [
-            "看到“Tu ubicación es requerida”时，需要允许定位",
-            "不要只关闭弹窗后继续，定位权限本身必须允许",
-            "建议本人在墨西哥境内完成开户",
-            "页面若一直加载，可重新开启新的无痕 Session（会话）再试",
-          ],
-        },
-      
-        {
-          src:
-            "/consultation/cetes/opening-03-security-questions.png",
-      
-          label:
-            "STEP 3",
-      
-          title:
-            "设置秘密问题和安全问题",
-      
-          description:
-            "这里会同时出现 Pregunta Secreta（秘密问题）和 Preguntas de Seguridad（安全问题）。",
-      
-          highlights: [
-            "Pregunta Secreta：主要秘密问题",
-            "Preguntas de Seguridad：额外安全验证问题",
-            "问题和答案都要自己完整记住",
-            "忘记密码或恢复账户时可能会再次要求回答",
-            "不要为了快速开户填写自己以后记不住的答案",
-          ],
-        },
+      label:
+        "WEB · STEP 0",
+
+      title:
+        "进入 Cetesdirecto 官方网站",
+
+      description:
+        "开户首先从 Cetesdirecto 官方网站进入 Abre tu cuenta（开户）流程。",
+
+      highlights: [
+        "先确认进入正确的 Cetesdirecto 官方网站",
+
+        "点击 Abre tu cuenta 开始开户",
+
+        "首页可能显示 CETES、BONOS 等产品的参考收益率",
+
+        "页面显示的收益率只是当时参考，不代表未来保证收益",
+
+        "不要从来源不明的第三方链接输入账户资料",
       ],
+    },
 
-    screenshotPoints: [
-      {
-        icon: "user",
+    {
+      src:
+        "/consultation/cetes/opening-01-create-user.png",
 
-        title:
-          "Usuario ≠ Email",
+      label:
+        "WEB · STEP 1",
 
-        description:
-          "这是最容易忘记的地方。Usuario 是独立登录用户名，不等于 Email（电子邮箱）。登录 Cetesdirecto 时需要输入 Usuario。",
-      },
+      title:
+        "创建 Usuario（用户名）和密码",
 
-      {
-        icon: "key",
+      description:
+        "填写基本联系资料，同时建立以后登录 Cetesdirecto 使用的 Usuario 和 Contraseña（密码）。",
 
-        title:
-          "一定记住 Usuario + 密码",
+      highlights: [
+        "Usuario 不等于 Email；Usuario 是独立登录用户名",
 
-        description:
-          "建议客户自行安全保存。我们不会记录这两项信息。",
-      },
+        "Usuario 最少需要 6 个字符",
 
-      {
-        icon: "shield",
+        "Contraseña（密码）最少需要 8 个字符",
 
-        title:
-          "密保问题也一定要记住",
+        "密码至少包含 1 个大写字母、1 个小写字母和 1 个数字",
 
-        description:
-          "Cetesdirecto 官方明确要求找回密码时提供当前 Pregunta Secreta（秘密问题）和对应答案。注册页另外还有 Preguntas de Seguridad（安全问题），建议全部自行完整记录。",
-      },
+        "允许使用的特殊字符为：#  %  &  ?  _",
 
-      {
-        icon: "location",
+        "特殊字符最多使用 2 个",
 
-        title:
-          "必须允许定位",
+        "密码不能包含 nafin、cetes 等相关字样",
 
-        description:
-          "数字金融操作需要启用 Geolocalización（地理定位）。本服务要求客户本人在墨西哥境内完成开户测试。",
-      },
+        "连续顺序字符和连续重复字符均有限制",
 
-      {
-        icon: "warning",
+        "Usuario 与密码必须由客户本人保存",
+      ],
+    },
 
-        title:
-          "网页系统比较老",
+    {
+      src:
+        "/consultation/cetes/opening-02-location.png",
+
+      label:
+        "WEB · STEP 2",
+
+      title:
+        "允许 Geolocalización（地理定位）",
 
         description:
-          "如果页面持续转圈或无响应，不一定是资料错误。注册流程对浏览器、Session（会话）、定位和页面环境比较敏感。",
-      },
+        "注册过程中 Cetesdirecto 会要求浏览器取得当前设备的 Geolocalización（地理位置）。这是数字金融渠道的监管要求，重点是允许系统取得真实的当前设备位置，并不代表开户操作必须在墨西哥境内完成。",
+      
+      highlights: [
+        "看到 Tu ubicación es requerida 时，需要允许定位",
+      
+        "浏览器或手机本身的定位权限也必须开启",
+      
+        "Cetesdirecto 需要取得并保存当前操作设备的真实地理位置",
+      
+        "开户操作本身不要求客户必须物理位于墨西哥境内",
+      
+        "外国申请人仍必须具备墨西哥临时居留或永久居留身份，并满足 RFC、CURP、本人墨西哥银行账户等开户条件",
+      
+        "如果页面持续加载，可以重新开启无痕 Session（会话）再试",
+      
+        "如果页面异常，先关闭浏览器自动翻译及可能干扰网页脚本的插件",
+      ],
+    },
 
-      {
-        icon: "clock",
+    {
+      src:
+        "/consultation/cetes/opening-03-security-questions.png",
 
-        title:
-          "页面卡住时的排查顺序",
+      label:
+        "WEB · STEP 3",
 
-        description:
-          "先恢复西班牙语原始网页 → 重新开无痕窗口 → 确认允许定位 → 临时停用可能修改页面或阻挡脚本的浏览器插件 → 重新开始新的注册 Session（会话）。",
-      },
-    ],
-  },
+      title:
+        "设置秘密问题和安全问题",
+
+      description:
+        "开户会要求设置 Pregunta Secreta（秘密问题）与 Preguntas de Seguridad（安全问题），用于以后账户验证和密码恢复。",
+
+      highlights: [
+        "Pregunta Secreta：主要秘密问题",
+
+        "Preguntas de Seguridad：额外的安全验证问题",
+
+        "秘密问题和安全问题不要选择重复的问题",
+
+        "所有问题和答案都要由客户本人完整记录并保存",
+
+        "遗忘问题或答案会增加账户恢复难度；在线恢复失败时可能需要联系 Cetesdirecto 客服人工处理",
+
+        "不要为了快速开户随意填写以后自己也记不住的答案",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-04-phone-verification.png",
+
+      label:
+        "WEB · STEP 4",
+
+      title:
+        "验证手机号码",
+
+      description:
+        "系统会向登记的手机号码发送一个 6 位验证码，以确认客户能够正常使用该号码。",
+
+      highlights: [
+        "先核对页面显示的手机号",
+
+        "点击 Enviar Código（发送验证码）",
+
+        "系统通过 SMS（短信）发送 6 位验证码",
+
+        "验证码由客户本人接收和输入",
+
+        "验证码不要提供给咨询人员或第三方",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-05-email-verification.png",
+
+      label:
+        "WEB · STEP 5",
+
+      title:
+        "验证 Email（电子邮箱）",
+
+      description:
+        "手机验证之后，系统会继续验证注册时登记的 Email。",
+
+      highlights: [
+        "确认页面显示的 Email 正确",
+
+        "点击 Enviar Código（发送验证码）",
+
+        "邮箱会收到一个 6 位验证码",
+
+        "没有收到时先检查 Spam / 垃圾邮件",
+
+        "手机与邮箱验证码都是一次性安全验证信息",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-06-personal-data.png",
+
+      label:
+        "WEB · STEP 6",
+
+      title:
+        "填写 Datos personales（个人资料）",
+
+      description:
+        "完成联系方式验证后，进入个人身份和税务资料填写阶段。",
+
+      highlights: [
+        "País de Nacimiento：选择真实出生国家",
+
+        "如果出生在墨西哥以外，Entidad Federativa de Nacimiento 选择外国人 / Extranjero 对应选项",
+
+        "Nacionalidad：填写真实国籍",
+
+        "Fecha de nacimiento：填写实际出生日期",
+
+        "RFC：墨西哥税号，注意核对 homoclave",
+
+        "CURP：墨西哥身份识别号码",
+
+        "Actividad Económica：选择实际经济活动 / 职业类别",
+
+        "所有资料必须与客户真实身份信息一致",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-07-bank-info.png",
+
+      label:
+        "WEB · STEP 7",
+
+      title:
+        "登记地址、本人银行账户和受益人",
+
+      description:
+        "这一阶段会继续填写 Domicilio（地址）、Datos Bancarios（银行资料）以及 Beneficiarios（受益人）。这里就是 Cetesdirecto 登记客户本人银行账户的关键步骤。",
+
+      highlights: [
+        "Domicilio：填写墨西哥居住地址",
+
+        "Cuenta Bancaria：填写本人银行账户资料，官方页面建议使用 CLABE",
+
+        "CLABE 是墨西哥银行账户的 18 位标准银行号码",
+
+        "Banco Emisor：选择这条银行账户对应的银行",
+
+        "页面明确要求登记的银行账户必须由客户本人持有",
+
+        "这条已登记银行账户会用于后续资金转入、取回及账户验证",
+
+        "Ahorro Recurrente（定期储蓄）属于可选功能，不需要为了开户强制开启",
+
+        "Beneficiarios：按照实际情况填写账户受益人",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-08-contract-signing.png",
+
+      label:
+        "WEB · STEP 8",
+
+      title:
+        "阅读合同并完成电子签署",
+
+      description:
+        "资料登记完成后，Cetesdirecto 会生成开户合同及相关附件。客户需要自行阅读并确认，然后完成电子签署。",
+
+      highlights: [
+        "页面会提供 Contrato（合同）",
+
+        "同时可能包含 Anexo A、Anexo B、Anexo C 和 Aviso 等附件",
+
+        "客户应自行阅读合同及相关文件",
+
+        "确认资料与条款后选择 Acepto（接受）",
+
+        "点击 Firmar Electrónicamente（电子签署）完成基础开户合同签署",
+
+        "这一阶段属于开户合同签署，不是后续提高账户额度使用的 SAT e.firma 升级流程",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-09-registration-success.png",
+
+      label:
+        "WEB · STEP 9",
+
+      title:
+        "确认 Contratación Exitosa（开户成功）",
+
+      description:
+        "出现 Contratación Exitosa 后，表示基础账户开户流程已经成功完成。",
+
+      highlights: [
+        "Contratación Exitosa 表示基础开户完成",
+
+        "可以再次查看 Contrato 与各项附件",
+
+        "基础账户通常以 Contrato Exprés 模式建立",
+
+        "页面会开始说明如何进行第一次购买和资金转入",
+
+        "开户成功后，下一步就是登录账户并测试首次入金",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/opening-10-login.png",
+
+      label:
+        "WEB · STEP 10",
+
+      title:
+        "开户完成后测试正式登录",
+
+      description:
+        "完成开户后，使用之前建立的 Usuario 和 Contraseña 登录 Cetesdirecto。",
+
+      highlights: [
+        "再次确认：Usuario 不等于 Email",
+
+        "首先输入之前创建的 Usuario",
+
+        "然后输入 Contraseña（密码）",
+
+        "Recuperar Contraseña 是密码恢复入口",
+
+        "密码恢复可能需要之前设置的安全问题、登记手机或其他身份验证",
+
+        "成功登录后即可进入 Portafolio、Invertir、Retirar、Movimientos 等账户功能",
+      ],
+    },
+  ],
+
+  screenshotPoints: [
+    {
+      icon: "user",
+
+      title:
+        "Usuario ≠ Email",
+
+      description:
+        "Usuario 是独立登录用户名，开户以后仍然需要长期保存。",
+    },
+
+    {
+      icon: "key",
+
+      title:
+        "账户安全资料必须自己保存",
+
+      description:
+        "密码、秘密问题、安全问题和验证码全部由客户本人控制。",
+    },
+
+    {
+      icon: "bank",
+
+      title:
+        "开户阶段就会登记本人银行账户",
+
+      description:
+        "Cuenta Bancaria / CLABE 并不是首次入金时才填写，而是在开户资料阶段已经登记。",
+    },
+
+    {
+      icon: "document",
+
+      title:
+        "开户最后需要确认合同",
+
+      description:
+        "资料登记完成后，需要阅读合同、附件并完成基础账户的电子签署。",
+    },
+  ],
+},
 
       /*
  * =========================================
@@ -1056,85 +1311,101 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
  * =========================================
  */
 
-{
-  id: "first-deposit",
-
-  section: "practice",
-
-  number: 10,
-
-  eyebrow: "PRACTICE",
-
-  title: "实操：首次入金",
-
-  shortTitle: "首次入金",
-
-  layout: "placeholder",
-
-  summary:
-    "开户完成后，下一步是理解资金怎样从本人银行账户进入 Cetesdirecto。第一次操作建议先把流程看懂，再决定实际转入金额。",
-
-  source:
-    "参考：Cetesdirecto 官方 FAQ — Envío de Dinero / SPEI。",
-
-  placeholderTitle:
-    "等待补充 Cetesdirecto 入金界面截图",
-
-  placeholderDescription:
-    "后续取得真实登录界面后，这里会直接展示入金页面、账户信息和 Movimientos 查询位置。",
-
-  cards: [
-    {
-      icon: "bank",
-
-      title:
-        "资金从哪里来？",
-
-      description:
-        "资金由客户本人通过银行账户转入 Cetesdirecto。咨询人员不会代收、代转或接触客户资金。",
-    },
-
-    {
-      icon: "deposit",
-
-      title:
-        "SPEI 转账",
-
-      description:
-        "Cetesdirecto 官方说明，可通过 SPEI（墨西哥银行间电子支付系统）向账户转入资金。",
-    },
-
-    {
-      icon: "clock",
-
-      title:
-        "什么时候能看到？",
-
-      description:
-        "官方说明，一般可以在 1 个工作日内看到资金进入投资组合；当天也可以在 Movimientos / Ingresos / Efectivo 查看入账状态。",
-    },
-
-    {
-      icon: "warning",
-
-      title:
-        "注意入金额度",
-
-      description:
-        "Nivel 2 / Contrato Exprés 每月累计入金不能超过 3,000 UDIS；超过额度可能导致资金退回。",
-    },
-
-    {
-      icon: "document",
-
-      title:
-        "确认资金状态",
-
-      description:
-        "不要只看银行端“转账成功”。还要在 Cetesdirecto 内确认资金已经进入账户。",
-    },
-  ],
-},
+      {
+        id: "first-deposit",
+      
+        section: "practice",
+      
+        number: 10,
+      
+        eyebrow: "PRACTICE",
+      
+        title: "首次入金：把资金转入 Cetesdirecto",
+      
+        shortTitle: "首次入金",
+      
+        layout: "screenshots",
+      
+        summary:
+          "开户完成后，下一步是把本人墨西哥银行账户中的资金转入 Cetesdirecto。这里重点认识 Envío de recursos（发送资金）、BONDDIA 和 SPEI 转账方式。",
+      
+        source:
+          "画面：Cetesdirecto 官方网页。实际银行名称、CLABE、金额及可用功能以客户账户当时显示为准。",
+      
+        screenshots: [
+          {
+            src:
+              "/consultation/cetes/web-deposit-spei.png",
+      
+            label:
+              "WEB · STEP 1",
+      
+            title:
+              "查看 Envío de recursos 与 SPEI 入金方式",
+      
+            description:
+              "Cetesdirecto 会提供资金转入说明。客户从自己名下已经登记的墨西哥银行账户，通过 SPEI 转账至页面显示的 Cetesdirecto 入金账户。",
+      
+              highlights: [
+                "入金应在银行工作日操作；晚上、周末或银行非工作日不要转账",
+              
+                "Cetesdirecto 当前官方可用时间说明显示，SPEI 入金通常为周一至周五银行工作日 06:00–17:00",
+              
+                "官方 FAQ 同时说明：如果在规定时间之外或 Cetesdirecto 非工作日转入，资金可能被退回原银行账户",
+              
+                "因此实际操作时，应以客户账户当时页面显示的入金时间为准，并尽量安排在工作日上午或下午较早时段",
+              
+                "如果 NAFIN 在当天 13:00 前收到 SPEI，官方说明资金可以在当天被计入流动投资",
+              
+                "入金前再次确认 Cetesdirecto 页面显示的收款 CLABE",
+              
+                "转入后可在 Movimientos → Ingresos → Efectivo 检查资金是否已经进入账户",
+              ],
+          },
+        ],
+      
+        screenshotPoints: [
+          {
+            icon: "clock",
+        
+            title:
+              "入金时间非常重要",
+        
+            description:
+              "只在银行工作日、Cetesdirecto 允许的 SPEI 入金时段操作。晚上、周末或非工作日转入可能被退回。",
+          },
+        
+          {
+            icon: "bank",
+        
+            title:
+              "必须核对入金 CLABE",
+        
+            description:
+              "实际收款 CLABE 以客户登录 Cetesdirecto 后当前页面显示为准。",
+          },
+        
+          {
+            icon: "deposit",
+        
+            title:
+              "完成第一次真实入金测试",
+        
+            description:
+              "首次咨询优先完成一笔实际小额入金，确认银行 → Cetesdirecto 的资金路径正常。",
+          },
+        
+          {
+            icon: "document",
+        
+            title:
+              "到 Movimientos 确认",
+        
+            description:
+              "转账后不要只看首页余额，也可以到 Movimientos → Ingresos → Efectivo 查看资金记录。",
+          },
+        ],
+      },
 
 
 /*
@@ -1151,65 +1422,163 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   number: 11,
 
-  eyebrow: "UPGRADE",
+  eyebrow: "ACCOUNT UPGRADE",
 
-  title: "实操：使用 e.firma 提高账户等级",
+  title: "e.firma：提高 Cetesdirecto 账户能力",
 
   shortTitle: "e.firma 升级",
 
-  layout: "placeholder",
+  layout: "screenshots",
 
   summary:
-    "如果客户计划投入更高资金规模，可以从基础 Contrato Exprés 升级，提高账户资金操作能力。",
+    "基础开户通常先建立 Contratación Exprés。需要提高账户资金操作能力时，可以进入 Escalar con e.firma，使用客户本人 SAT e.firma 完成线上升级。",
 
   source:
-    "参考：Cetesdirecto 官方 FAQ — Incrementar capacidad de ahorro。",
+    "画面：Cetesdirecto 官方网页。截图中的证书、账户及个人资料已做隐私处理。实际页面和要求以客户操作时显示为准。",
 
-  placeholderTitle:
-    "等待补充 e.firma 升级界面截图",
+  screenshots: [
+    {
+      src:
+        "/consultation/cetes/efirma-01-upgrade-entry.png",
 
-  placeholderDescription:
-    "后续取得真实页面后，这里会展示 Aumenta tu capacidad de ahorro / e.firma 升级操作界面。",
+      label:
+        "WEB · STEP 1",
 
-  cards: [
+      title:
+        "进入 Escalar con e.firma",
+
+      description:
+        "登录账户后进入 Escalar con e.firma。页面会说明当前 Contratación Exprés 的限制，以及使用 e.firma 提高账户能力的方式。",
+
+        highlights: [
+          "这一流程发生在基础账户已经开户之后",
+        
+          "当前账户为 Contratación Exprés",
+        
+          "通过 e.firma 可以提高账户资金操作能力",
+        
+          "点击 Contratación con e.firma 进入升级流程",
+        ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/efirma-02-upload-files.png",
+
+      label:
+        "WEB · STEP 2",
+
+      title:
+        "上传 .cer、.key 并输入 e.firma 密码",
+
+      description:
+        "进入签署流程后，系统要求客户提供 SAT e.firma 的证书、私钥以及对应密码。",
+
+      highlights: [
+        "Certificado (.cer)：e.firma 证书文件",
+
+        "Llave Privada (.key)：e.firma 私钥文件",
+
+        "Clave de Acceso：这组 e.firma 私钥对应的密码",
+
+        ".cer、.key 与密码必须属于同一套有效 e.firma",
+
+        "三个资料均由客户本人选择和输入",
+
+        "咨询人员不接收、不保存、不代客户输入 .key 或 e.firma 密码",
+
+        "填写完成后点击 Continuar",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/efirma-03-certificate-review.png",
+
+      label:
+        "WEB · STEP 3",
+
+      title:
+        "核对 e.firma 证书资料",
+
+      description:
+        "系统读取 e.firma 后，会显示证书相关信息。客户需要先确认资料无误，再继续电子签署。",
+
+        highlights: [
+          "Serie：证书序列资料",
+        
+          "Vigencia：证书有效期",
+        
+          "Autoridad：签发机构信息",
+        
+          "确认系统正确读取自己的 e.firma",
+        
+          "确认正确后点击 Continuar",
+        ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/efirma-04-success.png",
+
+      label:
+        "WEB · STEP 4",
+
+      title:
+        "确认 e.firma 电子签署成功",
+
+      description:
+        "系统显示电子签署成功后，表示本次 e.firma 签署流程已经完成。",
+
+        highlights: [
+          "El proceso de firma electrónica ha finalizado con éxito 表示电子签署成功",
+        
+          "页面会显示签署结果",
+        
+          "随后重新登录账户确认账户等级 / 资金操作能力是否已经更新",
+        ],
+    },
+  ],
+
+  screenshotPoints: [
+    {
+      icon: "document",
+
+      title:
+        "先有基础账户，再做升级",
+
+      description:
+        "e.firma 不是基础开户的必需前提；Contrato Exprés 可以先完成，之后再升级。",
+    },
+
     {
       icon: "key",
 
       title:
-        "准备 e.firma",
+        "e.firma 三项资料",
 
       description:
-        "通常需要 SAT 签发的 `.cer`、`.key` 以及对应私钥密码。",
+        ".cer 证书、.key 私钥，以及与私钥对应的 Clave de Acceso（密码）。",
     },
 
     {
       icon: "shield",
 
       title:
-        "私钥密码只由本人输入",
+        "所有签署操作由本人完成",
 
       description:
-        "咨询人员不会索取、保存或代替客户输入 e.firma 私钥密码。",
+        "平台和咨询人员不接收客户 .key、不保管 e.firma 密码，也不代客户完成电子签署。",
     },
 
     {
-      icon: "document",
+      icon: "check",
 
       title:
-        "准备银行证明",
+        "成功后重新确认账户状态",
 
       description:
-        "官方流程可能要求登记银行账户的有效账单或相关账户证明。",
-    },
-
-    {
-      icon: "chart",
-
-      title:
-        "升级后的作用",
-
-      description:
-        "Nivel 4 可以取消 Nivel 2 每月 3,000 UDIS 的累计入金限制，并提高账户可操作资金规模。",
+        "完成签署后重新登录 Cetesdirecto，确认账户能力已经更新。",
     },
   ],
 },
@@ -1223,135 +1592,265 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
  */
 
 {
-  id: "purchase-practice",
+  id: "government-securities-purchase",
 
   section: "practice",
 
   number: 12,
 
-  eyebrow: "PRACTICE · MOBILE APP",
+  eyebrow: "PRACTICE",
 
-  title: "实操：购买国债（手机 App）",
+  title: "购买国债：从选择产品到提交购买",
 
   shortTitle: "购买国债",
 
   layout: "screenshots",
 
   summary:
-    "这里先使用 Cetesdirecto 官方手机 App 说明国债购买流程。网页版操作画面后续会另外补充，但产品、金额、资金来源和 Subasta（拍卖）等核心逻辑基本一致。",
+    "Cetesdirecto 可以通过 App 或网页操作。这里用真实画面认识从选择政府证券、期限、金额、资金来源，到最终确认购买的完整路径。",
 
   source:
-    "画面：Cetesdirecto 官方手机 App。收益率为截图当时显示的参考数据，不代表未来收益。",
+    "画面：Cetesdirecto 官方 App 与网页。截图中的收益率、日期和金额仅用于操作演示，不代表当前或未来收益。",
 
-  screenshots: [
-    {
-      src:
-        "/consultation/cetes/app-products-list.jpeg",
-
-      label:
-        "APP · STEP 1",
-
-      title:
-        "先选择要查看的国债产品",
-
-      description:
-        "进入 Invertir（投资）后，可以看到 Valores Gubernamentales（政府证券）以及当前可以选择的产品和期限。",
-
-      highlights: [
-        "这是 Cetesdirecto 手机 App 画面，后续还会补充网页版购买界面",
-
-        "CETES 可以看到不同期限，例如 1 个月、3 个月、6 个月、12 个月、2 年",
-
-        "页面同时可以看到 BONOS、UDIBONO、BONDESF 等其他政府证券",
-
-        "产品旁显示的收益率是当时页面的参考收益率，不代表未来固定收益",
-
-        "先选择产品和期限，再进入下一步填写购买金额",
-      ],
-    },
-
-    {
-      src:
-        "/consultation/cetes/app-purchase-form.jpeg",
-
-      label:
-        "APP · STEP 2",
-
-      title:
-        "填写购买金额并确认 Subasta",
-
-      description:
-        "进入具体国债后，可以看到参考收益率、Fecha de subasta（拍卖日期）、购买金额和 Forma de pago（资金来源）。",
-
-      highlights: [
-        "Tasa indicativa de referencia de la última subasta：上一期拍卖的参考收益率，不是对本次收益率的保证",
-
-        "Fecha de subasta：本次购买指令对应的国债拍卖日期",
-
-        "Monto de la compra：由客户本人决定实际购买金额",
-
-        "Forma de pago：选择本次购买使用的资金来源",
-
-        "Envío de recursos：通过资金转入支付",
-
-        "BONDDIA：可以使用已经在 BONDDIA 中的流动资金",
-
-        "Domiciliación：如果账户已经设置相关自动扣款方式，可按实际可用选项操作",
-
-        "确认所有资料后才点击 Aceptar（确认）",
-      ],
-    },
-  ],
+    screenshots: [
+      {
+        src:
+          "/consultation/cetes/web-products-list.png",
+    
+        label:
+          "WEB · STEP 1",
+    
+        title:
+          "进入 Invertir（投资）",
+    
+        description:
+          "登录网页版后进入 Invertir（投资），可以看到当前开放购买的 CETES、BONOS、UDIBONO、BONDESF 等政府证券。",
+    
+        highlights: [
+          "进入 Invertir（投资）",
+    
+          "查看当前开放购买的政府证券",
+    
+          "不同产品的期限和结构不同",
+    
+          "页面显示的产品会根据拍卖安排变化",
+    
+          "咨询服务只解释操作流程，不替客户选择产品",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/web-cetes-terms.png",
+    
+        label:
+          "WEB · STEP 2",
+    
+        title:
+          "选择 CETES 期限，并通过 Subasta（拍卖）购买",
+    
+        description:
+          "CETES 不是像股票一样即时买入。客户选择期限后，需要选择对应的 Subasta（拍卖）批次提交购买指令。",
+    
+        highlights: [
+          "先选择 CETES",
+    
+          "再选择具体期限",
+    
+          "选择 Subasta（拍卖）批次",
+    
+          "Cetesdirecto 的政府证券购买通过拍卖安排执行",
+    
+          "不同期限可能显示不同参考收益率",
+    
+          "客户本人决定购买期限和金额",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/web-bonos-terms.png",
+    
+        label:
+          "WEB · EXTRA",
+    
+        title:
+          "BONOS 的期限选择示例",
+    
+        description:
+          "BONOS 属于期限更长的墨西哥政府证券，这里用来认识它和 CETES 在期限上的差异。",
+    
+        highlights: [
+          "BONOS 通常属于较长期政府证券",
+    
+          "页面会显示当前开放的期限",
+    
+          "长期债券提前出售时可能受到市场价格变化影响",
+    
+          "此处只做产品与操作说明，不构成投资建议",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/web-purchase-form.png",
+    
+        label:
+          "WEB · STEP 3",
+    
+        title:
+          "填写购买指令",
+    
+        description:
+          "选择产品和拍卖批次后，进入 Compra de instrumento 页面填写金额、资金来源等资料。",
+    
+        highlights: [
+          "确认 Instrumento（产品）",
+    
+          "确认 Fecha de subasta（拍卖日期）",
+    
+          "填写 Monto（金额）",
+    
+          "选择 Forma de pago（资金来源）",
+    
+          "确认 Reinversión（到期自动再投资）设置",
+    
+          "最终购买指令由客户本人确认",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/web-purchase-summary.png",
+    
+        label:
+          "WEB · STEP 4",
+    
+        title:
+          "检查 Resumen de compra",
+    
+        description:
+          "正式提交前检查购买摘要，确认产品、期限、金额、资金来源等信息。",
+    
+        highlights: [
+          "核对产品",
+    
+          "核对期限和金额",
+    
+          "确认资金来源",
+    
+          "确认 Reinversión 设置",
+    
+          "确认无误后由客户本人提交",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/web-purchase-confirmation.png",
+    
+        label:
+          "WEB · STEP 5",
+    
+        title:
+          "确认购买指令已经登记",
+    
+        description:
+          "出现购买登记成功信息后，表示指令已经进入后续处理流程。",
+    
+        highlights: [
+          "Compra registrada 表示购买指令已登记",
+    
+          "登记成功不等于证券已经立即进入账户",
+    
+          "后续可以到 Movimientos 查看订单状态",
+    
+          "政府证券通常要等相应拍卖与分配流程完成",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/app-products-list.jpeg",
+    
+        label:
+          "APP · STEP 1",
+    
+        title:
+          "App：选择政府证券",
+    
+        description:
+          "手机 App 同样可以进入 Invertir，选择 CETES、BONOS 等产品。",
+    
+        highlights: [
+          "App 与 Web 的核心逻辑一致",
+    
+          "先选择产品",
+    
+          "再选择期限",
+    
+          "页面可能显示参考收益率",
+    
+          "客户本人决定购买内容",
+        ],
+      },
+    
+      {
+        src:
+          "/consultation/cetes/app-purchase-form.png",
+    
+        label:
+          "APP · STEP 2",
+    
+        title:
+          "App：填写购买指令",
+    
+        description:
+          "在手机 App 中确认拍卖日期、金额以及支付方式，然后提交购买指令。",
+    
+        highlights: [
+          "确认产品和期限",
+    
+          "确认 Fecha de subasta",
+    
+          "填写购买金额",
+    
+          "选择资金来源",
+    
+          "最后由客户本人确认提交",
+        ],
+      },
+    ],
 
   screenshotPoints: [
-    {
-      icon: "chart",
-
-      title:
-        "先选产品，再选期限",
-
-      description:
-        "CETES 不只有一种期限。客户需要先理解不同期限，再由本人决定选择哪一种。",
-    },
-
     {
       icon: "auction",
 
       title:
-        "注意 Subasta（国债拍卖）日期",
+        "购买国债会经过拍卖 / 处理流程",
 
       description:
-        "购买 CETES、BONOS 等国债时，需要理解购买指令和实际国债拍卖之间存在时间差。",
+        "提交购买指令之后，不要简单理解成即时股票成交；需要根据产品和拍卖安排完成后续处理。",
     },
 
     {
-      icon: "deposit",
+      icon: "bank",
 
       title:
-        "资金来源可以不同",
+        "资金来源要确认",
 
       description:
-        "购买时可能看到 Envío de recursos、BONDDIA 或其他可用资金方式，实际选项以客户账户显示为准。",
+        "购买前确认资金已经可用，并明确使用 BONDDIA、转入资金或其他当时页面允许的资金方式。",
     },
 
     {
       icon: "shield",
 
       title:
-        "金额由客户本人决定",
+        "客户本人发出购买指令",
 
       description:
-        "咨询过程中只解释画面和流程，不替客户决定购买产品、期限或金额。",
-    },
-
-    {
-      icon: "document",
-
-      title:
-        "手机 App ≠ 唯一操作方式",
-
-      description:
-        "这一页目前先使用官方 App 实操画面。后续取得网页版截图后，会加入网页版购买流程进行对照。",
+        "咨询人员只解释界面和流程，不替客户决定产品、期限、金额，也不代客户点击最终购买。",
     },
   ],
 },
@@ -1364,7 +1863,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
  */
 
 {
-  id: "withdrawal-practice",
+  id: "first-withdrawal",
 
   section: "practice",
 
@@ -1372,77 +1871,118 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   eyebrow: "PRACTICE",
 
-  title: "实操：首次出金测试",
+  title: "首次出金：从 Cetesdirecto 转回银行",
 
   shortTitle: "首次出金",
 
-  layout: "placeholder",
+  layout: "screenshots",
 
   summary:
-    "完成一次小额出金测试，可以让客户确认资金怎样从 Cetesdirecto 返回本人银行账户。",
+    "完成首次入金之后，还要确认资金能够正常从 Cetesdirecto 转回本人登记的银行账户。第一次出金测试是整个资金闭环的重要步骤。",
 
   source:
-    "参考：Cetesdirecto 官方 FAQ — Retiro de Recursos / Retiro Bonddia。",
+    "画面：Cetesdirecto 官方网页。实际可提金额、银行资料、到账时间及操作时段以客户账户页面当时显示为准。",
 
-  placeholderTitle:
-    "等待补充 Cetesdirecto 出金界面截图",
+  screenshots: [
+    {
+      src:
+        "/consultation/cetes/web-withdraw-select.png",
 
-  placeholderDescription:
-    "取得真实界面后，这里会展示 Retirar / Retiro de recursos 的实际操作位置。",
+      label:
+        "WEB · STEP 1",
 
-  cards: [
+      title:
+        "进入 Retirar 并选择 BONDDIA",
+
+      description:
+        "在网页版进入 Retirar（取回资金），首先选择用于提款的产品。流动资金通常从 BONDDIA 进入提款流程。",
+
+      highlights: [
+        "进入 Retirar（提款 / 取回资金）",
+
+        "选择页面允许提款的产品",
+
+        "如果资金目前仍投资在尚未到期的政府证券中，情况与 BONDDIA 可用余额不同",
+
+        "本次测试重点是验证正常可用资金能否成功返回本人银行账户",
+      ],
+    },
+
+    {
+      src:
+        "/consultation/cetes/web-withdraw-form.png",
+
+      label:
+        "WEB · STEP 2",
+
+      title:
+        "填写出金金额并确认银行账户",
+
+      description:
+        "进入 Retiro de recursos（资金取回）页面后，查看可用余额，填写提款金额，并核对接收资金的银行账户。",
+
+      highlights: [
+        "Monto valuado：当前估值金额",
+
+        "Saldo comprometido：已经被其他指令占用的金额",
+
+        "Saldo disponible：当前可用于提款的余额",
+
+        "Importe a retirar：这次准备取回的金额",
+
+        "Banco receptor：接收资金的银行",
+
+        "Cuenta de depósito / CLABE：确认是本人已经登记的银行账户",
+
+        "Fecha de retiro：确认提款日期",
+
+        "页面如提示当日到账操作时限，应以当前 Cetesdirecto 页面显示的时间规则为准",
+      ],
+    },
+  ],
+
+  screenshotPoints: [
     {
       icon: "withdraw",
 
       title:
-        "提款到登记银行账户",
+        "完成第一次真实出金测试",
 
       description:
-        "提款资金会进入客户在 Cetesdirecto 登记的本人银行账户。",
-    },
-
-    {
-      icon: "clock",
-
-      title:
-        "工作日 13:00 前",
-
-      description:
-        "官方说明，工作日 13:00 前提交的提款指令，通常可以在当天进入银行账户。",
-    },
-
-    {
-      icon: "warning",
-
-      title:
-        "确认后不能取消",
-
-      description:
-        "官方说明，当日提款指令一旦确认，通常不能再取消。",
+        "首次咨询尽量完成一笔实际的小额出金，确认 Cetesdirecto → 本人银行账户的路径正常。",
     },
 
     {
       icon: "bank",
 
       title:
-        "BONDDIA 可以直接提款",
+        "资金只能回到登记账户",
 
       description:
-        "如果资金在 BONDDIA，可以提交提款指令直接转回本人银行账户。",
+        "提款时重点核对 Banco receptor 和已经登记的本人银行账户资料。",
     },
 
     {
-      icon: "document",
+      icon: "clock",
 
       title:
-        "国债可能涉及提前卖出",
+        "提款时间：工作日 09:00–13:00",
 
       description:
-        "如果资金仍投资在 CETES、BONOS 等国债中，需要先理解到期、提前卖出和提款之间的区别。",
+        "Cetesdirecto 当前官方说明，提款指令通常在银行工作日 09:00–13:00 操作；13:00 前完成的提款可在当天进入已登记银行账户。超过时间则需要选择之后的银行工作日。",
+    },
+
+    {
+      icon: "shield",
+
+      title:
+        "不代客户操作资金",
+
+      description:
+        "金额、提款日期以及最终确认均由客户本人完成。",
     },
   ],
 },
-
 
 /*
  * =========================================
@@ -1452,65 +1992,103 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
  */
 
 {
-  id: "movements-statement",
+  id: "account-records",
 
   section: "practice",
 
   number: 14,
 
-  eyebrow: "ACCOUNT",
+  eyebrow: "ACCOUNT CHECK",
 
-  title: "学会查 Movimientos 和 Estado de Cuenta",
+  title: "账户记录：怎么看操作有没有成功？",
 
   shortTitle: "账户记录",
 
-  layout: "status",
+  layout: "screenshots",
 
   summary:
-    "开户之后，客户应该知道在哪里确认资金有没有进来、有没有出去，以及在哪里下载正式账户记录。",
+  "入金、购买国债、卖出和出金之后，都可以通过 Movimientos（账户操作记录）核对。这里不仅能看交易历史，也能确认资金入账以及购买指令当前处于什么状态。",
 
   source:
-    "参考：Cetesdirecto 官方 FAQ。",
+    "画面：Cetesdirecto 官方网页。不同操作类型可能显示不同字段和状态。",
 
-  statusItems: [
+  screenshots: [
+    {
+      src:
+        "/consultation/cetes/web-movements-history.png",
+
+      label:
+        "WEB · MOVIMIENTOS",
+
+      title:
+        "查看 Histórico venta 与操作状态",
+
+      description:
+        "Movimientos 页面可以查看历史操作及处理状态，是核对购买、出售和资金动作是否成功的重要位置。",
+
+        highlights: [
+          "Movimientos 不只是看卖出记录，也可以查看入金记录",
+        
+          "入金后可进入 Movimientos → Ingresos → Efectivo 确认资金是否已经进入 Cetesdirecto",
+        
+          "购买国债下单后，也可以通过 Movimientos 查看订单当前状态",
+        
+          "Procesando：购买或操作仍在处理中",
+        
+          "Aplicada：操作已经成功应用 / 完成处理",
+        
+          "Cancelada：该操作已经取消或未继续完成",
+        
+          "Instrumento：对应的产品",
+        
+          "Estatus：当前处理状态",
+        
+          "Importe instruido：最初提交的指令金额",
+        
+          "不要只根据首页余额判断操作是否成功，应同时检查 Movimientos",
+        ],
+    },
+  ],
+
+  screenshotPoints: [
     {
       icon: "deposit",
-
+  
       title:
-        "Movimientos / Ingresos / Efectivo",
-
+        "检查入金",
+  
       description:
-        "可以查看当天的资金入账情况。官方说明，即使投资组合还没更新，也可以先在这里确认资金是否已进入账户。",
+        "银行转账后可以到 Movimientos → Ingresos → Efectivo 查看入金记录。",
     },
-
+  
     {
-      icon: "withdraw",
-
+      icon: "clock",
+  
       title:
-        "Movimientos",
-
+        "检查购买订单状态",
+  
       description:
-        "用于查看入金、出金和其他账户操作记录，方便核对资金状态。",
+        "国债下单后可能先显示 Procesando，表示仍在等待拍卖、分配或后续处理。",
     },
-
-    {
-      icon: "document",
-
-      title:
-        "Estado de Cuenta（账户对账单）",
-
-      description:
-        "官方路径：Perfil → Tus documentos → Estados de cuenta。",
-    },
-
+  
     {
       icon: "check",
-
+  
       title:
-        "养成核对习惯",
-
+        "确认最终状态",
+  
       description:
-        "每次入金、出金或购买后，都建议回到 Movimientos 或投资组合确认实际状态。",
+        "Aplicada 通常表示操作已经成功处理；不要仅凭首页金额判断。",
+    },
+  
+    {
+      icon: "document",
+  
+      title:
+        "Movimientos 是重要核对入口",
+  
+      description:
+        "入金、购买、卖出和出金之后，都建议回到这里检查实际记录和状态。",
     },
   ],
 },
@@ -1700,7 +2278,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     {
       src:
-        "/consultation/cetes/app-withdraw-success.jpeg",
+        "/consultation/cetes/app-withdraw-success.png",
 
       label:
         "APP · STEP 5",
@@ -1810,83 +2388,242 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   statusItems: [
     {
-      icon: "book",
-
-      title:
-        "理解主要国债产品",
-
-      description:
-        "知道 CETES、BONOS 和 BONDDIA 的基本差别。",
-    },
-
-    {
       icon: "user",
-
-      title:
-        "完成或掌握开户",
-
+      title: "完成基础开户",
       description:
-        "知道 Usuario、密码、密保问题和定位要求。",
+        "已经建立 Cetesdirecto 账户，并可以使用 Usuario 与密码正常登录。",
     },
-
+  
+    {
+      icon: "shield",
+      title: "知道账户安全边界",
+      description:
+        "账号、密码、验证码、安全问题、.key 与 e.firma 密码全部由客户本人控制，咨询平台不代为保管或操作。",
+    },
+  
     {
       icon: "deposit",
-
-      title:
-        "掌握首次入金",
-
+      title: "完成首次入金",
       description:
-        "知道资金如何从银行进入 Cetesdirecto，并在哪里查看状态。",
+        "已经验证本人银行账户 → Cetesdirecto 的资金转入路径。",
     },
-
+  
     {
       icon: "key",
-
-      title:
-        "知道什么时候需要 e.firma 升级",
-
+      title: "了解 e.firma 升级",
       description:
-        "理解 Nivel 2、Nivel 4 和 3,000 UDIS 的关系。",
+        "知道什么时候需要升级账户，以及 .cer、.key 和密码如何用于升级与签署。",
     },
-
+  
     {
       icon: "auction",
+      title: "完成首次购买操作",
+      description:
+        "已经理解 Invertir → 产品 → 期限 → Subasta → 金额 → 资金来源 → 提交的完整流程。",
+    },
+  
+    {
+      icon: "withdraw",
+      title: "完成首次出金测试",
+      description:
+        "已经验证 Cetesdirecto → 本人登记银行账户的资金返回路径。",
+    },
+  
+    {
+      icon: "document",
+      title: "会查看账户记录",
+      description:
+        "知道如何通过 Movimientos 检查入金、购买订单及其他操作的实际处理状态。",
+    },
+  
+    {
+      icon: "check",
+      title: "可以独立完成基本操作",
+      description:
+        "完成咨询后，客户应能够自行完成登录、入金、购买、出金和账户记录检查，不依赖平台代为操作。",
+    },
+  ],
+},
 
+/*
+ * =========================================
+ * 17
+ * Why CETES Value Changes Every Day
+ * =========================================
+ */
+
+{
+  id: "cetes-daily-value",
+
+  section: "practice",
+
+  number: 17,
+
+  eyebrow: "EXTRA",
+
+  title: "为什么 CETES 账户里的金额每天都在变？",
+
+  shortTitle: "CETES 金额变化",
+
+  layout: "yield-explainer",
+
+  summary:
+    "最容易产生的误解是：看到 CETES 金额每天增加，就以为政府每天在支付利息。实际上，CETES 不是每天派息的产品。",
+
+  source:
+    "参考：Cetesdirecto 官方 CETES 产品说明、Venta Anticipada 说明；Banco de México CETES 面值资料。",
+
+  yieldTimeline: [
+    {
       title:
-        "理解国债购买流程",
+        "买入时",
+
+      value:
+        "低于 MXN 10",
 
       description:
-        "知道 Subasta、Procesando 和最终持仓之间的关系。",
+        "CETES 属于折价发行的短期墨西哥国债。买入价格通常低于每张 MXN 10 的到期面值。",
     },
 
     {
-      icon: "withdraw",
-
       title:
-        "掌握首次出金",
+        "持有期间",
+
+      value:
+        "当前价值会变化",
 
       description:
-        "知道资金如何返回本人银行账户。",
+        "账户看到的 CETES 当前价值可能随着时间和市场价格变化，因此金额并不会每天完全一样。",
+    },
+
+    {
+      title:
+        "到期时",
+
+      value:
+        "MXN 10 / 张",
+
+      description:
+        "如果一直持有到期，每张 CETES 按 MXN 10 面值结算。",
+    },
+  ],
+
+  yieldFormula: {
+    title:
+      "最简单的收益理解",
+
+    expression:
+      "到期收益 ≈ 到期面值 − 买入成本",
+
+    example:
+      "例：10,000 张 × MXN 9.80 = MXN 98,000 → 到期 10,000 × MXN 10 = MXN 100,000",
+  },
+
+  yieldDifferenceRows: [
+    {
+      label:
+        "每天看到金额变化的原因",
+
+      cetes:
+        "当前持仓价值随时间和市场条件变化",
+
+      bonddia:
+        "基金净值和每日收益变化",
+    },
+
+    {
+      label:
+        "是不是每天派现金利息",
+
+      cetes:
+        "不是",
+
+      bonddia:
+        "也不是传统银行存款的“每日现金派息”",
+    },
+
+    {
+      label:
+        "最终收益逻辑",
+
+      cetes:
+        "折价买入，到期按 MXN 10 面值结算",
+
+      bonddia:
+        "按照基金持有期间的净值 / 收益变化",
+    },
+
+    {
+      label:
+        "是否需要等到期",
+
+      cetes:
+        "可以持有到期，也可以 Venta Anticipada（提前卖出）",
+
+      bonddia:
+        "属于每日流动资金，可按规则提款",
+    },
+  ],
+
+  cards: [
+    {
+      icon: "chart",
+
+      title:
+        "金额增加 ≠ 每天派息",
+
+      description:
+        "看到 CETES 当前价值增加，不代表每天有一笔利息现金打进账户。",
     },
 
     {
       icon: "document",
 
       title:
-        "会查账户记录",
+        "CETES 是零息国债",
 
       description:
-        "知道哪里看 Movimientos，以及哪里下载 Estado de Cuenta。",
+        "核心逻辑是低于面值买入，到期按每张 MXN 10 面值偿还。",
     },
 
     {
-      icon: "shield",
+      icon: "clock",
 
       title:
-        "知道账户安全边界",
+        "距离到期越近",
 
       description:
-        "密码、OTP（一次性动态验证码）、e.firma 和资金都始终由自己控制。",
+        "在其他市场条件没有明显变化的情况下，CETES 的价格通常会逐步接近到期面值。",
+    },
+
+    {
+      icon: "warning",
+
+      title:
+        "提前卖出不是固定利息结算",
+
+      description:
+        "Venta Anticipada（提前卖出）按当时可执行的市场条件处理，不是简单按照“持有天数 × 原利率”计算。",
+    },
+
+    {
+      icon: "chart",
+
+      title:
+        "提前卖出可能有价格风险",
+
+      description:
+        "如果市场利率发生变化，提前卖出时的实际结果可能高于或低于原来持有到期的预期。",
+    },
+
+    {
+      icon: "check",
+
+      title:
+        "持有到期最容易理解",
+
+      description:
+        "如果一直持有至到期，CETES 的基本结算逻辑就是每张 MXN 10 面值。",
     },
   ],
 },

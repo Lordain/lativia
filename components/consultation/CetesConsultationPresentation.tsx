@@ -39,6 +39,68 @@ function getOrderLabel(
     .toUpperCase();
 }
 
+function BrandLogo({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      {brandConfig.logoUrl ? (
+        <img
+          src={brandConfig.logoUrl}
+          alt={brandConfig.name}
+          className={
+            compact
+              ? "h-8 w-auto object-contain"
+              : "h-10 w-auto object-contain"
+          }
+        />
+      ) : (
+        <div
+          className={`
+            flex
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            border
+            border-white/15
+            bg-white/[0.06]
+            font-bold
+            tracking-tight
+            text-white
+            ${
+              compact
+                ? "h-8 w-8 text-xs"
+                : "h-10 w-10 text-sm"
+            }
+          `}
+        >
+          MH
+        </div>
+      )}
+
+      <div>
+        <p
+          className={
+            compact
+              ? "text-xs font-bold tracking-[0.12em] text-white"
+              : "text-sm font-bold tracking-[0.1em] text-white"
+          }
+        >
+          {brandConfig.shortName}
+        </p>
+
+        {!compact && (
+          <p className="mt-0.5 text-xs text-slate-500">
+            {brandConfig.name}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Icon({
   name,
@@ -1068,45 +1130,37 @@ function RiskSlide({
 function ScreenshotSlide({
   slide,
 }: {
-  slide:
-    CetesPresentationSlide;
+  slide: CetesPresentationSlide;
 }) {
   const [
     selected,
     setSelected,
-  ] =
-    useState(
-      0
-    );
-
+  ] = useState(0);
 
   const screenshot =
     slide.screenshots?.[
       selected
     ];
 
+  const isAppScreenshot =
+    screenshot?.src.includes(
+      "/app-"
+    ) ?? false;
 
   useEffect(
     () => {
-      setSelected(
-        0
-      );
+      setSelected(0);
     },
-    [
-      slide.id,
-    ]
+    [slide.id]
   );
-
 
   return (
     <>
       <SlideHeader
-        slide={
-          slide
-        }
+        slide={slide}
       />
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
+      <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_420px]">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
             {slide.screenshots?.map(
@@ -1115,15 +1169,10 @@ function ScreenshotSlide({
                 index
               ) => (
                 <button
-                  key={
-                    item.src
-                  }
+                  key={item.src}
                   type="button"
-                  onClick={
-                    () =>
-                      setSelected(
-                        index
-                      )
+                  onClick={() =>
+                    setSelected(index)
                   }
                   className={`
                     rounded-lg
@@ -1134,127 +1183,104 @@ function ScreenshotSlide({
                     font-medium
                     transition
                     ${
-                      selected ===
-                      index
+                      selected === index
                         ? "border-white/30 bg-white/10 text-white"
                         : "border-white/10 text-slate-400 hover:bg-white/5"
                     }
                   `}
                 >
-                  {
-                    item.label
-                  }{" "}
-                  ·{" "}
-                  {
-                    item.title
-                  }
+                  {item.label} · {item.title}
                 </button>
               )
             )}
           </div>
 
           {screenshot && (
-            <div className="mt-4 flex min-h-[660px] items-start justify-center rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+            <div
+              className={`mt-4 flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] ${
+                isAppScreenshot
+                  ? "min-h-[660px] p-4"
+                  : "min-h-[560px] p-3"
+              }`}
+            >
               <img
-                src={
-                  screenshot.src
+                src={screenshot.src}
+                alt={screenshot.title}
+                className={
+                  isAppScreenshot
+                    ? "block max-h-[780px] w-auto max-w-full rounded-xl object-contain"
+                    : "block max-h-[760px] w-full max-w-full rounded-xl object-contain"
                 }
-                alt={
-                  screenshot.title
-                }
-                className="block max-h-[780px] w-auto max-w-full rounded-xl object-contain"
               />
             </div>
           )}
         </div>
 
-
         <div>
           {screenshot && (
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
               <p className="text-xs font-semibold tracking-[0.16em] text-slate-500">
-                {
-                  screenshot.label
-                }
+                {screenshot.label}
               </p>
 
               <h3 className="mt-3 text-xl font-bold text-white">
-                {
-                  screenshot.title
-                }
+                {screenshot.title}
               </h3>
 
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                {
-                  screenshot.description
-                }
+                {screenshot.description}
               </p>
-              {screenshot.highlights &&
-              screenshot.highlights.length >
-                0 && (
-                <div className="mt-5 space-y-2">
-                  {screenshot.highlights.map(
-                    (
-                      item,
-                      index
-                    ) => (
-                      <div
-                        key={
-                          item
-                        }
-                        className="flex items-start gap-3 rounded-lg border border-white/[0.07] bg-black/10 px-3 py-2.5"
-                      >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 text-[11px] font-bold text-slate-300">
-                          {
-                            index +
-                            1
-                          }
-                        </span>
 
-                        <p className="text-xs leading-5 text-slate-300">
-                          {
-                            item
-                          }
-                        </p>
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
+              {screenshot.highlights &&
+                screenshot.highlights.length >
+                  0 && (
+                  <div className="mt-5 space-y-2">
+                    {screenshot.highlights.map(
+                      (
+                        item,
+                        index
+                      ) => (
+                        <div
+                          key={item}
+                          className="flex items-start gap-3 rounded-lg border border-white/[0.07] bg-black/10 px-3 py-2.5"
+                        >
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 text-[11px] font-bold text-slate-300">
+                            {index + 1}
+                          </span>
+
+                          <p className="text-xs leading-5 text-slate-300">
+                            {item}
+                          </p>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
             </div>
           )}
-
 
           <div className="mt-4 space-y-3">
             {slide.screenshotPoints?.map(
               point => (
                 <div
-                  key={
-                    point.title
-                  }
+                  key={point.title}
                   className="rounded-xl border border-white/10 bg-white/[0.03] p-4"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-200">
                       <Icon
-                        name={
-                          point.icon
-                        }
+                        name={point.icon}
                         className="h-5 w-5"
                       />
                     </div>
 
                     <div>
                       <h4 className="font-semibold text-white">
-                        {
-                          point.title
-                        }
+                        {point.title}
                       </h4>
 
                       <p className="mt-1 text-xs leading-5 text-slate-400">
-                        {
-                          point.description
-                        }
+                        {point.description}
                       </p>
                     </div>
                   </div>
@@ -1266,65 +1292,7 @@ function ScreenshotSlide({
       </div>
 
       <SourceLine
-        source={
-          slide.source
-        }
-      />
-    </>
-  );
-}
-
-function PlaceholderSlide({
-  slide,
-}: {
-  slide:
-    CetesPresentationSlide;
-}) {
-  return (
-    <>
-      <SlideHeader
-        slide={
-          slide
-        }
-      />
-
-      <div className="mt-8 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="flex min-h-[360px] items-center justify-center rounded-3xl border border-dashed border-white/15 bg-white/[0.025] p-8">
-          <div className="max-w-md text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 text-slate-300">
-              <Icon
-                name="document"
-                className="h-7 w-7"
-              />
-            </div>
-
-            <h3 className="mt-5 text-xl font-semibold text-white">
-              {
-                slide.placeholderTitle
-              }
-            </h3>
-
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {
-                slide.placeholderDescription
-              }
-            </p>
-          </div>
-        </div>
-
-        <div>
-          <CardGrid
-            slide={
-              slide
-            }
-          />
-        </div>
-      </div>
-
-      <SourceLine
-        source={
-          slide.source
-        }
+        source={slide.source}
       />
     </>
   );
@@ -1403,6 +1371,218 @@ function StatusSlide({
   );
 }
 
+function YieldExplainerSlide({
+  slide,
+}: {
+  slide:
+    CetesPresentationSlide;
+}) {
+  return (
+    <>
+      <SlideHeader
+        slide={
+          slide
+        }
+      />
+
+
+      {/* =====================================
+          Timeline
+      ===================================== */}
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        {slide.yieldTimeline?.map(
+          (
+            item,
+            index
+          ) => (
+            <div
+              key={
+                item.title
+              }
+              className="relative rounded-2xl border border-white/10 bg-white/[0.035] p-5"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold tracking-[0.15em] text-slate-500">
+                  STEP{" "}
+                  {
+                    index +
+                    1
+                  }
+                </span>
+
+                {index <
+                  (slide.yieldTimeline?.length ??
+                    0) -
+                    1 && (
+                  <span className="hidden text-xl text-slate-600 md:block">
+                    →
+                  </span>
+                )}
+              </div>
+
+              <h3 className="mt-5 text-xl font-semibold text-white">
+                {
+                  item.title
+                }
+              </h3>
+
+              <p className="mt-3 text-3xl font-bold tracking-tight text-white">
+                {
+                  item.value
+                }
+              </p>
+
+              <p className="mt-4 text-sm leading-6 text-slate-400">
+                {
+                  item.description
+                }
+              </p>
+            </div>
+          )
+        )}
+      </div>
+
+
+      {/* =====================================
+          Formula
+      ===================================== */}
+
+      {slide.yieldFormula && (
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            {
+              slide
+                .yieldFormula
+                .title
+            }
+          </p>
+
+          <p className="mt-4 font-mono text-xl font-bold text-white md:text-2xl">
+            {
+              slide
+                .yieldFormula
+                .expression
+            }
+          </p>
+
+          <p className="mt-4 text-sm leading-6 text-slate-400">
+            {
+              slide
+                .yieldFormula
+                .example
+            }
+          </p>
+        </div>
+      )}
+
+
+      {/* =====================================
+          CETES vs BONDDIA
+      ===================================== */}
+
+      <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10">
+        <table className="min-w-[800px] w-full border-collapse text-left">
+          <thead className="bg-white/[0.06]">
+            <tr>
+              <th className="border-b border-white/10 px-5 py-4 text-sm font-semibold text-slate-300">
+                对比
+              </th>
+
+              <th className="border-b border-white/10 px-5 py-4 text-sm font-semibold text-white">
+                CETES
+              </th>
+
+              <th className="border-b border-white/10 px-5 py-4 text-sm font-semibold text-white">
+                BONDDIA
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {slide.yieldDifferenceRows?.map(
+              row => (
+                <tr
+                  key={
+                    row.label
+                  }
+                  className="border-b border-white/[0.07] last:border-b-0"
+                >
+                  <td className="px-5 py-4 text-sm font-semibold text-slate-200">
+                    {
+                      row.label
+                    }
+                  </td>
+
+                  <td className="px-5 py-4 text-sm leading-6 text-slate-400">
+                    {
+                      row.cetes
+                    }
+                  </td>
+
+                  <td className="px-5 py-4 text-sm leading-6 text-slate-400">
+                    {
+                      row.bonddia
+                    }
+                  </td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
+      </div>
+
+
+      {/* =====================================
+          Key Takeaways
+      ===================================== */}
+
+      <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {slide.cards?.map(
+          card => (
+            <div
+              key={
+                card.title
+              }
+              className="flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-200">
+                <Icon
+                  name={
+                    card.icon
+                  }
+                  className="h-5 w-5"
+                />
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-white">
+                  {
+                    card.title
+                  }
+                </h4>
+
+                <p className="mt-1 text-xs leading-5 text-slate-400">
+                  {
+                    card.description
+                  }
+                </p>
+              </div>
+            </div>
+          )
+        )}
+      </div>
+
+
+      <SourceLine
+        source={
+          slide.source
+        }
+      />
+    </>
+  );
+}
+
 
 function SlideRenderer({
   slide,
@@ -1414,15 +1594,16 @@ function SlideRenderer({
     slide.layout
   ) {
 
-    case "placeholder":
-      return (
-        <PlaceholderSlide
-          slide={
-            slide
-          }
-        />
-      );
+    case "yield-explainer":
+  return (
+    <YieldExplainerSlide
+      slide={
+        slide
+      }
+    />
+  );
 
+    
 
     case "status":
       return (
@@ -1719,60 +1900,101 @@ export default function CetesConsultationPresentation({
     >
       {/* Watermark */}
 
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-10 overflow-hidden opacity-[0.04]"
-      >
-        <div className="absolute -inset-[25%] grid rotate-[-28deg] grid-cols-3 gap-x-24 gap-y-28">
-          {watermarkItems.map(
-            item => (
-              <div
-                key={
-                  item
-                }
-                className="whitespace-nowrap text-center text-[11px] font-bold uppercase tracking-[0.25em] text-white"
-              >
-                <div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-10 overflow-hidden opacity-[0.035]"
+        >
+          <div className="absolute -inset-[25%] grid rotate-[-28deg] grid-cols-3 gap-x-24 gap-y-28">
+            {watermarkItems.map(
+              item => (
+                <div
+                  key={item}
+                  className="whitespace-nowrap text-center text-[11px] font-bold uppercase tracking-[0.25em] text-white"
+                >
+                  <div>
+                    {brandConfig.shortName}
+                  </div>
+
+                  <div className="mt-1">
+                    {
+                      brandConfig
+                        .presentation
+                        .watermarkLabel
+                    }
+                  </div>
+
+                  <div className="mt-1">
+                    ORDER {orderLabel}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+
+
+        {/* Central brand watermark */}
+
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center"
+        >
+          <div className="rotate-[-12deg] opacity-[0.025]">
+            {brandConfig.logoUrl ? (
+              <img
+                src={brandConfig.logoUrl}
+                alt=""
+                className="max-h-[360px] max-w-[520px] object-contain"
+              />
+            ) : (
+              <div className="text-center text-white">
+                <div className="text-[120px] font-black leading-none tracking-[-0.07em]">
+                  MH
+                </div>
+
+                <div className="mt-6 text-4xl font-black tracking-[0.25em]">
+                  {brandConfig.shortName}
+                </div>
+
+                <div className="mt-4 text-xl font-semibold tracking-[0.18em]">
                   {
                     brandConfig
-                      .shortName
+                      .presentation
+                      .watermarkLabel
                   }
                 </div>
 
-                <div className="mt-1">
-                  INTERNAL
-                  CONSULTATION
-                </div>
-
-                <div className="mt-1">
-                  ORDER{" "}
-                  {
-                    orderLabel
-                  }
+                <div className="mt-3 font-mono text-lg tracking-[0.16em]">
+                  ORDER {orderLabel}
                 </div>
               </div>
-            )
-          )}
+            )}
+          </div>
         </div>
-      </div>
 
 
       {/* Header */}
 
       <header className="relative z-30 border-b border-white/10 bg-slate-950/95">
         <div className="flex min-h-16 items-center justify-between gap-4 px-5 md:px-8">
-          <div>
-            <p className="text-sm font-semibold text-white">
-              {
-                brandConfig.name
-              }
-            </p>
+          <div className="flex items-center gap-5">
+            <BrandLogo />
 
-            <p className="mt-0.5 text-xs text-slate-500">
-              Cetesdirecto
-              中文咨询 ·
-              内部咨询资料
-            </p>
+            <div className="hidden border-l border-white/10 pl-5 sm:block">
+              <p className="text-xs font-semibold text-slate-300">
+                Cetesdirecto 中文咨询
+              </p>
+
+              <p className="mt-1 text-xs text-slate-600">
+                {
+                  brandConfig
+                    .presentation
+                    .confidentialityLabel
+                }
+                {" · "}
+                Order {orderLabel}
+              </p>
+            </div>
           </div>
 
           <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm tabular-nums text-slate-300">
@@ -1876,21 +2098,28 @@ export default function CetesConsultationPresentation({
           ← 上一页
         </button>
 
-        <div className="hidden text-center md:block">
-          <p className="text-xs text-slate-500">
-            {
-              brandConfig
-                .presentation
-                .footerText
-            }
-          </p>
+        <div className="hidden items-center gap-5 md:flex">
+          <BrandLogo compact />
 
-          <p className="mt-1 text-xs text-slate-600">
-            Order{" "}
-            {
-              orderLabel
-            }
-          </p>
+          <div className="border-l border-white/10 pl-5">
+            <p className="text-xs text-slate-500">
+              {
+                brandConfig
+                  .presentation
+                  .footerText
+              }
+            </p>
+
+            <p className="mt-1 text-xs text-slate-600">
+              {
+                brandConfig
+                  .presentation
+                  .confidentialityLabel
+              }
+              {" · "}
+              Order {orderLabel}
+            </p>
+          </div>
         </div>
 
         <button

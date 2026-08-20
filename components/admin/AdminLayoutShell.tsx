@@ -164,7 +164,7 @@ export default function AdminLayoutShell({
             </div>
           </header>
 
-          <main className="min-w-0 flex-1">
+          <main className="min-w-0 flex-1 p-6 md:p-8">
             {children}
           </main>
         </div>

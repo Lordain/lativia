@@ -106,27 +106,26 @@ import {
         });
   
   
-      case "completed":
-        return createOrderNotification({
-          orderId:
-            input.orderId,
-  
-          fulfillmentId:
-            input.fulfillmentId,
-  
-          type:
-            "service_completed",
-  
-          title:
-            "服务已经完成",
-  
-          message:
-            "您的服务已经完成并交付。根据服务规则，成功完成并交付后的服务不支持退款。",
-  
-          idempotencyKey:
-            `service_completed:${input.fulfillmentId}`,
-        });
-  
+        case "completed":
+          return createOrderNotification({
+            orderId:
+              input.orderId,
+        
+            fulfillmentId:
+              input.fulfillmentId,
+        
+            type:
+              "service_completed",
+        
+            title:
+              "服务已经完成",
+        
+            message:
+              "您的服务已经完成。您可以进入订单页面查看最终服务状态；如本服务包含已交付结果，也可以在服务空间中查看。",
+        
+            idempotencyKey:
+              `service_completed:${input.fulfillmentId}`,
+          });
   
       case "failed":
         return createOrderNotification({

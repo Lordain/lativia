@@ -12,6 +12,10 @@ import type {
   OrderResultDeliveryMode,
 } from "@/types/result";
 
+import {
+  notifyOrderResultDelivered,
+} from "@/lib/notifications/notifyOrderResultDelivered";
+
 
 export interface DeliverAdminOrderResultInput {
   orderId:
@@ -173,11 +177,111 @@ export async function deliverAdminOrderResult(
   }
 
 
-  return {
-    success:
-      true,
+  const cleanResultId =
+  resultId as string;
 
-    resultId:
-      resultId as string,
-  };
+
+/*
+ * =========================================
+ * Result Delivered Notification
+ * =========================================
+ *
+ * Result delivery is the primary operation.
+ *
+ * Notification / Email are secondary
+ * side effects and must never roll back
+ * a successfully delivered Result.
+ */
+
+try {
+  const {
+    data:
+      deliveredResult,
+
+    error:
+      resultLookupError,
+  } =
+    await supabase
+      .from(
+        "order_results"
+      )
+      .select(`
+        id,
+        result_is_official
+      `)
+      .eq(
+        "id",
+        cleanResultId
+      )
+      .single();
+
+
+  const resultRow =
+    deliveredResult;
+
+
+  if (
+    resultLookupError ||
+    !resultRow
+  ) {
+    console.error(
+      "deliverAdminOrderResult notification result lookup error:",
+      {
+        orderId:
+          cleanOrderId,
+
+        resultId:
+          cleanResultId,
+
+        error:
+          resultLookupError,
+      }
+    );
+
+  } else {
+    const confirmedResult =
+      resultRow!;
+  
+  
+    await notifyOrderResultDelivered({
+      orderId:
+        cleanOrderId,
+  
+      resultId:
+        cleanResultId,
+  
+      resultIsOfficial:
+        Boolean(
+          confirmedResult
+            .result_is_official
+        ),
+    });
+  }
+
+} catch (
+  notificationError
+) {
+  console.error(
+    "deliverAdminOrderResult notification side effect error:",
+    {
+      orderId:
+        cleanOrderId,
+
+      resultId:
+        cleanResultId,
+
+      error:
+        notificationError,
+    }
+  );
+}
+
+
+return {
+  success:
+    true,
+
+  resultId:
+    cleanResultId,
+};
 }

@@ -4,6 +4,7 @@ export type NotificationType =
   | "customer_action_required"
   | "customer_correction_approved"
   | "customer_correction_rejected"
+  | "result_delivered"
   | "service_completed"
   | "service_failed"
   | "refund_review_started"

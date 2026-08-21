@@ -374,18 +374,23 @@ export default async function AdminOrderDetailPage({
         </p>
       </div>
 
-      {serviceOptionSnapshot && (
-  <section className="mt-6 rounded-xl border bg-white p-6">
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-        Service Option
-      </p>
+      <section className="mt-6 rounded-xl border bg-white p-6">
+  <div>
+    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+      Service & Fulfillment
+    </p>
 
-      <h2 className="mt-1 text-xl font-semibold">
-        服务方案
-      </h2>
-    </div>
+    <h2 className="mt-1 text-xl font-semibold">
+      服务与办理
+    </h2>
 
+    <p className="mt-2 text-sm leading-6 text-gray-500">
+      查看客户购买的服务方案，并在这里直接管理当前办理状态。
+    </p>
+  </div>
+
+
+  {serviceOptionSnapshot && (
     <div className="mt-5 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-5">
       <div className="rounded-lg bg-gray-50 p-4">
         <p className="text-xs text-gray-400">
@@ -397,6 +402,7 @@ export default async function AdminOrderDetailPage({
             "未记录"}
         </p>
       </div>
+
 
       <div className="rounded-lg bg-gray-50 p-4">
         <p className="text-xs text-gray-400">
@@ -414,6 +420,7 @@ export default async function AdminOrderDetailPage({
         </p>
       </div>
 
+
       <div className="rounded-lg bg-gray-50 p-4">
         <p className="text-xs text-gray-400">
           现场陪同
@@ -425,6 +432,7 @@ export default async function AdminOrderDetailPage({
             : "不包含"}
         </p>
       </div>
+
 
       <div className="rounded-lg bg-gray-50 p-4">
         <p className="text-xs text-gray-400">
@@ -438,6 +446,7 @@ export default async function AdminOrderDetailPage({
         </p>
       </div>
 
+
       <div className="rounded-lg bg-gray-50 p-4">
         <p className="text-xs text-gray-400">
           Workspace
@@ -450,8 +459,22 @@ export default async function AdminOrderDetailPage({
         </p>
       </div>
     </div>
-  </section>
-)}
+  )}
+
+
+<div className="mt-6 border-t pt-6 [&>section]:mt-0 [&>section]:rounded-none [&>section]:border-0 [&>section]:bg-transparent [&>section]:p-0">
+    <AdminFulfillmentControl
+      fulfillment={
+        fulfillmentData
+          .fulfillment
+      }
+
+      paymentStatus={
+        order.payment_status
+      }
+    />
+  </div>
+</section>
 
 
       {/* =====================================
@@ -520,6 +543,47 @@ export default async function AdminOrderDetailPage({
           </div>
         </div>
       </section>
+
+      {/* =====================================
+          Payment Summary
+
+          这里只显示当前付款状态摘要。
+
+          Payment Transaction / Audit 的历史记录
+          已统一进入下方 Order Timeline。
+      ===================================== */}
+
+<OrderPaymentInfo
+        paymentStatus={
+          order.payment_status as
+            PaymentStatus
+        }
+
+        amount={
+          order.amount
+        }
+
+        currency={
+          order.currency
+        }
+
+        paymentMethod={
+          order.payment_method as
+            | PaymentMethod
+            | null
+        }
+
+        paymentProvider={
+          order.payment_provider as
+            | PaymentProvider
+            | null
+        }
+
+        paidAt={
+          order.paid_at
+        }
+      />
+
 
 
       {/* =====================================
@@ -603,79 +667,6 @@ export default async function AdminOrderDetailPage({
           </div>
         )}
       </section>
-
-
-
-
-      {/* =====================================
-          Data Retention / Privacy
-      ===================================== */}
-
-        <div className="mt-8">
-                <AdminDataCleanupStatus
-                  status={
-                    order.data_cleanup_status
-                  }
-
-                  purposeEndedAt={
-                    order.data_purpose_ended_at
-                  }
-
-                  cleanupDueAt={
-                    order.data_cleanup_due_at
-                  }
-
-                  cleanedAt={
-                    order.data_cleaned_at
-                  }
-
-                  lastError={
-                    order.data_cleanup_last_error
-                  }
-                />
-              </div>
-
-
-
-      {/* =====================================
-          Payment Summary
-
-          这里只显示当前付款状态摘要。
-
-          Payment Transaction / Audit 的历史记录
-          已统一进入下方 Order Timeline。
-      ===================================== */}
-
-      <OrderPaymentInfo
-        paymentStatus={
-          order.payment_status as
-            PaymentStatus
-        }
-
-        amount={
-          order.amount
-        }
-
-        currency={
-          order.currency
-        }
-
-        paymentMethod={
-          order.payment_method as
-            | PaymentMethod
-            | null
-        }
-
-        paymentProvider={
-          order.payment_provider as
-            | PaymentProvider
-            | null
-        }
-
-        paidAt={
-          order.paid_at
-        }
-      />
 
 
       {/* =====================================
@@ -818,25 +809,6 @@ export default async function AdminOrderDetailPage({
 
 
       {/* =====================================
-          Fulfillment Operations
-
-          业务办理的唯一 Admin 状态操作入口。
-
-          Admin 不再直接修改 orders.status。
-      ===================================== */}
-
-      <AdminFulfillmentControl
-        fulfillment={
-          fulfillmentData
-            .fulfillment
-        }
-
-        paymentStatus={
-          order.payment_status
-        }
-      />
-
-      {/* =====================================
           Result Delivery
           服务结果交付
 
@@ -856,6 +828,35 @@ export default async function AdminOrderDetailPage({
           />
         </div>
       )}
+
+      {/* =====================================
+    Data Retention / Privacy
+    临时资料生命周期
+===================================== */}
+
+<div className="mt-8">
+  <AdminDataCleanupStatus
+    status={
+      order.data_cleanup_status
+    }
+
+    purposeEndedAt={
+      order.data_purpose_ended_at
+    }
+
+    cleanupDueAt={
+      order.data_cleanup_due_at
+    }
+
+    cleanedAt={
+      order.data_cleaned_at
+    }
+
+    lastError={
+      order.data_cleanup_last_error
+    }
+  />
+</div>
 
 
       {/* =====================================

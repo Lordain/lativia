@@ -2,11 +2,20 @@ import type {
   NextConfig,
 } from "next";
 
+
+const allowedDevOrigins =
+  process.env
+    .DEV_ALLOWED_ORIGIN
+    ? [
+        process.env
+          .DEV_ALLOWED_ORIGIN,
+      ]
+    : [];
+
+
 const nextConfig:
   NextConfig = {
-    allowedDevOrigins: [
-      "tend-including-checkout-lists.trycloudflare.com",
-    ],
+    allowedDevOrigins,
 
     experimental: {
       serverActions: {
@@ -15,5 +24,6 @@ const nextConfig:
       },
     },
   };
+
 
 export default nextConfig;

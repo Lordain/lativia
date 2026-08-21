@@ -21,6 +21,11 @@ import {
   deleteMyOrderDocument,
 } from "@/lib/documents/deleteMyOrderDocument";
 
+import {
+  PERSONAL_ORDER_DOCUMENT_TYPES,
+  COMPANY_ORDER_DOCUMENT_TYPES,
+} from "@/lib/documents/orderDocumentTypes";
+
 
 interface Props {
   orderId:
@@ -97,6 +102,7 @@ function formatSize(
 export default function CustomerOrderDocuments({
   orderId,
   documents,
+  documentProfile,
 }: Props) {
   const router =
     useRouter();
@@ -151,6 +157,12 @@ export default function CustomerOrderDocuments({
       20 -
         activeDocumentCount
     );
+
+  const requiredDocumentTypes =
+    documentProfile ===
+    "company"
+      ? COMPANY_ORDER_DOCUMENT_TYPES
+      : PERSONAL_ORDER_DOCUMENT_TYPES;
 
 
   async function handleUpload() {
@@ -303,6 +315,43 @@ export default function CustomerOrderDocuments({
           或其他非办理必要的认证信息。
         </p>
       </div>
+
+      <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50/60 p-5">
+  <p className="font-semibold text-gray-900">
+    本次办理需要准备以下资料
+  </p>
+
+  <p className="mt-1 text-sm leading-6 text-gray-600">
+    请根据下面的清单准备并上传。
+    您无需自行选择资料分类，工作人员检查时会完成分类。
+  </p>
+
+  <div className="mt-4 space-y-3">
+    {requiredDocumentTypes.map(
+      (
+        documentType,
+        index
+      ) => (
+        <div
+          key={
+            documentType.value
+          }
+          className="flex items-start gap-3 rounded-lg bg-white px-4 py-3"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+            {index + 1}
+          </span>
+
+          <p className="text-sm font-medium leading-6 text-gray-800">
+            {
+              documentType.label
+            }
+          </p>
+        </div>
+      )
+    )}
+  </div>
+</div>
 
 
       <div className="mt-5 rounded-xl border bg-gray-50 p-5">

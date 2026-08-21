@@ -39,7 +39,7 @@ export const PERSONAL_ORDER_DOCUMENT_TYPES = [
         "notarized_articles_of_incorporation",
   
       label:
-        "公证过的公司章程",
+        "公司章程公证文件",
     },
   
     {
@@ -55,7 +55,7 @@ export const PERSONAL_ORDER_DOCUMENT_TYPES = [
         "legal_representative_authorization",
   
       label:
-        "法人代表授权书",
+        "法定代表人授权 / 证明文件",
     },
   
     {
@@ -63,7 +63,7 @@ export const PERSONAL_ORDER_DOCUMENT_TYPES = [
         "company_registered_address",
   
       label:
-        "公司注册地址资料",
+        "公司注册地址证明",
     },
   ] as const;
   

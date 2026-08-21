@@ -226,21 +226,37 @@ function isValidCurp(
 }
 
 
-function isValidRfc(
+function isValidPersonalRfc(
   value:
     string
 ) {
   /*
-   * Persona Física:
-   * 13 characters
-   *
-   * Persona Moral:
-   * 12 characters
+   * Persona Física
+   * 4 letters + 6 date digits + 3 homoclave
+   * Total: 13 characters
    *
    * 这里只做基础格式检查，
    * 不代表 SAT 已确认 RFC 存在或有效。
    */
-  return /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(
+  return /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/.test(
+    value
+  );
+}
+
+
+function isValidCompanyRfc(
+  value:
+    string
+) {
+  /*
+   * Persona Moral
+   * 3 letters + 6 date digits + 3 homoclave
+   * Total: 12 characters
+   *
+   * 这里只做基础格式检查，
+   * 不代表 SAT 已确认 RFC 存在或有效。
+   */
+  return /^[A-ZÑ&]{3}\d{6}[A-Z0-9]{3}$/.test(
     value
   );
 }
@@ -573,52 +589,100 @@ export async function createOrder(
       curp;
   }
 
-  const rfcFieldNames = [
-    "rfc",
-    "company_rfc",
-    "legal_representative_rfc",
-  ] as const;
-  
-  
-  for (
-    const fieldName
-    of rfcFieldNames
+  /*
+ * ========================================
+ * RFC Validation
+ * ========================================
+ *
+ * rfc：
+ * Persona Física，13 位
+ *
+ * company_rfc：
+ * Persona Moral，12 位
+ *
+ * legal_representative_rfc：
+ * 法定代表人为自然人，13 位
+ */
+
+if (
+  cleanFormData.rfc
+) {
+  const rfc =
+    normalizeUppercaseValue(
+      cleanFormData.rfc
+    );
+
+
+  if (
+    !isValidPersonalRfc(
+      rfc
+    )
   ) {
-    const rawValue =
-      cleanFormData[
-        fieldName
-      ];
-  
-  
-    if (
-      !rawValue
-    ) {
-      continue;
-    }
-  
-  
-    const rfc =
-      normalizeUppercaseValue(
-        rawValue
-      );
-  
-  
-    if (
-      !isValidRfc(
-        rfc
-      )
-    ) {
-      throw new Error(
-        "RFC 格式不正确，请检查后重新填写"
-      );
-    }
-  
-  
-    cleanFormData[
-      fieldName
-    ] =
-      rfc;
+    throw new Error(
+      "个人 RFC 应为 13 位，请检查后重新填写"
+    );
   }
+
+
+  cleanFormData.rfc =
+    rfc;
+}
+
+
+if (
+  cleanFormData
+    .company_rfc
+) {
+  const companyRfc =
+    normalizeUppercaseValue(
+      cleanFormData
+        .company_rfc
+    );
+
+
+  if (
+    !isValidCompanyRfc(
+      companyRfc
+    )
+  ) {
+    throw new Error(
+      "公司 RFC 应为 12 位，请检查后重新填写"
+    );
+  }
+
+
+  cleanFormData
+    .company_rfc =
+    companyRfc;
+}
+
+
+if (
+  cleanFormData
+    .legal_representative_rfc
+) {
+  const representativeRfc =
+    normalizeUppercaseValue(
+      cleanFormData
+        .legal_representative_rfc
+    );
+
+
+  if (
+    !isValidPersonalRfc(
+      representativeRfc
+    )
+  ) {
+    throw new Error(
+      "法定代表人 RFC 应为 13 位，请检查后重新填写"
+    );
+  }
+
+
+  cleanFormData
+    .legal_representative_rfc =
+    representativeRfc;
+}
 
   if (
     cleanFormData

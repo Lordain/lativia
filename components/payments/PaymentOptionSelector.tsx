@@ -63,9 +63,18 @@ function formatAmount(
   price: ServicePrice
 ) {
   const amount =
-    Number(
-      price.amount
-    ).toFixed(2);
+    new Intl.NumberFormat(
+      "zh-CN",
+      {
+        maximumFractionDigits:
+          2,
+      }
+    ).format(
+      Number(
+        price.amount
+      )
+    );
+
 
   switch (
     price.currency

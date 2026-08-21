@@ -69,7 +69,8 @@ export async function reviewOrderDocument(
       .select(`
         id,
         order_id,
-        status
+        status,
+        document_type
       `)
       .eq(
         "id",
@@ -94,6 +95,17 @@ export async function reviewOrderDocument(
   ) {
     throw new Error(
       "该资料内容已经清理，无法继续审核"
+    );
+  }
+
+  if (
+    action ===
+      "approve" &&
+    document.document_type ===
+      "unclassified"
+  ) {
+    throw new Error(
+      "请先完成资料分类，再标记为通过"
     );
   }
 

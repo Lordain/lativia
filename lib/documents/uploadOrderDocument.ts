@@ -12,15 +12,13 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
-import {
-  COMPANY_ORDER_DOCUMENT_TYPES,
-  OTHER_ORDER_DOCUMENT_TYPE,
-  PERSONAL_ORDER_DOCUMENT_TYPES,
-} from "@/lib/documents/orderDocumentTypes";
-
 
 const MAX_FILE_SIZE =
   10 * 1024 * 1024;
+
+
+const MAX_DOCUMENTS_PER_ORDER =
+  20;
 
 
 const ALLOWED_MIME_TYPES =
@@ -54,6 +52,18 @@ const FILE_EXTENSION_BY_MIME:
 interface ServiceOptionSnapshot {
   requiresDocumentReview?:
     boolean;
+}
+
+
+interface PendingDocument {
+  id:
+    string;
+
+  file:
+    File;
+
+  storagePath:
+    string;
 }
 
 
@@ -113,55 +123,30 @@ export async function uploadOrderDocument(
   }
 
 
-  const documentTypeRaw =
-    formData.get(
-      "documentType"
+  const rawFiles =
+    formData.getAll(
+      "files"
     );
 
 
-  const fileRaw =
-    formData.get(
-      "file"
+  const files =
+    rawFiles.filter(
+      (
+        value
+      ): value is File =>
+        value instanceof
+        File
     );
 
 
   if (
-    typeof documentTypeRaw !==
-      "string"
-  ) {
-    throw new Error(
-      "请选择资料类型"
-    );
-  }
-
-
-  const documentType =
-    documentTypeRaw
-      .trim();
-
-
-  if (
-    !documentType ||
-    documentType.length >
-      100
-  ) {
-    throw new Error(
-      "资料类型不正确"
-    );
-  }
-
-
-  if (
-    !(fileRaw instanceof File)
+    files.length ===
+    0
   ) {
     throw new Error(
       "请选择要上传的文件"
     );
   }
-
-
-  const file =
-    fileRaw;
 
 
   /*
@@ -170,34 +155,38 @@ export async function uploadOrderDocument(
    * ========================================
    */
 
-  if (
-    file.size <=
+  for (
+    const file of files
+  ) {
+    if (
+      file.size <=
       0
-  ) {
-    throw new Error(
-      "文件内容为空"
-    );
-  }
+    ) {
+      throw new Error(
+        `文件「${file.name}」内容为空`
+      );
+    }
 
 
-  if (
-    file.size >
+    if (
+      file.size >
       MAX_FILE_SIZE
-  ) {
-    throw new Error(
-      "单个文件不能超过 10 MB"
-    );
-  }
+    ) {
+      throw new Error(
+        `文件「${file.name}」超过 10 MB`
+      );
+    }
 
 
-  if (
-    !ALLOWED_MIME_TYPES.has(
-      file.type
-    )
-  ) {
-    throw new Error(
-      "仅支持 PDF、JPG、PNG 或 WEBP 文件"
-    );
+    if (
+      !ALLOWED_MIME_TYPES.has(
+        file.type
+      )
+    ) {
+      throw new Error(
+        `文件「${file.name}」格式不支持，仅支持 PDF、JPG、PNG 或 WEBP`
+      );
+    }
   }
 
 
@@ -223,10 +212,7 @@ export async function uploadOrderDocument(
         user_id,
         payment_status,
         service_option_id,
-        service_option_snapshot,
-        services (
-          slug
-        )
+        service_option_snapshot
       `)
       .eq(
         "id",
@@ -257,7 +243,7 @@ export async function uploadOrderDocument(
 
   if (
     order.payment_status !==
-      "paid"
+    "paid"
   ) {
     throw new Error(
       "完成付款后才能上传办理资料"
@@ -301,55 +287,10 @@ export async function uploadOrderDocument(
     );
   }
 
-  const serviceRelation =
-  Array.isArray(
-    order.services
-  )
-    ? order.services[0]
-    : order.services;
-
-
-const serviceSlug =
-  serviceRelation
-    ?.slug ??
-  "";
-
-
-const allowedDocumentTypes =
-  serviceSlug.startsWith(
-    "company-"
-  )
-    ? COMPANY_ORDER_DOCUMENT_TYPES
-    : PERSONAL_ORDER_DOCUMENT_TYPES;
-
-
-    const allowedDocumentTypeValues =
-    new Set<string>([
-      ...allowedDocumentTypes.map(
-        item =>
-          item.value
-      ),
-  
-      OTHER_ORDER_DOCUMENT_TYPE
-        .value,
-    ]);
-
-
-if (
-  !allowedDocumentTypeValues
-    .has(
-      documentType
-    )
-) {
-  throw new Error(
-    "此订单不能上传该资料类型"
-  );
-}
-
 
   /*
    * ========================================
-   * Limit Documents
+   * Document Limit
    * ========================================
    */
 
@@ -395,95 +336,166 @@ if (
   }
 
 
+  const currentCount =
+    count ??
+    0;
+
+
   if (
-    (
-      count ??
-      0
-    ) >= 20
+    currentCount +
+      files.length >
+    MAX_DOCUMENTS_PER_ORDER
   ) {
+    const remaining =
+      Math.max(
+        0,
+        MAX_DOCUMENTS_PER_ORDER -
+          currentCount
+      );
+
+
     throw new Error(
-      "本订单上传资料数量已达到上限"
+      `当前最多还能上传 ${remaining} 个文件`
     );
   }
 
 
   /*
    * ========================================
-   * Storage Path
+   * Prepare Uploads
    * ========================================
    */
 
-  const documentId =
-    crypto.randomUUID();
+  const pendingDocuments:
+    PendingDocument[] =
+    files.map(
+      file => {
+        const documentId =
+          crypto.randomUUID();
 
 
-  const extension =
-    FILE_EXTENSION_BY_MIME[
-      file.type
-    ];
+        const extension =
+          FILE_EXTENSION_BY_MIME[
+            file.type
+          ];
 
 
-  const storagePath =
-    [
-      user.id,
-      cleanOrderId,
-      documentId,
-      `document.${extension}`,
-    ].join(
-      "/"
+        const storagePath =
+          [
+            user.id,
+            cleanOrderId,
+            documentId,
+            `document.${extension}`,
+          ].join(
+            "/"
+          );
+
+
+        return {
+          id:
+            documentId,
+
+          file,
+
+          storagePath,
+        };
+      }
     );
 
 
   /*
    * ========================================
    * Storage Upload
+   *
+   * 任何一个文件失败：
+   * 删除本次已经上传的所有文件。
    * ========================================
    */
 
-  const buffer =
-    Buffer.from(
-      await file.arrayBuffer()
-    );
+  const uploadedPaths:
+    string[] =
+    [];
 
 
-  const {
-    error:
-      uploadError,
-  } =
-    await admin.storage
-      .from(
-        "order-documents"
-      )
-      .upload(
-        storagePath,
-        buffer,
-        {
-          contentType:
-            file.type,
+  try {
+    for (
+      const item of
+        pendingDocuments
+    ) {
+      const buffer =
+        Buffer.from(
+          await item.file
+            .arrayBuffer()
+        );
 
-          upsert:
-            false,
-        }
+
+      const {
+        error:
+          uploadError,
+      } =
+        await admin.storage
+          .from(
+            "order-documents"
+          )
+          .upload(
+            item.storagePath,
+            buffer,
+            {
+              contentType:
+                item.file.type,
+
+              upsert:
+                false,
+            }
+          );
+
+
+      if (
+        uploadError
+      ) {
+        console.error(
+          "uploadOrderDocument storage error:",
+          uploadError
+        );
+
+
+        throw new Error(
+          `文件「${item.file.name}」上传失败`
+        );
+      }
+
+
+      uploadedPaths.push(
+        item.storagePath
       );
-
-
-  if (
-    uploadError
+    }
+  } catch (
+    error
   ) {
-    console.error(
-      "uploadOrderDocument storage error:",
-      uploadError
-    );
+    if (
+      uploadedPaths.length >
+      0
+    ) {
+      await admin.storage
+        .from(
+          "order-documents"
+        )
+        .remove(
+          uploadedPaths
+        );
+    }
 
-    throw new Error(
-      "文件上传失败，请稍后再试"
-    );
+
+    throw error;
   }
 
 
   /*
    * ========================================
-   * Database Record
+   * Database Records
+   *
+   * 客户上传阶段统一：
+   * document_type = unclassified
    * ========================================
    */
 
@@ -495,45 +507,48 @@ if (
       .from(
         "order_documents"
       )
-      .insert({
-        id:
-          documentId,
+      .insert(
+        pendingDocuments.map(
+          item => ({
+            id:
+              item.id,
 
-        order_id:
-          cleanOrderId,
+            order_id:
+              cleanOrderId,
 
-        service_option_id:
-          order
-            .service_option_id,
+            service_option_id:
+              order
+                .service_option_id,
 
-        document_type:
-          documentType,
+            document_type:
+              "unclassified",
 
-        original_filename:
-          file.name
-            .slice(
-              0,
-              255
-            ),
+            original_filename:
+              item.file.name
+                .slice(
+                  0,
+                  255
+                ),
 
-        storage_path:
-          storagePath,
+            storage_path:
+              item.storagePath,
 
-        mime_type:
-          file.type,
+            mime_type:
+              item.file.type,
 
-        size_bytes:
-          file.size,
+            size_bytes:
+              item.file.size,
 
-        status:
-          "uploaded",
-      });
+            status:
+              "uploaded",
+          })
+        )
+      );
 
 
   /*
-   * 如果 DB 写入失败，
-   * 把刚刚上传的实体文件删除，
-   * 避免 Storage orphan。
+   * DB 写入失败：
+   * 删除本次所有 Storage objects。
    */
 
   if (
@@ -549,9 +564,9 @@ if (
       .from(
         "order-documents"
       )
-      .remove([
-        storagePath,
-      ]);
+      .remove(
+        uploadedPaths
+      );
 
 
     throw new Error(
@@ -571,8 +586,14 @@ if (
 
 
   return {
-    id:
-      documentId,
+    count:
+      pendingDocuments.length,
+
+    ids:
+      pendingDocuments.map(
+        item =>
+          item.id
+      ),
 
     status:
       "uploaded" as const,

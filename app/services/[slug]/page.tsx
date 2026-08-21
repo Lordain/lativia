@@ -122,6 +122,118 @@ export default async function ServicePage({
       .serviceStatus ===
     "paused";
 
+    const priceSummaryMap =
+    new Map<
+      string,
+      {
+        label:
+          string;
+  
+        amount:
+          number;
+  
+        currency:
+          string;
+  
+        sortOrder:
+          number;
+      }
+    >();
+  
+  
+  for (
+    const price
+    of prices
+  ) {
+    const option =
+      price.serviceOption;
+  
+  
+    if (
+      !option ||
+      !price.serviceOptionId ||
+      !option.active
+    ) {
+      continue;
+    }
+  
+  
+    const existing =
+      priceSummaryMap.get(
+        option.id
+      );
+  
+  
+    if (
+      !existing ||
+      price.amount <
+        existing.amount
+    ) {
+      priceSummaryMap.set(
+        option.id,
+        {
+          label:
+            option.title,
+  
+          amount:
+            price.amount,
+  
+          currency:
+            price.currency,
+  
+          sortOrder:
+            option.sortOrder,
+        }
+      );
+    }
+  }
+  
+  
+  const priceSummary =
+    Array.from(
+      priceSummaryMap.values()
+    )
+      .sort(
+        (
+          a,
+          b
+        ) =>
+          a.sortOrder -
+          b.sortOrder
+      )
+      .map(
+        item => {
+          const formatted =
+            new Intl.NumberFormat(
+              "zh-CN",
+              {
+                maximumFractionDigits:
+                  2,
+              }
+            ).format(
+              item.amount
+            );
+  
+  
+          const price =
+            item.currency ===
+              "MXN"
+              ? `MXN $${formatted}`
+              : item.currency ===
+                  "CNY"
+                ? `CNY ¥${formatted}`
+                : `${item.currency} ${formatted}`;
+  
+  
+          return {
+            label:
+              item.label,
+  
+            price,
+          };
+        }
+      );
+
   return (
     <main className="mx-auto max-w-4xl p-6 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -155,13 +267,18 @@ export default async function ServicePage({
       </div>
 
       <ServiceInfo
-        price={
-          service.price
-        }
-        duration={
-          service.duration
-        }
-      />
+          price={
+            service.price
+          }
+
+          duration={
+            service.duration
+          }
+
+          priceSummary={
+            priceSummary
+          }
+        />
 
       <RequirementList
         requirements={

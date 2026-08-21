@@ -25,8 +25,6 @@ import AdminWorkspaceChat from "@/components/admin/AdminWorkspaceChat";
 
 import AdminWorkspaceAppointment from "@/components/admin/AdminWorkspaceAppointment";
 
-import AdminOrderResult from "@/components/admin/AdminOrderResult";
-
 import type {
   OrderDocument,
 } from "@/types/orderDocument";
@@ -70,7 +68,10 @@ interface Props {
    */
 
   appointmentData:
-    OrderAppointmentData;
+  OrderAppointmentData;
+
+  showAppointment:
+    boolean;
 
   defaultConsultationType?:
     string | null;
@@ -165,13 +166,13 @@ export default function AdminOrderWorkspace({
   customerActionRequest,
   customerActionSubmission,
   appointmentData,
+  showAppointment,
   defaultConsultationType = null,
 }: Props) {
   const {
     workspace,
     milestones,
     messages,
-    results,
   } =
     data;
 
@@ -419,23 +420,6 @@ export default function AdminOrderWorkspace({
         )}
       </div>
 
-
-      {/* =====================================
-          Result Delivery
-      ===================================== */}
-
-      <div className="mt-8 border-t pt-6">
-        <AdminOrderResult
-          orderId={
-            orderId
-          }
-
-          results={
-            results
-          }
-        />
-      </div>
-
       {/* =====================================
           Customer Action
       ===================================== */}
@@ -519,30 +503,32 @@ export default function AdminOrderWorkspace({
         />
       </div>
 
-
       {/* =====================================
           Appointment + Online Meeting
+          仅 CETES 咨询服务显示
       ===================================== */}
 
-      <div className="mt-8 border-t pt-6">
-        <AdminWorkspaceAppointment
-          workspaceId={
-            workspace.id
-          }
+      {showAppointment && (
+        <div className="mt-8 border-t pt-6">
+          <AdminWorkspaceAppointment
+            workspaceId={
+              workspace.id
+            }
 
-          orderId={
-            orderId
-          }
+            orderId={
+              orderId
+            }
 
-          data={
-            appointmentData
-          }
+            data={
+              appointmentData
+            }
 
-          defaultConsultationType={
-            defaultConsultationType
-          }
-        />
-      </div>
+            defaultConsultationType={
+              defaultConsultationType
+            }
+          />
+        </div>
+      )}
     </section>
   );
 }

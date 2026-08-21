@@ -68,23 +68,32 @@ function formatAmount(
     string
 ) {
   const formatted =
-    amount.toFixed(
-      2
+    new Intl.NumberFormat(
+      "zh-CN",
+      {
+        maximumFractionDigits:
+          2,
+      }
+    ).format(
+      amount
     );
+
 
   if (
     currency === "MXN"
   ) {
-    return `MXN $${formatted} 起`;
+    return `MXN $${formatted}`;
   }
+
 
   if (
     currency === "CNY"
   ) {
-    return `CNY ¥${formatted} 起`;
+    return `CNY ¥${formatted}`;
   }
 
-  return `${currency} ${formatted} 起`;
+
+  return `${currency} ${formatted}`;
 }
 
 

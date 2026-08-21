@@ -12,6 +12,8 @@ import {
   getAdminOrder,
 } from "@/lib/orders/getAdminOrder";
 
+import AdminOrderResult from "@/components/admin/AdminOrderResult";
+
 import {
   getAdminOrderDocuments,
 } from "@/lib/documents/getAdminOrderDocuments";
@@ -220,8 +222,13 @@ export default async function AdminOrderDetailPage({
    * =====================================
    */
 
+  const showAppointment =
+    order.services?.slug ===
+    "cetesdirecto-consultation";
+
   const appointmentData =
-    workspaceData
+    workspaceData &&
+    showAppointment
       ? await getAdminOrderAppointment(
           workspaceData.workspace.id
         )
@@ -307,11 +314,27 @@ export default async function AdminOrderDetailPage({
     order
       .service_option_snapshot as
         | {
+            title?:
+              string;
+  
+            optionKey?:
+              string;
+  
+            serviceMode?:
+              "appointment_only" |
+              "appointment_plus_onsite";
+  
+            onsiteAvailable?:
+              boolean;
+  
             requiresDocumentReview?:
               boolean;
-
+  
             workspaceRequired?:
               boolean;
+  
+            allowedRegions?:
+              string[];
           }
         | null;
 
@@ -350,6 +373,85 @@ export default async function AdminOrderDetailPage({
           统一管理并自动同步。
         </p>
       </div>
+
+      {serviceOptionSnapshot && (
+  <section className="mt-6 rounded-xl border bg-white p-6">
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+        Service Option
+      </p>
+
+      <h2 className="mt-1 text-xl font-semibold">
+        服务方案
+      </h2>
+    </div>
+
+    <div className="mt-5 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-5">
+      <div className="rounded-lg bg-gray-50 p-4">
+        <p className="text-xs text-gray-400">
+          客户购买方案
+        </p>
+
+        <p className="mt-1 font-semibold text-gray-900">
+          {serviceOptionSnapshot.title ??
+            "未记录"}
+        </p>
+      </div>
+
+      <div className="rounded-lg bg-gray-50 p-4">
+        <p className="text-xs text-gray-400">
+          服务模式
+        </p>
+
+        <p className="mt-1 font-semibold text-gray-900">
+          {serviceOptionSnapshot.serviceMode ===
+          "appointment_plus_onsite"
+            ? "预约 + 现场办理陪同（翻译）"
+            : serviceOptionSnapshot.serviceMode ===
+                "appointment_only"
+              ? "预约协助"
+              : "未记录"}
+        </p>
+      </div>
+
+      <div className="rounded-lg bg-gray-50 p-4">
+        <p className="text-xs text-gray-400">
+          现场陪同
+        </p>
+
+        <p className="mt-1 font-semibold text-gray-900">
+          {serviceOptionSnapshot.onsiteAvailable
+            ? "包含"
+            : "不包含"}
+        </p>
+      </div>
+
+      <div className="rounded-lg bg-gray-50 p-4">
+        <p className="text-xs text-gray-400">
+          资料预审
+        </p>
+
+        <p className="mt-1 font-semibold text-gray-900">
+          {serviceOptionSnapshot.requiresDocumentReview
+            ? "需要"
+            : "不需要"}
+        </p>
+      </div>
+
+      <div className="rounded-lg bg-gray-50 p-4">
+        <p className="text-xs text-gray-400">
+          Workspace
+        </p>
+
+        <p className="mt-1 font-semibold text-gray-900">
+          {serviceOptionSnapshot.workspaceRequired
+            ? "需要"
+            : "不需要"}
+        </p>
+      </div>
+    </div>
+  </section>
+)}
 
 
       {/* =====================================
@@ -644,6 +746,10 @@ export default async function AdminOrderDetailPage({
             appointmentData
           }
 
+          showAppointment={
+            showAppointment
+          }
+
           defaultConsultationType={
             defaultConsultationType
           }
@@ -729,6 +835,27 @@ export default async function AdminOrderDetailPage({
           order.payment_status
         }
       />
+
+      {/* =====================================
+          Result Delivery
+          服务结果交付
+
+          放在 Fulfillment Operations 之后。
+      ===================================== */}
+
+      {workspaceData && (
+        <div className="mt-8 rounded-xl border bg-white p-6">
+          <AdminOrderResult
+            orderId={
+              order.id
+            }
+
+            results={
+              workspaceData.results
+            }
+          />
+        </div>
+      )}
 
 
       {/* =====================================

@@ -120,553 +120,334 @@ const STATUS_STYLES:
   };
 
 
-function getAvailableActions(
-  status:
-    FulfillmentStatus
-): FulfillmentAction[] {
-  switch (
-    status
-  ) {
-    case "queued":
-      return [
-        {
-          status:
-            "validating",
-
-          label:
-            "开始资料验证",
-
-          description:
-            "开始检查客户提交的资料与办理条件。",
-
-          currentStep:
-            "validating_application",
-
-          requiresReason:
-            false,
-        },
-
-        {
-          status:
-            "manual_review",
-
-          label:
-            "进入人工复核",
-
-          description:
-            "当前申请需要管理员进一步判断。",
-
-          currentStep:
-            "manual_review",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "failed",
-
-          label:
-            "标记无法办理",
-
-          description:
-            "确认当前服务无法继续完成。",
-
-          currentStep:
-            "service_failed",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定将这笔服务标记为无法办理吗？",
-        },
-      ];
-
-
-    case "validating":
-      return [
-        {
-          status:
-            "processing",
-
-          label:
-            "开始办理",
-
-          description:
-            "资料已经验证，可以开始正式办理。",
-
-          currentStep:
-            "processing",
-
-          requiresReason:
-            false,
-        },
-
-        {
-          status:
-            "waiting_customer",
-
-          label:
-            "等待客户补充",
-
-          description:
-            "需要客户补充资料或完成其他操作。",
-
-          currentStep:
-            "waiting_customer",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "waiting_human",
-
-          label:
-            "等待人工处理",
-
-          description:
-            "当前步骤需要人工介入。",
-
-          currentStep:
-            "waiting_human",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "manual_review",
-
-          label:
-            "进入人工复核",
-
-          description:
-            "需要管理员进一步审核。",
-
-          currentStep:
-            "manual_review",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "failed",
-
-          label:
-            "标记无法办理",
-
-          description:
-            "确认当前服务无法继续完成。",
-
-          currentStep:
-            "service_failed",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定将这笔服务标记为无法办理吗？",
-        },
-      ];
-
-
-    case "processing":
-      return [
-        {
-          status:
-            "completed",
-
-          label:
-            "确认服务完成",
-
-          description:
-            "服务结果已经成功交付给客户。",
-
-          currentStep:
-            "service_completed",
-
-          requiresReason:
-            false,
-
-          confirmMessage:
-            "确定服务已经成功完成并交付吗？完成后的服务不可退款。",
-        },
-
-        {
-          status:
-            "waiting_customer",
-
-          label:
-            "等待客户补充",
-
-          description:
-            "客户需要补充资料或完成其他操作。",
-
-          currentStep:
-            "waiting_customer",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "waiting_human",
-
-          label:
-            "等待人工处理",
-
-          description:
-            "当前办理步骤需要人工介入。",
-
-          currentStep:
-            "waiting_human",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "manual_review",
-
-          label:
-            "进入人工复核",
-
-          description:
-            "当前结果需要管理员审核。",
-
-          currentStep:
-            "manual_review",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "failed",
-
-          label:
-            "标记无法办理",
-
-          description:
-            "服务因客观原因无法完成。",
-
-          currentStep:
-            "service_failed",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定当前服务无法完成吗？",
-        },
-      ];
-
-
-    case "waiting_human":
-      return [
-        {
-          status:
-            "processing",
-
-          label:
-            "继续办理",
-
-          description:
-            "人工处理完成，继续正常办理。",
-
-          currentStep:
-            "processing",
-
-          requiresReason:
-            false,
-        },
-
-        {
-          status:
-            "waiting_customer",
-
-          label:
-            "等待客户补充",
-
-          description:
-            "下一步需要客户提供资料或操作。",
-
-          currentStep:
-            "waiting_customer",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "manual_review",
-
-          label:
-            "进入人工复核",
-
-          description:
-            "需要进一步审核当前情况。",
-
-          currentStep:
-            "manual_review",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "failed",
-
-          label:
-            "标记无法办理",
-
-          description:
-            "人工确认服务无法继续完成。",
-
-          currentStep:
-            "service_failed",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定当前服务无法完成吗？",
-        },
-      ];
-
-
-    case "waiting_customer":
-      return [
-        {
-          status:
-            "validating",
-
-          label:
-            "重新验证资料",
-
-          description:
-            "客户已经补充资料，重新进行验证。",
-
-          currentStep:
-            "validating_application",
-
-          requiresReason:
-            false,
-        },
-
-        {
-          status:
-            "processing",
-
-          label:
-            "继续办理",
-
-          description:
-            "客户所需操作已经完成，可以继续办理。",
-
-          currentStep:
-            "processing",
-
-          requiresReason:
-            false,
-        },
-
-        {
-          status:
-            "manual_review",
-
-          label:
-            "进入人工复核",
-
-          description:
-            "客户补充内容需要人工确认。",
-
-          currentStep:
-            "manual_review",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "failed",
-
-          label:
-            "标记无法办理",
-
-          description:
-            "确认服务已无法继续。",
-
-          currentStep:
-            "service_failed",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定当前服务无法完成吗？",
-        },
-      ];
-
-
-    case "manual_review":
-      return [
-        {
-          status:
-            "processing",
-
-          label:
-            "继续办理",
-
-          description:
-            "人工复核通过，返回正常办理流程。",
-
-          currentStep:
-            "processing",
-
-          requiresReason:
-            false,
-        },
-
-        {
-          status:
-            "waiting_customer",
-
-          label:
-            "等待客户补充",
-
-          description:
-            "复核后确认还需要客户补充资料。",
-
-          currentStep:
-            "waiting_customer",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "completed",
-
-          label:
-            "确认服务完成",
-
-          description:
-            "人工确认服务已经成功完成。",
-
-          currentStep:
-            "service_completed",
-
-          requiresReason:
-            false,
-
-          confirmMessage:
-            "确定服务已经成功完成并交付吗？完成后的服务不可退款。",
-        },
-
-        {
-          status:
-            "failed",
-
-          label:
-            "确认无法办理",
-
-          description:
-            "人工复核确认服务无法完成。",
-
-          currentStep:
-            "service_failed",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定人工复核结果为服务无法完成吗？",
-        },
-
-        {
-          status:
-            "refund_review",
-
-          label:
-            "进入退款审核",
-
-          description:
-            "确认服务无法完成，并进入退款资格审核。",
-
-          currentStep:
-            "refund_review",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定进入退款资格审核吗？只有无法完成且符合退款规则的服务才能退款。",
-        },
-      ];
-
-
-    case "failed":
-      return [
-        {
-          status:
-            "manual_review",
-
-          label:
-            "进入人工复核",
-
-          description:
-            "进一步确认失败原因与后续处理方式。",
-
-          currentStep:
-            "manual_review",
-
-          requiresReason:
-            true,
-        },
-
-        {
-          status:
-            "refund_review",
-
-          label:
-            "进入退款审核",
-
-          description:
-            "服务无法完成，进入退款资格审核流程。",
-
-          currentStep:
-            "refund_review",
-
-          requiresReason:
-            true,
-
-          confirmMessage:
-            "确定进入退款资格审核吗？",
-        },
-      ];
-
-
-    case "refund_review":
-    case "completed":
-    default:
-      return [];
+  function getAvailableActions(
+    status:
+      FulfillmentStatus
+  ): FulfillmentAction[] {
+    switch (
+      status
+    ) {
+      /*
+       * 新订单正常入口
+       *
+       * UI 只显示一个“开始办理”。
+       * Server Action 后续负责自动完成：
+       * queued -> validating -> processing
+       */
+      case "queued":
+        return [
+          {
+            status:
+              "processing",
+  
+            label:
+              "开始办理",
+  
+            description:
+              "开始正式处理本次服务。",
+  
+            currentStep:
+              "processing",
+  
+            requiresReason:
+              false,
+          },
+  
+          {
+            status:
+              "failed",
+  
+            label:
+              "标记无法办理",
+  
+            description:
+              "确认当前服务无法继续完成。",
+  
+            currentStep:
+              "service_failed",
+  
+            requiresReason:
+              true,
+  
+            confirmMessage:
+              "确定将这笔服务标记为无法办理吗？",
+          },
+        ];
+  
+  
+      /*
+       * Legacy 状态兼容。
+       *
+       * 旧订单如果已经停在 validating，
+       * 仍然可以继续进入 processing。
+       */
+      case "validating":
+        return [
+          {
+            status:
+              "processing",
+  
+            label:
+              "继续办理",
+  
+            description:
+              "继续正式办理本次服务。",
+  
+            currentStep:
+              "processing",
+  
+            requiresReason:
+              false,
+          },
+  
+          {
+            status:
+              "waiting_customer",
+  
+            label:
+              "等待客户补充",
+  
+            description:
+              "需要客户补充资料或完成其他操作。",
+  
+            currentStep:
+              "waiting_customer",
+  
+            requiresReason:
+              true,
+          },
+  
+          {
+            status:
+              "failed",
+  
+            label:
+              "标记无法办理",
+  
+            description:
+              "确认当前服务无法继续完成。",
+  
+            currentStep:
+              "service_failed",
+  
+            requiresReason:
+              true,
+  
+            confirmMessage:
+              "确定将这笔服务标记为无法办理吗？",
+          },
+        ];
+  
+  
+      /*
+       * 正常办理主状态
+       */
+      case "processing":
+        return [
+          {
+            status:
+              "completed",
+  
+            label:
+              "确认服务完成",
+  
+            description:
+              "确认本次服务已经完成。",
+  
+            currentStep:
+              "service_completed",
+  
+            requiresReason:
+              false,
+  
+            confirmMessage:
+              "确定本次服务已经完成吗？",
+          },
+  
+          {
+            status:
+              "waiting_customer",
+  
+            label:
+              "等待客户补充",
+  
+            description:
+              "客户需要补充资料或完成其他操作。",
+  
+            currentStep:
+              "waiting_customer",
+  
+            requiresReason:
+              true,
+          },
+  
+          {
+            status:
+              "failed",
+  
+            label:
+              "标记无法办理",
+  
+            description:
+              "服务因客观原因无法完成。",
+  
+            currentStep:
+              "service_failed",
+  
+            requiresReason:
+              true,
+  
+            confirmMessage:
+              "确定当前服务无法完成吗？",
+          },
+        ];
+  
+  
+      /*
+       * 客户完成补充以后直接恢复办理。
+       *
+       * 不再强制重新走 validating。
+       */
+      case "waiting_customer":
+        return [
+          {
+            status:
+              "processing",
+  
+            label:
+              "继续办理",
+  
+            description:
+              "客户所需操作已经完成，可以继续办理。",
+  
+            currentStep:
+              "processing",
+  
+            requiresReason:
+              false,
+          },
+  
+          {
+            status:
+              "failed",
+  
+            label:
+              "标记无法办理",
+  
+            description:
+              "确认服务已无法继续。",
+  
+            currentStep:
+              "service_failed",
+  
+            requiresReason:
+              true,
+  
+            confirmMessage:
+              "确定当前服务无法完成吗？",
+          },
+        ];
+  
+  
+      /*
+       * Legacy 状态。
+       *
+       * 不再允许新的正常订单进入这些状态，
+       * 但旧订单如果已经在这里，仍然可以恢复。
+       */
+      case "waiting_human":
+      case "manual_review":
+        return [
+          {
+            status:
+              "processing",
+  
+            label:
+              "继续办理",
+  
+            description:
+              "恢复正常办理流程。",
+  
+            currentStep:
+              "processing",
+  
+            requiresReason:
+              false,
+          },
+  
+          {
+            status:
+              "waiting_customer",
+  
+            label:
+              "等待客户补充",
+  
+            description:
+              "需要客户补充资料或完成其他操作。",
+  
+            currentStep:
+              "waiting_customer",
+  
+            requiresReason:
+              true,
+          },
+  
+          {
+            status:
+              "failed",
+  
+            label:
+              "标记无法办理",
+  
+            description:
+              "确认服务无法继续完成。",
+  
+            currentStep:
+              "service_failed",
+  
+            requiresReason:
+              true,
+  
+            confirmMessage:
+              "确定当前服务无法完成吗？",
+          },
+        ];
+  
+  
+      /*
+       * 服务无法完成以后，
+       * 仍保留退款审核入口。
+       */
+      case "failed":
+        return [
+          {
+            status:
+              "refund_review",
+  
+            label:
+              "进入退款审核",
+  
+            description:
+              "服务无法完成，进入退款资格审核流程。",
+  
+            currentStep:
+              "refund_review",
+  
+            requiresReason:
+              true,
+  
+            confirmMessage:
+              "确定进入退款资格审核吗？",
+          },
+        ];
+  
+  
+      case "refund_review":
+      case "completed":
+      default:
+        return [];
+    }
   }
-}
 
 
 export default function AdminFulfillmentControl({
@@ -898,7 +679,7 @@ export default function AdminFulfillmentControl({
       </div>
 
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border p-4">
           <p className="text-xs text-gray-500">
             当前状态
@@ -938,20 +719,6 @@ export default function AdminFulfillmentControl({
           <p className="mt-2 break-words text-sm font-medium text-gray-800">
             {currentFulfillment.currentStep ??
               "尚未记录"}
-          </p>
-        </div>
-
-
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-gray-500">
-            人工复核
-          </p>
-
-          <p className="mt-2 text-sm font-medium text-gray-800">
-            {currentFulfillment
-              .humanReviewRequired
-              ? "需要"
-              : "不需要"}
           </p>
         </div>
 

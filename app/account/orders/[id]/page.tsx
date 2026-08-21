@@ -50,6 +50,7 @@ import {
 
 import CustomerOrderDocuments from "@/components/orders/CustomerOrderDocuments";
 
+
 interface Props {
   params:
     Promise<{
@@ -97,22 +98,24 @@ export default async function OrderDetailPage({
       getMyOrder(
         id
       ),
-  
+
       getMyCustomerActionRequest(
         id
       ),
-  
+
       getMyOrderWorkspace(
         id
       ),
-  
+
       getMyOrderDocuments(
         id
       ),
     ]);
 
 
-  if (!order) {
+  if (
+    !order
+  ) {
     notFound();
   }
 
@@ -135,14 +138,22 @@ export default async function OrderDetailPage({
    * =========================================
    * Appointment
    *
-   * Appointment belongs to Workspace,
-   * so we read it only after Workspace
-   * has been resolved.
+   * 平台咨询预约目前仅用于 Cetes。
+   *
+   * RFC / e.firma 现场办理陪同不使用
+   * 平台 Appointment，以免与 SAT 官方预约混淆。
+   * 相关预约及现场安排通过 Workspace 沟通。
    * =========================================
    */
 
+  const showAppointment =
+    order.services?.slug ===
+    "cetesdirecto-consultation";
+
+
   const appointmentData =
-    workspaceData
+    workspaceData &&
+    showAppointment
       ? await getMyOrderAppointment(
           workspaceData.workspace.id
         )
@@ -163,40 +174,49 @@ export default async function OrderDetailPage({
     ) as
       FormFieldSchema[];
 
-    const serviceOptionSnapshot =
-      order
-        .service_option_snapshot as
-          | {
-              requiresDocumentReview?:
-                boolean;
-            }
-          | null;
-    
-    
-    const requiresDocumentReview =
-      serviceOptionSnapshot
-        ?.requiresDocumentReview ===
-      true;
 
-      const serviceSlug =
-      order.services?.slug ??
-      "";
-    
-    
-    const documentProfile:
-      "personal" |
-      "company" =
-      serviceSlug.startsWith(
-        "company-"
-      )
-        ? "company"
-        : "personal";
-    
-    
-    const canUploadDocuments =
-      requiresDocumentReview &&
-      order.payment_status ===
-        "paid";
+  /*
+   * =========================================
+   * Service Option Snapshot
+   * =========================================
+   */
+
+  const serviceOptionSnapshot =
+    order
+      .service_option_snapshot as
+        | {
+            requiresDocumentReview?:
+              boolean;
+          }
+        | null;
+
+
+  const requiresDocumentReview =
+    serviceOptionSnapshot
+      ?.requiresDocumentReview ===
+    true;
+
+
+  const serviceSlug =
+    order.services?.slug ??
+    "";
+
+
+  const documentProfile:
+    "personal" |
+    "company" =
+    serviceSlug.startsWith(
+      "company-"
+    )
+      ? "company"
+      : "personal";
+
+
+  const canUploadDocuments =
+    requiresDocumentReview &&
+    order.payment_status ===
+      "paid";
+
 
   return (
     <main className="mx-auto max-w-5xl p-6 md:p-8">
@@ -236,127 +256,8 @@ export default async function OrderDetailPage({
 
 
       {/* =====================================
-          Workspace
-      ===================================== */}
-
-      {workspaceData && (
-        <CustomerOrderWorkspace
-          data={
-            workspaceData
-          }
-
-          customerActionRequest={
-            customerActionRequest
-          }
-
-          currentFormData={
-            (
-              order.form_data ??
-              {}
-            ) as Record<
-              string,
-              string
-            >
-          }
-
-          latestRejectReason={
-            latestRejectedSubmission
-              ?.reviewReason ??
-            null
-          }
-
-          appointmentData={
-            appointmentData
-          }
-        />
-      )}
-
-
-      {/* =====================================
-          Customer Action Fallback
-
-          Workspace 服务：
-          Customer Action 已显示在 Workspace。
-
-          非 Workspace 服务：
-          保留原来的资料修正 UI。
-      ===================================== */}
-
-      {!workspaceData &&
-        customerActionRequest && (
-          <CustomerActionCorrectionForm
-            request={
-              customerActionRequest
-            }
-
-            currentFormData={
-              (
-                order.form_data ??
-                {}
-              ) as Record<
-                string,
-                string
-              >
-            }
-
-            latestRejectReason={
-              latestRejectedSubmission
-                ?.reviewReason ??
-              null
-            }
-          />
-        )}
-
-            {/* =====================================
-                Data Retention
-            ===================================== */}
-
-           <div className="mt-8">
-           {requiresDocumentReview && (
-              canUploadDocuments ? (
-                <CustomerOrderDocuments
-                  orderId={
-                    order.id
-                  }
-                  documents={
-                    orderDocuments
-                  }
-                  documentProfile={
-                    documentProfile
-                  }
-                />
-              ) : (
-                <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                  <h2 className="font-semibold text-amber-900">
-                    办理资料检查
-                  </h2>
-
-                  <p className="mt-2 text-sm leading-6 text-amber-800">
-                    完成付款后即可上传办理资料，由工作人员在现场办理前提前检查。
-                  </p>
-                </section>
-              )
-            )}
-              <CustomerDataRetentionStatus
-                status={
-                  order.data_cleanup_status
-                }
-
-                cleanupDueAt={
-                  order.data_cleanup_due_at
-                }
-
-                cleanedAt={
-                  order.data_cleaned_at
-                }
-              />
-            </div>
-
-
-
-
-      {/* =====================================
-          Application Data
+          1. Application Data
+          申请资料
       ===================================== */}
 
       <section className="mt-8 rounded-2xl border bg-white p-6">
@@ -429,6 +330,161 @@ export default async function OrderDetailPage({
           </div>
         )}
       </section>
+
+
+      {/* =====================================
+          2. Processing Documents
+          办理资料
+      ===================================== */}
+
+      {requiresDocumentReview && (
+        canUploadDocuments ? (
+          <CustomerOrderDocuments
+            orderId={
+              order.id
+            }
+
+            documents={
+              orderDocuments
+            }
+
+            documentProfile={
+              documentProfile
+            }
+          />
+        ) : (
+          <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+            <h2 className="font-semibold text-amber-900">
+              办理资料
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-amber-800">
+              完成付款后即可上传办理资料，
+              由工作人员在现场办理前提前检查。
+            </p>
+          </section>
+        )
+      )}
+
+
+      {/* =====================================
+          3–7. Service Workspace
+
+          内部顺序下一步统一为：
+          服务沟通
+          服务进度
+          需要您处理
+          服务期限
+          服务结果
+
+          Cetes 另外显示咨询预约。
+      ===================================== */}
+
+      {workspaceData && (
+        <CustomerOrderWorkspace
+          data={
+            workspaceData
+          }
+
+          customerActionRequest={
+            customerActionRequest
+          }
+
+          currentFormData={
+            (
+              order.form_data ??
+              {}
+            ) as Record<
+              string,
+              string
+            >
+          }
+
+          latestRejectReason={
+            latestRejectedSubmission
+              ?.reviewReason ??
+            null
+          }
+
+          appointmentData={
+            appointmentData
+          }
+          
+          showAppointment={
+            showAppointment
+          }
+          
+          requiresDocumentReview={
+            requiresDocumentReview
+          }
+          
+          documents={
+            orderDocuments
+          }
+
+          documentProfile={
+            documentProfile
+          }
+        />
+      )}
+
+
+      {/* =====================================
+          5. Customer Action Fallback
+
+          只有没有 Workspace 的服务
+          才在这里单独显示客户待办。
+
+          Workspace 服务的客户待办
+          会显示在 Workspace 内。
+      ===================================== */}
+
+      {!workspaceData &&
+        customerActionRequest && (
+          <CustomerActionCorrectionForm
+            request={
+              customerActionRequest
+            }
+
+            currentFormData={
+              (
+                order.form_data ??
+                {}
+              ) as Record<
+                string,
+                string
+              >
+            }
+
+            latestRejectReason={
+              latestRejectedSubmission
+                ?.reviewReason ??
+              null
+            }
+          />
+        )}
+
+
+      {/* =====================================
+          8. Data Retention
+          办理资料保护
+      ===================================== */}
+
+      <div className="mt-8">
+        <CustomerDataRetentionStatus
+          status={
+            order.data_cleanup_status
+          }
+
+          cleanupDueAt={
+            order.data_cleanup_due_at
+          }
+
+          cleanedAt={
+            order.data_cleaned_at
+          }
+        />
+      </div>
     </main>
   );
 }

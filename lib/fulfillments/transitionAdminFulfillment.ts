@@ -28,6 +28,11 @@ import {
   safeStartOrderWorkspace,
 } from "@/lib/workspaces/safeStartOrderWorkspace";
 
+import {
+  COMPANY_ORDER_DOCUMENT_TYPES,
+  PERSONAL_ORDER_DOCUMENT_TYPES,
+} from "@/lib/documents/orderDocumentTypes";
+
 
 export interface TransitionAdminFulfillmentInput {
   fulfillmentId:
@@ -64,6 +69,14 @@ function getFriendlyError(
     )
   ) {
     return "此服务需要先完成结果交付，才能标记为服务完成。";
+  }
+
+  if (
+    message.includes(
+      "REQUIRED_DOCUMENTS_NOT_APPROVED"
+    )
+  ) {
+    return "办理资料尚未全部检查通过，不能标记为服务完成。";
   }
 
 
@@ -172,6 +185,287 @@ export async function transitionAdminFulfillment(
    * Supabase client 执行正式 RPC。
    * ========================================
    */
+
+    /*
+   * ========================================
+   * 2A. Required Document Completion Guard
+   *
+   * 仅在准备进入 completed 时检查。
+   * ========================================
+   */
+
+    if (
+      input.newStatus ===
+      "completed"
+    ) {
+      const admin =
+        createAdminClient();
+  
+  
+      const {
+        data:
+          fulfillmentForGuard,
+  
+        error:
+          fulfillmentGuardError,
+      } =
+        await admin
+          .from(
+            "fulfillments"
+          )
+          .select(`
+            id,
+            order_id,
+            orders (
+              service_option_snapshot,
+              services (
+                slug
+              )
+            )
+          `)
+          .eq(
+            "id",
+            input.fulfillmentId
+          )
+          .maybeSingle();
+  
+  
+      if (
+        fulfillmentGuardError ||
+        !fulfillmentForGuard
+      ) {
+        throw new Error(
+          "FULFILLMENT_NOT_FOUND"
+        );
+      }
+  
+  
+      const orderRelation =
+        Array.isArray(
+          fulfillmentForGuard.orders
+        )
+          ? fulfillmentForGuard.orders[0]
+          : fulfillmentForGuard.orders;
+  
+  
+      const serviceOptionSnapshot =
+        (
+          orderRelation
+            ?.service_option_snapshot ??
+          null
+        ) as
+          | {
+              requiresDocumentReview?:
+                boolean;
+            }
+          | null;
+  
+  
+      if (
+        serviceOptionSnapshot
+          ?.requiresDocumentReview ===
+        true
+      ) {
+        const serviceRelation =
+          Array.isArray(
+            orderRelation?.services
+          )
+            ? orderRelation
+                ?.services[0]
+            : orderRelation
+                ?.services;
+  
+  
+        const serviceSlug =
+          serviceRelation
+            ?.slug ??
+          "";
+  
+  
+        const requiredDocumentTypes =
+          serviceSlug.startsWith(
+            "company-"
+          )
+            ? COMPANY_ORDER_DOCUMENT_TYPES
+            : PERSONAL_ORDER_DOCUMENT_TYPES;
+  
+  
+        const {
+          data:
+            approvedDocuments,
+  
+          error:
+            approvedDocumentsError,
+        } =
+          await admin
+            .from(
+              "order_documents"
+            )
+            .select(`
+              document_type
+            `)
+            .eq(
+              "order_id",
+              fulfillmentForGuard.order_id
+            )
+            .eq(
+              "status",
+              "approved"
+            );
+  
+  
+        if (
+          approvedDocumentsError
+        ) {
+          console.error(
+            "Required document guard lookup error:",
+            approvedDocumentsError
+          );
+  
+  
+          throw new Error(
+            "无法检查办理资料状态"
+          );
+        }
+  
+  
+        const approvedTypes =
+          new Set(
+            (
+              approvedDocuments ??
+              []
+            ).map(
+              document =>
+                document.document_type
+            )
+          );
+  
+  
+        const missingDocumentTypes =
+          requiredDocumentTypes.filter(
+            item =>
+              !approvedTypes.has(
+                item.value
+              )
+          );
+  
+  
+        if (
+          missingDocumentTypes.length >
+          0
+        ) {
+          throw new Error(
+            "办理资料尚未全部检查通过，不能确认服务完成。请先完成所有必需资料的分类与审核。"
+          );
+        }
+      }
+    }
+
+  /*
+   * ========================================
+   * Queued -> Processing shortcut
+   *
+   * Admin UI 只需要点击一次“开始办理”。
+   *
+   * 为兼容现有 DB 状态机，
+   * queued 状态内部先经过 validating，
+   * 随后继续进入 processing。
+   * ========================================
+   */
+
+  if (
+    input.newStatus ===
+    "processing"
+  ) {
+    const admin =
+      createAdminClient();
+
+
+    const {
+      data:
+        currentFulfillment,
+
+      error:
+        currentFulfillmentError,
+    } =
+      await admin
+        .from(
+          "fulfillments"
+        )
+        .select(`
+          id,
+          status
+        `)
+        .eq(
+          "id",
+          input.fulfillmentId
+        )
+        .maybeSingle();
+
+
+    if (
+      currentFulfillmentError ||
+      !currentFulfillment
+    ) {
+      throw new Error(
+        "找不到办理任务。"
+      );
+    }
+
+
+    if (
+      currentFulfillment.status ===
+      "queued"
+    ) {
+      const {
+        error:
+          validatingError,
+      } =
+        await supabase.rpc(
+          "transition_fulfillment_status",
+          {
+            p_fulfillment_id:
+              input.fulfillmentId,
+
+            p_new_status:
+              "validating",
+
+            p_actor_type:
+              "admin",
+
+            p_actor_user_id:
+              user.id,
+
+            p_message:
+              "开始办理服务",
+
+            p_current_step:
+              "validating_application",
+
+            p_reason:
+              null,
+          }
+        );
+
+
+      if (
+        validatingError
+      ) {
+        console.error(
+          "queued -> validating shortcut error:",
+          validatingError
+        );
+
+
+        throw new Error(
+          getFriendlyError(
+            validatingError.message
+          )
+        );
+      }
+    }
+  }
+
 
   const {
     error,

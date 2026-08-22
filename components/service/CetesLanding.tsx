@@ -6,12 +6,13 @@ import type {
   ServicePrice,
 } from "@/types/servicePrice";
 
+import ServiceHelpCard from "@/components/service/ServiceHelpCard";
+
 import type {
   CetesReferenceRate,
 } from "@/types/cetes";
 
 import DynamicForm from "@/components/forms/DynamicForm";
-import ContactButton from "@/components/service/ContactButton";
 
 import {
   getGovernmentBondRateSnapshot,
@@ -1365,13 +1366,7 @@ const rateSourceDate =
               }
             />
           </div>
-
-
-          <ContactButton
-            serviceName={
-              service.title
-            }
-          />
+          <ServiceHelpCard />
         </div>
       </section>
     </main>

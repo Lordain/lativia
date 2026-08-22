@@ -1,7 +1,7 @@
 export const brandConfig = {
-  name: "墨西哥华人办事平台",
+  name: "Lativia",
 
-  shortName: "MEX HELPER",
+  shortName: "LATIVIA",
 
   // 以后正式 Logo 放到：
   // public/brand/logo.png
@@ -9,9 +9,11 @@ export const brandConfig = {
   logoUrl: null as string | null,
 
   presentation: {
-    watermarkLabel: "INTERNAL CONSULTATION",
+    watermarkLabel:
+      "INTERNAL CONSULTATION",
 
-    confidentialityLabel: "内部咨询资料",
+    confidentialityLabel:
+      "内部咨询资料",
 
     footerText:
       "仅供咨询服务过程中演示使用",

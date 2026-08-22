@@ -10,6 +10,10 @@ import type {
   ReactNode,
 } from "react";
 
+import {
+  brandConfig,
+} from "@/lib/brand/brandConfig";
+
 
 interface Props {
   children:
@@ -161,7 +165,7 @@ export default function AdminLayoutShell({
                 className="block"
               >
                 <p className="text-sm font-bold tracking-wide text-blue-600">
-                  MEX HELPER
+                  {brandConfig.shortName}
                 </p>
 
                 <h1 className="mt-2 text-3xl font-bold leading-tight text-gray-900">

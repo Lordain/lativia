@@ -1,6 +1,9 @@
 import type {
   Notification,
 } from "@/types/notification";
+import {
+  brandConfig,
+} from "@/lib/brand/brandConfig";
 
 
 function escapeHtml(
@@ -123,7 +126,7 @@ export function renderNotificationEmail(
             letter-spacing:.08em;
           "
         >
-          MEX Helper
+          ${brandConfig.name}
         </p>
 
         <h1
@@ -186,7 +189,7 @@ export function renderNotificationEmail(
             color:#9ca3af;
           "
         >
-          此邮件由 MEX Helper 系统自动发送。
+          此邮件由 ${brandConfig.name} 系统自动发送。
         </p>
       </div>
     </div>

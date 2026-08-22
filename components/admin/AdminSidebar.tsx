@@ -6,6 +6,10 @@ import {
   usePathname,
 } from "next/navigation";
 
+import {
+  brandConfig,
+} from "@/lib/brand/brandConfig";
+
 
 const navigationItems = [
   {
@@ -109,7 +113,7 @@ export default function AdminSidebar() {
       <div className="sticky top-0 p-5">
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            MEX Helper
+          {brandConfig.name}
           </p>
 
           <p className="mt-1 text-lg font-semibold">

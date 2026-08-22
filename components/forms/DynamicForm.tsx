@@ -436,12 +436,12 @@ const [
           }
         )
       }
-      className="space-y-8"
+      className="space-y-6"
     >
       {/* Eligibility */}
 
       {requiresEligibility && (
-        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
           <div>
             <h2 className="text-xl font-semibold text-blue-950">
               办理前请确认
@@ -528,7 +528,7 @@ const [
             填写办理资料
           </h2>
 
-          <div className="mt-5 space-y-6">
+          <div className="mt-4 space-y-5">
             {schema.map(
               field => (
                 <div
@@ -684,11 +684,11 @@ const [
 
       {hasServiceOptions && (
         <section>
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-lg font-bold text-slate-950">
             选择服务方案
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-1 text-sm leading-6 text-slate-500">
             不同服务方案的服务范围、办理地区和价格可能不同。
           </p>
 
@@ -714,9 +714,9 @@ const [
       {/* Payment */}
 
       <section>
-        <h2 className="text-xl font-semibold">
-          选择付款方式
-        </h2>
+      <h2 className="text-lg font-bold text-slate-950">
+        选择付款方式
+      </h2>
 
         {hasPrices ? (
           <div className="mt-4">
@@ -747,7 +747,7 @@ const [
 
       {/* Commerce Notice */}
 
-      <section className="rounded-xl bg-gray-50 p-4 text-sm leading-6 text-gray-600">
+      <section className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-xs leading-6 text-slate-600 sm:text-sm">
         <p>
           提交申请代表您确认所填写的信息和办理条件真实有效，
           并已了解本服务的内容、范围及办理条件。

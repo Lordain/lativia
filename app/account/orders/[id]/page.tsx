@@ -6,6 +6,9 @@ import {
   getMyOrder,
 } from "@/lib/orders/getMyOrder";
 
+import Link from "next/link";
+import PublicShell from "@/components/layout/PublicShell";
+
 import {
   getMyCustomerActionRequest,
 } from "@/lib/customerActions/getMyCustomerActionRequest";
@@ -218,8 +221,9 @@ export default async function OrderDetailPage({
       "paid";
 
 
-  return (
-    <main className="mx-auto max-w-5xl p-6 md:p-8">
+      return (
+        <PublicShell>
+          <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
       {/* =====================================
           Header
       ===================================== */}
@@ -485,6 +489,16 @@ export default async function OrderDetailPage({
           }
         />
       </div>
+
+      <div className="mb-6">
+        <Link
+          href="/account/orders"
+          className="inline-flex min-h-10 items-center text-sm font-medium text-slate-600 transition hover:text-blue-700"
+        >
+          ← 返回我的订单
+        </Link>
+        </div>
     </main>
+  </PublicShell>
   );
 }

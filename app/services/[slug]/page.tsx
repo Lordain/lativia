@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   Metadata,
 } from "next";
 
@@ -17,6 +17,8 @@ import {
 import {
   getCetesReferenceRates,
 } from "@/lib/cetes/getCetesReferenceRates";
+
+import PublicShell from "@/components/layout/PublicShell";
 
 import ServiceInfo from "@/components/service/ServiceInfo";
 import RequirementList from "@/components/service/RequirementList";
@@ -95,19 +97,21 @@ export default async function ServicePage({
       await getCetesReferenceRates();
 
     return (
-      <CetesLanding
-        service={
-          service
-        }
+      <PublicShell>
+        <CetesLanding
+          service={
+            service
+          }
 
-        prices={
-          prices
-        }
+          prices={
+            prices
+          }
 
-        rates={
-          rates
-        }
-      />
+          rates={
+            rates
+          }
+        />
+      </PublicShell>
     );
   }
 
@@ -128,27 +132,27 @@ export default async function ServicePage({
       {
         label:
           string;
-  
+
         amount:
           number;
-  
+
         currency:
           string;
-  
+
         sortOrder:
           number;
       }
     >();
-  
-  
+
+
   for (
     const price
     of prices
   ) {
     const option =
       price.serviceOption;
-  
-  
+
+
     if (
       !option ||
       !price.serviceOptionId ||
@@ -156,14 +160,14 @@ export default async function ServicePage({
     ) {
       continue;
     }
-  
-  
+
+
     const existing =
       priceSummaryMap.get(
         option.id
       );
-  
-  
+
+
     if (
       !existing ||
       price.amount <
@@ -174,21 +178,21 @@ export default async function ServicePage({
         {
           label:
             option.title,
-  
+
           amount:
             price.amount,
-  
+
           currency:
             price.currency,
-  
+
           sortOrder:
             option.sortOrder,
         }
       );
     }
   }
-  
-  
+
+
   const priceSummary =
     Array.from(
       priceSummaryMap.values()
@@ -213,8 +217,8 @@ export default async function ServicePage({
             ).format(
               item.amount
             );
-  
-  
+
+
           const price =
             item.currency ===
               "MXN"
@@ -223,19 +227,20 @@ export default async function ServicePage({
                   "CNY"
                 ? `CNY ¥${formatted}`
                 : `${item.currency} ${formatted}`;
-  
-  
+
+
           return {
             label:
               item.label,
-  
+
             price,
           };
         }
       );
 
   return (
-    <main className="mx-auto max-w-4xl p-6 md:p-8">
+    <PublicShell>
+    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-3">
@@ -336,5 +341,6 @@ export default async function ServicePage({
         }
       />
     </main>
+    </PublicShell>
   );
 }

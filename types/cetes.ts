@@ -1,23 +1,30 @@
+export type CetesInstrumentCode =
+  | "CETES"
+  | "BONOS"
+  | "BONDDIA";
+
+
 export interface CetesReferenceRate {
-    id: string;
-  
-    termDays:
-      28 |
-      91 |
-      182 |
-      364;
-  
-    rate: number;
-  
-    sourceDate:
-      string;
-  
-    sourceName:
-      string;
-  
-    sourceUrl:
-      string | null;
-  
-    updatedAt:
-      string | null;
-  }
+  id: string;
+
+  instrumentCode:
+    CetesInstrumentCode;
+
+  termDays:
+    number;
+
+  rate:
+    number;
+
+  sourceDate:
+    string;
+
+  sourceName:
+    string;
+
+  sourceUrl:
+    string | null;
+
+  updatedAt:
+    string | null;
+}

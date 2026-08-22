@@ -8,6 +8,11 @@ import {
   
   interface CetesReferenceRateRow {
     id: string;
+
+    instrument_code:
+    "CETES" |
+    "BONOS" |
+    "BONDDIA";
   
     term_days:
       number;
@@ -42,6 +47,7 @@ import {
         )
         .select(`
           id,
+          instrument_code,
           term_days,
           rate,
           source_date,
@@ -82,6 +88,9 @@ import {
         return {
           id:
             item.id,
+
+          instrumentCode:
+            item.instrument_code,
   
           termDays:
             item.term_days as

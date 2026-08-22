@@ -1,0 +1,3 @@
+export const
+  CETES_CONSULTATION_ORIGINAL_AMOUNT =
+    4000;

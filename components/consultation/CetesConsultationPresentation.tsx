@@ -10,6 +10,10 @@ import {
   brandConfig,
 } from "@/lib/brand/brandConfig";
 
+import type {
+  GovernmentBondRateSnapshot,
+} from "@/types/governmentBondRates";
+
 import {
   cetesPresentationSlides,
   type CetesPresentationSlide,
@@ -20,6 +24,9 @@ import {
 interface Props {
   orderId:
     string;
+
+  rateSnapshot:
+    GovernmentBondRateSnapshot;
 }
 
 
@@ -1731,6 +1738,7 @@ function SlideRenderer({
 
 export default function CetesConsultationPresentation({
   orderId,
+  rateSnapshot,
 }: Props) {
   const [
     currentIndex,
@@ -1740,11 +1748,144 @@ export default function CetesConsultationPresentation({
       0
     );
 
+    const presentationSlides =
+  useMemo(
+    () => {
+      const cetesOneYear =
+        rateSnapshot.rates.find(
+          item =>
+            item.product ===
+              "CETES" &&
+            item.term ===
+              "1 年"
+        ) ?? null;
+
+
+      const bonosThreeYears =
+        rateSnapshot.rates.find(
+          item =>
+            item.product ===
+              "BONOS" &&
+            item.term ===
+              "3 年"
+        ) ?? null;
+
+
+      const bonddiaDaily =
+        rateSnapshot.rates.find(
+          item =>
+            item.product ===
+              "BONDDIA" &&
+            item.term ===
+              "1 日"
+        ) ?? null;
+
+
+      const formatRate =
+        (
+          rate:
+            number | null
+        ) =>
+          rate === null
+            ? "—"
+            : `${rate.toFixed(
+                2
+              )}%`;
+
+
+      const sourceDate =
+        rateSnapshot.sourceDate
+          ? `，${rateSnapshot.sourceDate}`
+          : "";
+
+
+      return cetesPresentationSlides.map(
+        slide => {
+          if (
+            slide.id !==
+            "products-comparison"
+          ) {
+            return slide;
+          }
+
+
+          return {
+            ...slide,
+
+            source:
+              `收益参考：${rateSnapshot.sourceName} 官方公开数据${sourceDate}；仅作产品说明，不代表未来收益。`,
+
+            comparisonRows:
+              slide.comparisonRows?.map(
+                row => {
+                  if (
+                    row.product ===
+                    "CETES"
+                  ) {
+                    return {
+                      ...row,
+
+                      yieldExample:
+                        `1 年约 ${formatRate(
+                          cetesOneYear
+                            ?.rate ??
+                            null
+                        )}`,
+                    };
+                  }
+
+
+                  if (
+                    row.product ===
+                    "BONOS"
+                  ) {
+                    return {
+                      ...row,
+
+                      yieldExample:
+                        `3 年约 ${formatRate(
+                          bonosThreeYears
+                            ?.rate ??
+                            null
+                        )}`,
+                    };
+                  }
+
+
+                  if (
+                    row.product ===
+                    "BONDDIA"
+                  ) {
+                    return {
+                      ...row,
+
+                      yieldExample:
+                        `1 日约 ${formatRate(
+                          bonddiaDaily
+                            ?.rate ??
+                            null
+                        )}`,
+                    };
+                  }
+
+
+                  return row;
+                }
+              ),
+          };
+        }
+      );
+    },
+    [
+      rateSnapshot,
+    ]
+  );
+
 
   const slide =
-    cetesPresentationSlides[
-      currentIndex
-    ];
+  presentationSlides[
+    currentIndex
+  ];
 
 
   const orderLabel =
@@ -1792,7 +1933,7 @@ export default function CetesConsultationPresentation({
     setCurrentIndex(
       current =>
         Math.min(
-          cetesPresentationSlides.length -
+          presentationSlides.length -
             1,
           current + 1
         )
@@ -1817,7 +1958,7 @@ export default function CetesConsultationPresentation({
           setCurrentIndex(
             current =>
               Math.min(
-                cetesPresentationSlides.length -
+                presentationSlides.length -
                   1,
                 current + 1
               )
@@ -1862,7 +2003,7 @@ export default function CetesConsultationPresentation({
           event.preventDefault();
 
           setCurrentIndex(
-            cetesPresentationSlides.length -
+            presentationSlides.length -
               1
           );
         }
@@ -2004,7 +2145,7 @@ export default function CetesConsultationPresentation({
             }
             {" / "}
             {
-              cetesPresentationSlides.length
+              presentationSlides.length
             }
           </div>
         </div>
@@ -2012,7 +2153,7 @@ export default function CetesConsultationPresentation({
 
         <div className="overflow-x-auto border-t border-white/[0.06]">
           <div className="flex min-w-max items-center gap-1 px-5 py-2 md:px-8">
-            {cetesPresentationSlides.map(
+            {presentationSlides.map(
               (
                 item,
                 index
@@ -2129,7 +2270,7 @@ export default function CetesConsultationPresentation({
           }
           disabled={
             currentIndex ===
-            cetesPresentationSlides.length -
+            presentationSlides.length -
               1
           }
           className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30"

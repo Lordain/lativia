@@ -5,6 +5,8 @@ import {
   import {
     createClient,
   } from "@/lib/supabase/server";
+
+  import PublicShell from "@/components/layout/PublicShell";
   
   import {
     getMyNotifications,
@@ -39,10 +41,11 @@ import {
       );
   
   
-    return (
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      return (
+        <PublicShell>
+          <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
         <div className="mb-8">
-          <p className="text-sm font-medium text-blue-600">
+        <p className="text-sm font-medium text-blue-700">
             Account
           </p>
   
@@ -62,6 +65,7 @@ import {
             notifications
           }
         />
-      </div>
-    );
+      </main>
+    </PublicShell>
+  );
   }

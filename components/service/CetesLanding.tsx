@@ -13,6 +13,13 @@ import type {
 import DynamicForm from "@/components/forms/DynamicForm";
 import ContactButton from "@/components/service/ContactButton";
 
+import {
+  getGovernmentBondRateSnapshot,
+} from "@/lib/cetes/getGovernmentBondRateSnapshot";
+
+import {
+  CETES_CONSULTATION_ORIGINAL_AMOUNT,
+} from "@/lib/cetes/cetesConsultationPricing";
 
 interface Props {
   service:
@@ -23,244 +30,6 @@ interface Props {
 
   rates:
     CetesReferenceRate[];
-}
-
-
-type OfficialRateCard = {
-  id: string;
-  product: string;
-  term: string;
-  rate: number;
-};
-
-type OfficialRateSnapshot = {
-  sourceName: string;
-  sourceDate: string | null;
-  rates: OfficialRateCard[];
-};
-
-const OFFICIAL_RATES_URL =
-  "https://www.cetesdirecto.com/sites/portal/historia.cetesdirecto";
-
-function normalizeOfficialText(
-  html: string
-) {
-  return html
-    .replace(
-      /<script[\s\S]*?<\/script>/gi,
-      " "
-    )
-    .replace(
-      /<style[\s\S]*?<\/style>/gi,
-      " "
-    )
-    .replace(
-      /&nbsp;/gi,
-      " "
-    )
-    .replace(
-      /&aacute;/gi,
-      "á"
-    )
-    .replace(
-      /&eacute;/gi,
-      "é"
-    )
-    .replace(
-      /&iacute;/gi,
-      "í"
-    )
-    .replace(
-      /&oacute;/gi,
-      "ó"
-    )
-    .replace(
-      /&uacute;/gi,
-      "ú"
-    )
-    .replace(
-      /&ntilde;/gi,
-      "ñ"
-    )
-    .replace(
-      /<[^>]+>/g,
-      " "
-    )
-    .replace(
-      /\s+/g,
-      " "
-    )
-    .trim();
-}
-
-function extractRate(
-  text: string,
-  pattern: RegExp
-) {
-  const match =
-    text.match(
-      pattern
-    );
-
-  if (
-    !match?.[1]
-  ) {
-    return null;
-  }
-
-  const value =
-    Number(
-      match[1]
-    );
-
-  return Number.isFinite(
-    value
-  )
-    ? value
-    : null;
-}
-
-async function getOfficialReferenceRates():
-  Promise<OfficialRateSnapshot | null> {
-  try {
-    const response =
-      await fetch(
-        OFFICIAL_RATES_URL,
-        {
-          next: {
-            revalidate:
-              60 * 60,
-          },
-        }
-      );
-
-    if (
-      !response.ok
-    ) {
-      return null;
-    }
-
-    const html =
-      await response.text();
-
-    const text =
-      normalizeOfficialText(
-        html
-      );
-
-    const dateMatch =
-      text.match(
-        /(\d{1,2}-[a-záéíóú]{3}-\d{4})/i
-      );
-
-    const definitions = [
-      {
-        id:
-          "cetes-1m",
-        product:
-          "CETES",
-        term:
-          "1 个月",
-        pattern:
-          /CETES\s+1\s+mes:\s*\+?0?(\d+(?:\.\d+)?)%/i,
-      },
-      {
-        id:
-          "cetes-3m",
-        product:
-          "CETES",
-        term:
-          "3 个月",
-        pattern:
-          /CETES\s+3\s+mes(?:es)?:\s*\+?0?(\d+(?:\.\d+)?)%/i,
-      },
-      {
-        id:
-          "cetes-6m",
-        product:
-          "CETES",
-        term:
-          "6 个月",
-        pattern:
-          /CETES\s+6\s+mes(?:es)?:\s*\+?0?(\d+(?:\.\d+)?)%/i,
-      },
-      {
-        id:
-          "cetes-1y",
-        product:
-          "CETES",
-        term:
-          "1 年",
-        pattern:
-          /CETES\s+1\s+año:\s*\+?0?(\d+(?:\.\d+)?)%/i,
-      },
-      {
-        id:
-          "bonddia-1d",
-        product:
-          "BONDDIA",
-        term:
-          "1 日",
-        pattern:
-          /BONDDIA\s+1\s+día:\s*\+?0?(\d+(?:\.\d+)?)%/i,
-      },
-      {
-        id:
-          "bonos-3y",
-        product:
-          "BONOS",
-        term:
-          "3 年",
-        pattern:
-          /BONOS\s+3\s+años:\s*\+?0?(\d+(?:\.\d+)?)%/i,
-      },
-    ] as const;
-
-    const officialRates =
-      definitions.flatMap(
-        definition => {
-          const rate =
-            extractRate(
-              text,
-              definition.pattern
-            );
-
-          return rate ===
-            null
-            ? []
-            : [
-                {
-                  id:
-                    definition.id,
-                  product:
-                    definition.product,
-                  term:
-                    definition.term,
-                  rate,
-                },
-              ];
-        }
-      );
-
-    if (
-      officialRates.length ===
-      0
-    ) {
-      return null;
-    }
-
-    return {
-      sourceName:
-        "Cetesdirecto",
-      sourceDate:
-        dateMatch?.[1] ??
-        null,
-      rates:
-        officialRates,
-    };
-  } catch {
-    return null;
-  }
 }
 
 function formatDate(
@@ -289,43 +58,19 @@ export default async function CetesLanding({
   prices,
   rates,
 }: Props) {
-  const officialSnapshot =
-    await getOfficialReferenceRates();
+  const rateSnapshot =
+  await getGovernmentBondRateSnapshot(
+    rates
+  );
 
-  const fallbackRateCards:
-    OfficialRateCard[] =
-    rates.map(
-      item => ({
-        id:
-          item.id,
-        product:
-          "CETES",
-        term:
-          `${item.termDays} 天`,
-        rate:
-          item.rate,
-      })
-    );
+const displayedRates =
+  rateSnapshot.rates;
 
-  const displayedRates =
-    officialSnapshot
-      ?.rates.length
-      ? officialSnapshot.rates
-      : fallbackRateCards;
+const rateSourceName =
+  rateSnapshot.sourceName;
 
-  const rateSourceName =
-    officialSnapshot
-      ?.sourceName ??
-    rates[0]
-      ?.sourceName ??
-    "Cetesdirecto";
-
-  const rateSourceDate =
-    officialSnapshot
-      ?.sourceDate ??
-    rates[0]
-      ?.sourceDate ??
-    null;
+const rateSourceDate =
+  rateSnapshot.sourceDate;
 
 
   const activePrices =
@@ -351,8 +96,8 @@ export default async function CetesLanding({
         )
       : 2000;
   
-  const originalAmount =
-    4000;
+    const originalAmount =
+      CETES_CONSULTATION_ORIGINAL_AMOUNT;
   
   const moneyFormatter =
     new Intl.NumberFormat(
@@ -754,7 +499,7 @@ export default async function CetesLanding({
       </p>
 
       <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-        最新参考收益率
+        最新参考年化收益率
         <span className="mt-2 block text-base font-medium text-gray-500 md:inline md:ml-3">
           （供参考，以官方实际利率为主）
         </span>
@@ -777,22 +522,24 @@ export default async function CetesLanding({
                 key={
                   item.id
                 }
-                className="rounded-2xl border bg-gray-50 p-5"
+                className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-500">
-                      {
-                        item.product
-                      }
-                    </p>
+                <div>
+                  <p className="text-sm font-semibold text-gray-950">
+                    {item.product ===
+                    "CETES"
+                      ? "短期国债"
+                      : item.product ===
+                          "BONOS"
+                        ? "长期国债"
+                        : "流动性基金"}
+                  </p>
 
-                    <p className="mt-1 text-lg font-semibold text-gray-950">
-                      {
-                        item.term
-                      }
-                    </p>
-                  </div>
+                  <p className="mt-1 text-sm font-medium text-gray-500">
+                    {item.product} · {item.term}
+                  </p>
+                </div>
 
                   {item.product ===
                     "BONDDIA" && (

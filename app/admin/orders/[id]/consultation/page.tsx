@@ -9,6 +9,10 @@ import {
   import {
     getAdminOrder,
   } from "@/lib/orders/getAdminOrder";
+
+  import {
+    getGovernmentBondRateSnapshot,
+  } from "@/lib/cetes/getGovernmentBondRateSnapshot";
   
   import CetesConsultationPresentation from "@/components/consultation/CetesConsultationPresentation";
   
@@ -60,12 +64,18 @@ import {
     ) {
       notFound();
     }
+
+    const rateSnapshot =
+      await getGovernmentBondRateSnapshot();
   
   
     return (
       <CetesConsultationPresentation
         orderId={
           order.id
+        }
+        rateSnapshot={
+          rateSnapshot
         }
       />
     );

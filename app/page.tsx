@@ -1,21 +1,49 @@
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import Hero from "@/components/home/Hero";  
+import PublicShell from "@/components/layout/PublicShell";
+import Hero from "@/components/home/Hero";
 import CategoryGrid from "@/components/home/CategoryGrid";
-import { getServices } from "@/lib/services/getServices";
+
+import {
+  getServices,
+} from "@/lib/services/getServices";
+
+import {
+  getGovernmentBondRateSnapshot,
+} from "@/lib/cetes/getGovernmentBondRateSnapshot";
+
+import {
+  getHomepageServicePrices,
+} from "@/lib/services/getHomepageServicePrices";
+
 
 export default async function Home() {
-  const services = await getServices();
+  const [
+    services,
+    rateSnapshot,
+    homepagePrices,
+  ] =
+    await Promise.all([
+      getServices(),
+      getGovernmentBondRateSnapshot(),
+      getHomepageServicePrices(),
+    ]);
 
   return (
-    <>
-      <Header />
+    <PublicShell>
+      <Hero
+        rateSnapshot={
+          rateSnapshot
+        }
+      />
 
-      <Hero />
-
-      <CategoryGrid services={services} />
-
-      <Footer />
-    </>
+    <CategoryGrid
+      services={
+        services
+      }
+      prices={
+        homepagePrices
+      }
+      variant="home"
+    />
+    </PublicShell>
   );
 }

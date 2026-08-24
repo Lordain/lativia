@@ -707,6 +707,177 @@ function ComparisonSlide({
   );
 }
 
+function InvestmentComparisonSlide({
+  slide,
+}: {
+  slide:
+    CetesPresentationSlide;
+}) {
+  return (
+    <>
+      <SlideHeader
+        slide={
+          slide
+        }
+      />
+
+
+      <div className="mt-8 overflow-x-auto rounded-2xl border border-white/10">
+        <table className="w-full min-w-[1050px] border-collapse text-left">
+          <thead className="bg-white/[0.06]">
+            <tr>
+              {[
+                "投资方式",
+                "风险",
+                "收益特点",
+                "收益确定性",
+                "价格波动",
+                "流动性",
+              ].map(
+                title => (
+                  <th
+                    key={
+                      title
+                    }
+                    className="border-b border-white/10 px-5 py-4 text-sm font-semibold text-slate-200"
+                  >
+                    {
+                      title
+                    }
+                  </th>
+                )
+              )}
+            </tr>
+          </thead>
+
+
+          <tbody>
+            {slide
+              .investmentComparisonRows
+              ?.map(
+                row => (
+                  <tr
+                    key={
+                      row.product
+                    }
+                    className={[
+                      "border-b border-white/[0.07] last:border-b-0",
+                      row.emphasis
+                        ? "bg-blue-500/[0.08]"
+                        : "",
+                    ].join(
+                      " "
+                    )}
+                  >
+                    <td className="px-5 py-5 align-top">
+                      <div
+                        className={[
+                          "text-lg font-bold",
+                          row.emphasis
+                            ? "text-blue-300"
+                            : "text-white",
+                        ].join(
+                          " "
+                        )}
+                      >
+                        {
+                          row.product
+                        }
+                      </div>
+
+                      {row.emphasis && (
+                        <div className="mt-2 inline-flex rounded-full border border-blue-400/20 bg-blue-400/10 px-2.5 py-1 text-[11px] font-semibold text-blue-200">
+                          重点理解
+                        </div>
+                      )}
+                    </td>
+
+
+                    <td className="px-5 py-5 align-top text-sm font-semibold leading-6 text-slate-100">
+                      {
+                        row.risk
+                      }
+                    </td>
+
+
+                    <td className="max-w-[220px] px-5 py-5 align-top text-sm leading-6 text-slate-300">
+                      {
+                        row.returnProfile
+                      }
+                    </td>
+
+
+                    <td className="max-w-[200px] px-5 py-5 align-top text-sm leading-6 text-slate-300">
+                      {
+                        row.predictability
+                      }
+                    </td>
+
+
+                    <td className="px-5 py-5 align-top text-sm leading-6 text-slate-300">
+                      {
+                        row.volatility
+                      }
+                    </td>
+
+
+                    <td className="px-5 py-5 align-top text-sm leading-6 text-slate-300">
+                      {
+                        row.liquidity
+                      }
+                    </td>
+                  </tr>
+                )
+              )}
+          </tbody>
+        </table>
+      </div>
+
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-blue-400/20 bg-blue-400/[0.08] px-4 py-3">
+          <p className="text-xs font-medium text-blue-300">
+            风险
+          </p>
+
+          <p className="mt-1 text-sm font-semibold text-white">
+            国债相对较低
+          </p>
+        </div>
+
+
+        <div className="rounded-xl border border-blue-400/20 bg-blue-400/[0.08] px-4 py-3">
+          <p className="text-xs font-medium text-blue-300">
+            收益特点
+          </p>
+
+          <p className="mt-1 text-sm font-semibold text-white">
+            当前较有竞争力
+          </p>
+        </div>
+
+
+        <div className="rounded-xl border border-blue-400/20 bg-blue-400/[0.08] px-4 py-3">
+          <p className="text-xs font-medium text-blue-300">
+            核心定位
+          </p>
+
+          <p className="mt-1 text-sm font-semibold text-white">
+            偏稳健型配置
+          </p>
+        </div>
+      </div>
+
+
+      <SourceLine
+        source={
+          slide.source
+        }
+      />
+    </>
+  );
+}
+
 
 function LevelsSlide({
   slide,
@@ -1620,6 +1791,15 @@ function SlideRenderer({
           }
         />
       );
+
+      case "investment-comparison":
+        return (
+          <InvestmentComparisonSlide
+            slide={
+              slide
+            }
+          />
+        );
 
     case "comparison":
       return (

@@ -22,7 +22,8 @@ export type CetesPresentationLayout =
   | "risk"
   | "screenshots"
   | "status"
-  | "yield-explainer";
+  | "yield-explainer"
+  | "investment-comparison";
 
 
 export type PresentationIcon =
@@ -90,6 +91,30 @@ export interface ComparisonRow {
   purchase: string;
 
   purpose: string;
+}
+
+
+export interface InvestmentComparisonRow {
+  product:
+    string;
+
+  risk:
+    string;
+
+  returnProfile:
+    string;
+
+  predictability:
+    string;
+
+  volatility:
+    string;
+
+  liquidity:
+    string;
+
+  emphasis?:
+    boolean;
 }
 
 
@@ -161,6 +186,9 @@ export interface CetesPresentationSlide {
   cards?: PresentationCard[];
 
   comparisonRows?: ComparisonRow[];
+
+  investmentComparisonRows?:
+  InvestmentComparisonRow[];
 
   levelRows?: LevelRow[];
 
@@ -393,10 +421,131 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
     ],
   },
 
+/*
+ * =========================================
+ * 03
+ * Investment Comparison
+ * =========================================
+ */
+
+{
+  id:
+    "investment-comparison",
+
+  section:
+    "products",
+
+  number:
+    3,
+
+  eyebrow:
+    "COMPARISON",
+
+  title:
+    "国债与常见投资方式比较",
+
+  shortTitle:
+    "投资方式比较",
+
+  layout:
+    "investment-comparison",
+
+  summary:
+    "先从风险、收益特点、收益确定性、价格波动和流动性几个维度，快速建立不同投资方式的基本概念。",
+
+  source:
+    "一般特征比较；实际风险与收益取决于具体产品、期限及市场环境，不构成投资建议。",
+
+  investmentComparisonRows: [
+    {
+      product:
+        "墨西哥国债",
+
+      risk:
+        "较低",
+
+      returnProfile:
+        "当前收益较有竞争力",
+
+      predictability:
+        "持有到期较明确",
+
+      volatility:
+        "相对较低",
+
+      liquidity:
+        "较好",
+
+      emphasis:
+        true,
+    },
+
+    {
+      product:
+        "银行定存",
+
+      risk:
+        "较低",
+
+      returnProfile:
+        "通常偏低",
+
+      predictability:
+        "较明确",
+
+      volatility:
+        "很低",
+
+      liquidity:
+        "通常较低",
+    },
+
+    {
+      product:
+        "基金",
+
+      risk:
+        "中等",
+
+      returnProfile:
+        "视基金类型而定",
+
+      predictability:
+        "不固定",
+
+      volatility:
+        "中等",
+
+      liquidity:
+        "通常较好",
+    },
+
+    {
+      product:
+        "股票",
+
+      risk:
+        "较高",
+
+      returnProfile:
+        "收益弹性较高",
+
+      predictability:
+        "不确定",
+
+      volatility:
+        "高",
+
+      liquidity:
+        "高",
+    },
+  ],
+},
+
 
   /*
    * =========================================
-   * 03
+   * 04
    * Product Comparison
    * =========================================
    */
@@ -406,7 +555,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "products",
 
-    number: 3,
+    number: 4,
 
     eyebrow: "PRODUCTS",
 
@@ -479,7 +628,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 04
+   * 05
    * Account Levels
    * =========================================
    */
@@ -489,7 +638,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "account",
 
-    number: 4,
+    number: 5,
 
     eyebrow: "ACCOUNT LEVEL",
 
@@ -577,7 +726,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 05
+   * 06
    * Tax
    * =========================================
    */
@@ -587,7 +736,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "tax",
 
-    number: 5,
+    number: 6,
 
     eyebrow: "TAX",
 
@@ -653,7 +802,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 06
+   * 07
    * Requirements
    * =========================================
    */
@@ -663,7 +812,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "requirements",
 
-    number: 6,
+    number: 7,
 
     eyebrow: "REQUIREMENTS",
 
@@ -745,7 +894,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 07
+   * 08
    * Auction
    * =========================================
    */
@@ -755,7 +904,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "auction",
 
-    number: 7,
+    number: 8,
 
     eyebrow: "SUBASTA",
 
@@ -827,7 +976,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 08
+   * 09
    * Risks
    * =========================================
    */
@@ -837,7 +986,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "risk",
 
-    number: 8,
+    number: 9,
 
     eyebrow: "RISK",
 
@@ -918,7 +1067,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 09
+ * 10
  * Opening Practice
  * =========================================
  */
@@ -927,7 +1076,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 9,
+  number: 10,
 
   eyebrow: "PRACTICE",
 
@@ -1306,7 +1455,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
       /*
  * =========================================
- * 10
+ * 11
  * First Deposit
  * =========================================
  */
@@ -1316,7 +1465,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
       
         section: "practice",
       
-        number: 10,
+        number: 11,
       
         eyebrow: "PRACTICE",
       
@@ -1410,7 +1559,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 11
+ * 12
  * e.firma Upgrade
  * =========================================
  */
@@ -1420,7 +1569,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 11,
+  number: 12,
 
   eyebrow: "ACCOUNT UPGRADE",
 
@@ -1586,7 +1735,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 12
+ * 13
  * Government Bond Purchase - Mobile App
  * =========================================
  */
@@ -1596,7 +1745,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 12,
+  number: 13,
 
   eyebrow: "PRACTICE",
 
@@ -1857,7 +2006,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 13
+ * 14
  * Withdrawal
  * =========================================
  */
@@ -1867,7 +2016,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 13,
+  number: 14,
 
   eyebrow: "PRACTICE",
 
@@ -1986,7 +2135,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 14
+ * 15
  * Movements & Statement
  * =========================================
  */
@@ -1996,7 +2145,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 14,
+  number: 15,
 
   eyebrow: "ACCOUNT CHECK",
 
@@ -2096,7 +2245,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 15
+ * 16
  * Cetesdirecto Mobile App
  * =========================================
  */
@@ -2106,7 +2255,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 15,
+  number: 16,
 
   eyebrow: "MOBILE APP",
 
@@ -2361,7 +2510,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 16
+ * 17
  * Completion
  * =========================================
  */
@@ -2371,7 +2520,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 16,
+  number: 17,
 
   eyebrow: "COMPLETE",
 
@@ -2447,7 +2596,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 17
+ * 18
  * Why CETES Value Changes Every Day
  * =========================================
  */
@@ -2457,7 +2606,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 17,
+  number: 18,
 
   eyebrow: "EXTRA",
 

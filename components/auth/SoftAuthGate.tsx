@@ -278,16 +278,6 @@ export default function SoftAuthGate({
         </div>
       </div>
 
-
-      {process.env.NODE_ENV ===
-        "development" && (
-        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-700">
-          开发环境提示：当前 Supabase
-          邮件模板可能仍发送登录链接。
-          正式上线前会切换为邮箱验证码模板。
-        </p>
-      )}
-
     <div className="mt-4">
       <GoogleLoginButton
         redirectTo="/auth/continue-order"

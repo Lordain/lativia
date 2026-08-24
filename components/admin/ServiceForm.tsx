@@ -820,156 +820,197 @@ export default function ServiceForm({
         )}
       </section>
 
-      {/* =====================================
-          5. Result / Refund
-      ===================================== */}
+{/* =====================================
+    5. Result / Refund
+===================================== */}
 
-      <section className="rounded-2xl border bg-white p-6">
-        <div>
-          <h2 className="text-xl font-semibold">
-            结果与退款
-          </h2>
+<section className="rounded-2xl border bg-white p-6">
+  <div>
+    <h2 className="text-xl font-semibold">
+      结果与退款
+    </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
-            说明客户最终获得什么，以及是否需要交付官方或结果文件。
-          </p>
-        </div>
+    <p className="mt-2 text-sm leading-6 text-gray-500">
+      说明客户最终获得什么，以及是否需要交付官方或结果文件。
+    </p>
+  </div>
 
-        <div className="mt-6">
-          <FormField
-            label="客户最终获得"
-            error={
-              errors
-                .expectedOutcome
-                ?.message
-            }
-          >
-            <Textarea
-              rows={4}
-              placeholder="例如：获得 SAT 官方 RFC 查询结果及必要的中文说明。"
-              error={
-                !!errors
-                  .expectedOutcome
-              }
-              {...register(
-                "expectedOutcome"
-              )}
-            />
-          </FormField>
-        </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
-            <input
-              type="checkbox"
-              className="mt-1 h-4 w-4"
-              {...register(
-                "resultIsOfficial"
-              )}
-            />
+  {/* =====================================
+      Expected Outcome
+  ===================================== */}
 
-            <div>
-              <p className="font-medium">
-                最终结果由官方机构出具
-              </p>
-              <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
-                <input
-                  type="checkbox"
-                  className="mt-1 h-4 w-4"
-                  {...register(
-                    "resultRequired"
-                  )}
-                />
+  <div className="mt-6">
+    <FormField
+      label="客户最终获得"
+      error={
+        errors
+          .expectedOutcome
+          ?.message
+      }
+    >
+      <Textarea
+        rows={4}
+        placeholder="例如：获得 SAT 官方 RFC 查询结果及必要的中文说明。"
+        error={
+          !!errors
+            .expectedOutcome
+        }
+        {...register(
+          "expectedOutcome"
+        )}
+      />
+    </FormField>
+  </div>
 
-                <div>
-                  <p className="font-medium">
-                    服务完成前需要正式交付结果
-                  </p>
 
-                  <p className="mt-1 text-sm leading-6 text-gray-500">
-                    适用于需要在订单服务空间中留下正式完成或结果记录的服务。
-                  </p>
-                </div>
-              </label>
+  {/* =====================================
+      Result Settings
+  ===================================== */}
 
-              <p className="mt-1 text-sm leading-6 text-gray-500">
-                只有政府或相关官方机构实际出具的结果才可以勾选。
-              </p>
-            </div>
-          </label>
+  <div className="mt-6 grid gap-4 md:grid-cols-3">
+    {/* Official Result */}
 
-          <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
-            <input
-              type="checkbox"
-              className="mt-1 h-4 w-4"
-              {...register(
-                "hasResultFile"
-              )}
-            />
+    <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+      <input
+        type="checkbox"
+        className="mt-1 h-4 w-4"
+        {...register(
+          "resultIsOfficial"
+        )}
+      />
 
-            <div>
-              <p className="font-medium">
-                有结果文件需要交付
-              </p>
+      <div>
+        <p className="font-medium">
+          最终结果由官方机构出具
+        </p>
 
-              <p className="mt-1 text-sm leading-6 text-gray-500">
-                勾选后由系统按既定交付和临时资料保留规则处理。
-              </p>
-            </div>
-          </label>
-        </div>
-
-        <label className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4"
-            {...register(
-              "refundEligibleWhenFailed"
-            )}
-          />
-
-          <div>
-            <p className="font-medium">
-              服务无法完成时，可进入退款审核
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              是否最终退款仍根据失败原因、已发生费用及退款规则处理。
-            </p>
-          </div>
-        </label>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-            <p className="font-semibold text-red-700">
-              完成交付后不退款
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-red-700">
-              服务成功完成并向客户交付后，不支持退款。该规则由系统统一执行。
-            </p>
-          </div>
-
-          <div className="rounded-xl bg-blue-50 p-4">
-            <p className="font-semibold text-blue-800">
-              临时资料默认 48 小时清理
-            </p>
-
-            <p className="mt-1 text-sm leading-6 text-blue-700">
-              当资料用途结束、订单完成或确认不再需要后，相关临时资料默认进入 48 小时删除流程。
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================
-          Payment Reminder
-      ===================================== */}
-
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
-        服务资料保存后，请在页面下方「付款方式」区域配置实际可用的付款方案。
-        实际收费金额以 service_prices 中启用的付款方案为准。
+        <p className="mt-1 text-sm leading-6 text-gray-500">
+          只有政府或相关官方机构实际出具的结果才可以勾选。
+        </p>
       </div>
+    </label>
+
+
+    {/* Result Required */}
+
+    <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+      <input
+        type="checkbox"
+        className="mt-1 h-4 w-4"
+        {...register(
+          "resultRequired"
+        )}
+      />
+
+      <div>
+        <p className="font-medium">
+          服务完成前需要正式交付结果
+        </p>
+
+        <p className="mt-1 text-sm leading-6 text-gray-500">
+          适用于需要在订单服务空间中留下正式完成或结果记录的服务。
+        </p>
+      </div>
+    </label>
+
+
+    {/* Result File */}
+
+    <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+      <input
+        type="checkbox"
+        className="mt-1 h-4 w-4"
+        {...register(
+          "hasResultFile"
+        )}
+      />
+
+      <div>
+        <p className="font-medium">
+          有结果文件需要交付
+        </p>
+
+        <p className="mt-1 text-sm leading-6 text-gray-500">
+          勾选后由系统按既定交付和临时资料保留规则处理。
+        </p>
+      </div>
+    </label>
+  </div>
+
+
+  {/* =====================================
+      Refund Eligibility
+  ===================================== */}
+
+  <label className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+    <input
+      type="checkbox"
+      className="mt-1 h-4 w-4"
+      {...register(
+        "refundEligibleWhenFailed"
+      )}
+    />
+
+    <div>
+      <p className="font-medium">
+        服务无法完成时，可进入退款审核
+      </p>
+
+      <p className="mt-1 text-sm leading-6 text-gray-600">
+        是否最终退款仍根据失败原因、已发生费用及退款规则处理。
+      </p>
+    </div>
+  </label>
+
+
+  {/* =====================================
+      Fixed Policies
+  ===================================== */}
+
+  <div className="mt-6 grid gap-4 md:grid-cols-2">
+    <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+      <p className="font-semibold text-red-700">
+        完成交付后不退款
+      </p>
+
+      <p className="mt-1 text-sm leading-6 text-red-700">
+        服务成功完成并向客户交付后，不支持退款。
+        该规则由系统统一执行。
+      </p>
+    </div>
+
+
+    <div className="rounded-xl bg-blue-50 p-4">
+      <p className="font-semibold text-blue-800">
+        临时资料默认 48 小时清理
+      </p>
+
+      <p className="mt-1 text-sm leading-6 text-blue-700">
+        当资料用途结束、订单完成或确认不再需要后，
+        相关临时资料默认进入 48 小时删除流程。
+      </p>
+    </div>
+  </div>
+</section>
+
+{/* =====================================
+    Payment Reminder
+===================================== */}
+
+<div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
+  {initialData ? (
+    <>
+      实际收费金额以页面「付款方式」区域中启用的付款方案为准。
+      服务基础资料中的展示价格仅用于兼容旧数据。
+    </>
+  ) : (
+    <>
+      创建服务后，系统会自动进入该服务的编辑页面。
+      请在那里继续配置实际可用的付款方式和收费金额。
+    </>
+  )}
+</div>
 
       {/* =====================================
           Submit

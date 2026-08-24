@@ -53,6 +53,14 @@ export default function AuthNav({
       0
     );
 
+    const [
+      isAdmin,
+      setIsAdmin,
+    ] =
+      useState(
+        false
+      );
+
 
   useEffect(() => {
     const supabase =
@@ -120,6 +128,61 @@ export default function AuthNav({
       );
     }
 
+    async function loadAdminStatus(
+      currentUser:
+        User | null
+    ) {
+      if (
+        !currentUser
+      ) {
+        setIsAdmin(
+          false
+        );
+
+        return;
+      }
+
+
+      const {
+        data,
+        error,
+      } =
+        await supabase
+          .from(
+            "profiles"
+          )
+          .select(
+            "role"
+          )
+          .eq(
+            "id",
+            currentUser.id
+          )
+          .maybeSingle();
+
+
+      if (
+        error
+      ) {
+        console.error(
+          "读取管理员身份失败:",
+          error
+        );
+
+        setIsAdmin(
+          false
+        );
+
+        return;
+      }
+
+
+      setIsAdmin(
+        data?.role ===
+          "admin"
+      );
+    }
+
 
     supabase.auth
       .getUser()
@@ -130,13 +193,17 @@ export default function AuthNav({
           activeUser =
             data.user;
 
-          setUser(
-            activeUser
-          );
+            setUser(
+              activeUser
+            );
 
-          void loadUnreadCount(
-            activeUser
-          );
+            void loadUnreadCount(
+              activeUser
+            );
+
+            void loadAdminStatus(
+              activeUser
+            );
         }
       );
 
@@ -155,13 +222,17 @@ export default function AuthNav({
             session?.user ??
             null;
 
-          setUser(
-            activeUser
-          );
+            setUser(
+              activeUser
+            );
 
-          void loadUnreadCount(
-            activeUser
-          );
+            void loadUnreadCount(
+              activeUser
+            );
+
+            void loadAdminStatus(
+              activeUser
+            );
         }
       );
 
@@ -260,6 +331,15 @@ export default function AuthNav({
       <div className="hidden items-center gap-2 lg:flex">
         {user ? (
           <>
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                管理后台
+              </Link>
+            )}
             <Link
               href="/account/orders"
               className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
@@ -377,6 +457,17 @@ export default function AuthNav({
 
               {user ? (
                 <div className="grid gap-2">
+                {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={
+                        closeMenu
+                      }
+                      className="rounded-xl bg-slate-900 px-4 py-3 text-base font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      管理后台
+                    </Link>
+                  )}
                   <Link
                     href="/account/orders"
                     onClick={

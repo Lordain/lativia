@@ -75,7 +75,7 @@ const NAV_ITEMS = [
 
   {
     href:
-      "/admin/payments",
+      "/admin/payments/reconciliation",
 
     label:
       "支付对账",

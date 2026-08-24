@@ -10,6 +10,10 @@ import type {
 
 import { formatBusinessDateTime } from "@/lib/time/formatBusinessDateTime";
 
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+
 interface Props {
   searchParams: Promise<{
     status?: string;
@@ -266,17 +270,17 @@ export default async function AdminOrdersPage({
     active: boolean
   ) {
     return `
-      rounded-md
+      rounded-lg
       border
-      px-2.5
+      px-3
       py-1.5
       text-xs
-      font-medium
+      font-semibold
       transition
       ${
         active
-          ? "border-blue-600 bg-blue-50 text-blue-700"
-          : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+          ? "border-blue-200 bg-blue-50 text-blue-700"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
       }
     `;
   }
@@ -316,29 +320,31 @@ export default async function AdminOrdersPage({
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-bold">
-            订单管理
-          </h1>
-
-          <p className="mt-2 text-gray-500">
-            查看并处理客户提交的服务订单。
-          </p>
-        </div>
-
-        <div className="text-sm text-gray-500">
-          显示{" "}
-          {filteredOrders.length} /{" "}
-          {orders.length} 笔
-        </div>
-      </div>
+<AdminPageHeader
+  title="订单管理"
+  description="查看并处理客户提交的服务订单。"
+  actions={
+    <div className="text-sm font-medium text-slate-500">
+      显示{" "}
+      <span className="font-bold text-slate-900">
+        {
+          filteredOrders.length
+        }
+      </span>
+      {" "}/{" "}
+      {
+        orders.length
+      }
+      {" "}笔
+    </div>
+  }
+/>
 
       {/* =====================================
           Compact Filter Bar
       ===================================== */}
 
-      <section className="mt-5 rounded-xl border bg-white p-4">
+<section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <form
           action="/admin/orders"
           method="get"
@@ -392,32 +398,39 @@ export default async function AdminOrdersPage({
             }
             placeholder="搜索订单 ID、姓名、手机号或服务"
             className="
-              min-w-0
-              flex-1
-              rounded-lg
-              border
-              px-3
-              py-2
-              text-sm
-              outline-none
-              transition
-              focus:border-blue-500
-            "
+            min-w-0
+            flex-1
+            rounded-xl
+            border
+            border-slate-200
+            bg-white
+            px-4
+            py-2.5
+            text-sm
+            text-slate-900
+            outline-none
+            transition
+            placeholder:text-slate-400
+            focus:border-blue-500
+            focus:ring-4
+            focus:ring-blue-50
+          "
           />
 
           <button
             type="submit"
             className="
-              rounded-lg
-              bg-blue-600
-              px-4
-              py-2
-              text-sm
-              font-medium
-              text-white
-              transition
-              hover:bg-blue-700
-            "
+            rounded-xl
+            bg-blue-600
+            px-5
+            py-2.5
+            text-sm
+            font-semibold
+            text-white
+            shadow-sm
+            transition
+            hover:bg-blue-700
+          "
           >
             搜索
           </button>
@@ -427,7 +440,7 @@ export default async function AdminOrdersPage({
           {/* Status */}
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-12 text-xs font-medium text-gray-500">
+            <span className="w-12 text-xs font-medium text-slate-500">
               状态
             </span>
 
@@ -485,7 +498,7 @@ export default async function AdminOrdersPage({
           {/* Payment */}
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-12 text-xs font-medium text-gray-500">
+            <span className="w-12 text-xs font-medium text-slate-500">
               付款
             </span>
 
@@ -530,7 +543,7 @@ export default async function AdminOrdersPage({
           {/* Time */}
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-12 text-xs font-medium text-gray-500">
+            <span className="w-12 text-xs font-medium text-slate-500">
               时间
             </span>
 
@@ -562,7 +575,7 @@ export default async function AdminOrdersPage({
           {/* Sort */}
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="w-12 text-xs font-medium text-gray-500">
+            <span className="w-12 text-xs font-medium text-slate-500">
               排序
             </span>
 
@@ -680,33 +693,25 @@ export default async function AdminOrdersPage({
           Empty
       ===================================== */}
 
-      {filteredOrders.length ===
-        0 && (
-        <div className="mt-6 rounded-xl border bg-white p-8 text-center">
-          <p className="text-gray-500">
-            没有符合当前筛选条件的订单。
-          </p>
-
-          {hasFilters && (
-            <Link
-              href="/admin/orders"
-              className="
-                mt-4
-                inline-flex
-                rounded-lg
-                border
-                px-4
-                py-2
-                text-sm
-                font-medium
-                hover:bg-gray-50
-              "
-            >
-              查看全部订单
-            </Link>
-          )}
-        </div>
-      )}
+    {filteredOrders.length ===
+      0 && (
+      <div className="mt-6">
+        <AdminEmptyState
+          title="没有符合当前筛选条件的订单"
+          description="调整搜索条件或清除筛选后重新查看。"
+          action={
+            hasFilters ? (
+              <Link
+                href="/admin/orders"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                查看全部订单
+              </Link>
+            ) : null
+          }
+        />
+      </div>
+    )}
 
       {/* =====================================
           Orders
@@ -721,14 +726,18 @@ export default async function AdminOrdersPage({
                 key={order.id}
                 href={`/admin/orders/${order.id}`}
                 className="
-                  block
-                  rounded-xl
-                  border
-                  bg-white
-                  p-5
-                  transition
-                  hover:shadow-md
-                "
+                group
+                block
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+                shadow-sm
+                transition
+                hover:border-blue-200
+                hover:shadow-md
+              "
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div>
@@ -746,7 +755,7 @@ export default async function AdminOrdersPage({
                       />
                     </div>
 
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-slate-500">
                       客户：
                       {order.profiles
                         ?.name ??
@@ -755,7 +764,7 @@ export default async function AdminOrdersPage({
 
                     {order.profiles
                       ?.phone && (
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-slate-500">
                         手机：
                         {
                           order
@@ -765,12 +774,12 @@ export default async function AdminOrdersPage({
                       </p>
                     )}
 
-                    <p className="mt-1 break-all text-sm text-gray-500">
+                    <p className="mt-1 break-all text-sm text-slate-500">
                       订单 ID：
                       {order.id}
                     </p>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-slate-500">
                       创建时间：
                       {formatBusinessDateTime(
                         order.created_at
@@ -779,7 +788,7 @@ export default async function AdminOrdersPage({
                   </div>
 
                   <div className="md:text-right">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       付款状态
                     </p>
 
@@ -795,7 +804,7 @@ export default async function AdminOrdersPage({
                       order.amount !==
                         undefined &&
                       order.currency && (
-                        <p className="mt-2 text-sm text-gray-500">
+                        <p className="mt-2 text-sm text-slate-500">
                           {order.currency ===
                           "CNY"
                             ? `¥${Number(

@@ -6,6 +6,8 @@ import {
   getRecentAdminActivity,
 } from "@/lib/admin/getRecentAdminActivity";
 
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+
 import {
   getTodayAdminStats,
 } from "@/lib/admin/getTodayAdminStats";
@@ -48,15 +50,10 @@ export default async function AdminPage() {
           Page Header
       ===================================== */}
 
-      <div>
-        <h1 className="text-3xl font-bold">
-          管理控制台
-        </h1>
-
-        <p className="mt-2 text-gray-500">
-          查看订单、支付与今日运营情况。
-        </p>
-      </div>
+        <AdminPageHeader
+          title="管理控制台"
+          description="查看订单、支付与今日运营情况，快速掌握业务动态。"
+        />
 
       {/* =====================================
           Operations Center

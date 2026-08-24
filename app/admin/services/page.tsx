@@ -10,11 +10,18 @@ import {
 
 import ServiceRow from "@/components/admin/ServiceRow";
 
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+
+
 export default async function AdminServicesPage() {
   await requireAdmin();
 
+
   const services =
     await getAdminServices();
+
 
   const activeCount =
     services.filter(
@@ -24,6 +31,7 @@ export default async function AdminServicesPage() {
         "active"
     ).length;
 
+
   const pausedCount =
     services.filter(
       service =>
@@ -31,6 +39,7 @@ export default async function AdminServicesPage() {
           .serviceStatus ===
         "paused"
     ).length;
+
 
   const hiddenCount =
     services.filter(
@@ -40,88 +49,68 @@ export default async function AdminServicesPage() {
         "hidden"
     ).length;
 
+
   return (
     <div>
-      {/* =====================================
-          Header
-      ===================================== */}
+      <AdminPageHeader
+        title="服务管理"
+        description="管理服务内容、受理状态和计费方式。"
+        actions={
+          <Link
+            href="/admin/services/new"
+            className="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            新增服务
+          </Link>
+        }
+      >
+        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+          <span>
+            共{" "}
+            <strong className="text-slate-900">
+              {
+                services.length
+              }
+            </strong>{" "}
+            项
+          </span>
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">
-            服务管理
-          </h1>
+          <span>
+            正常受理{" "}
+            <strong className="text-emerald-700">
+              {
+                activeCount
+              }
+            </strong>
+          </span>
 
-          <p className="mt-2 text-gray-500">
-            管理服务内容、受理状态和付款方式。
-          </p>
+          <span>
+            暂停{" "}
+            <strong className="text-amber-700">
+              {
+                pausedCount
+              }
+            </strong>
+          </span>
 
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500">
-            <span>
-              共{" "}
-              <strong className="text-gray-800">
-                {
-                  services.length
-                }
-              </strong>{" "}
-              项
-            </span>
-
-            <span>
-              正常受理{" "}
-              <strong className="text-green-700">
-                {
-                  activeCount
-                }
-              </strong>
-            </span>
-
-            <span>
-              暂停{" "}
-              <strong className="text-amber-700">
-                {
-                  pausedCount
-                }
-              </strong>
-            </span>
-
-            <span>
-              隐藏{" "}
-              <strong className="text-gray-700">
-                {
-                  hiddenCount
-                }
-              </strong>
-            </span>
-          </div>
+          <span>
+            隐藏{" "}
+            <strong className="text-slate-700">
+              {
+                hiddenCount
+              }
+            </strong>
+          </span>
         </div>
-
-        <Link
-          href="/admin/services/new"
-          className="
-            rounded-lg
-            bg-blue-600
-            px-4
-            py-2
-            text-sm
-            font-medium
-            text-white
-            transition
-            hover:bg-blue-700
-          "
-        >
-          新增服务
-        </Link>
-      </div>
-
-      {/* =====================================
-          Service List
-      ===================================== */}
+      </AdminPageHeader>
 
       {services.length ===
       0 ? (
-        <div className="mt-8 rounded-xl border bg-white p-8 text-center text-gray-500">
-          暂无服务。
+        <div className="mt-8">
+          <AdminEmptyState
+            title="暂无服务"
+            description="创建第一个服务后，会显示在这里。"
+          />
         </div>
       ) : (
         <div className="mt-8 space-y-4">

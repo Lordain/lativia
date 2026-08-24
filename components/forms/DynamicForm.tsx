@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useMemo,
@@ -21,6 +21,12 @@ import {
   createOrder,
 } from "@/lib/orders/createOrder";
 
+import SoftAuthGate from "@/components/auth/SoftAuthGate";
+
+import {
+  createClient,
+} from "@/lib/supabase/client";
+
 import type {
   ServicePrice,
 } from "@/types/servicePrice";
@@ -36,6 +42,18 @@ import type {
 
 type DynamicFormData =
   Record<string, string>;
+
+  type PendingSubmission = {
+    priceId: string;
+
+    formData:
+      DynamicFormData;
+
+    eligibilityAcknowledgementKeys:
+      string[];
+
+    email: string;
+  };
 
 interface Props {
   serviceId: string;
@@ -174,6 +192,16 @@ const [
   ] =
     useState(false);
 
+    const [
+      pendingSubmission,
+      setPendingSubmission,
+    ] =
+      useState<
+        PendingSubmission | null
+      >(
+        null
+      );
+
   const router =
     useRouter();
 
@@ -227,16 +255,16 @@ const [
       setSelectedServiceOptionId(
         serviceOptionId
       );
-    
-    
+
+
       const firstPrice =
         prices.find(
           price =>
             price.serviceOptionId ===
             serviceOptionId
         );
-    
-    
+
+
       setSelectedPriceId(
         firstPrice?.id ??
           ""
@@ -258,6 +286,63 @@ const [
     );
   }
 
+  async function createPendingOrder(
+    submission:
+      PendingSubmission
+  ) {
+    if (
+      submitting
+    ) {
+      return;
+    }
+
+    setSubmitting(
+      true
+    );
+
+    try {
+      const order =
+        await createOrder({
+          serviceId,
+
+          priceId:
+            submission.priceId,
+
+          formData:
+            submission.formData,
+
+          eligibilityAcknowledgementKeys:
+            submission
+              .eligibilityAcknowledgementKeys,
+        });
+
+      setPendingSubmission(
+        null
+      );
+
+      router.push(
+        `/account/orders/${order.id}/payment`
+      );
+
+    } catch (
+      error
+    ) {
+      console.error(
+        error
+      );
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "提交失败，请稍后再试"
+      );
+
+      setSubmitting(
+        false
+      );
+    }
+  }
+
   async function submitForm(
     data:
       DynamicFormData
@@ -269,12 +354,10 @@ const [
     }
 
     try {
-
       const email =
         data.email
           ?.trim()
           .toLowerCase();
-
 
       const emailConfirmation =
         data
@@ -295,6 +378,7 @@ const [
         return;
       }
 
+
       if (
         hasServiceOptions &&
         !selectedServiceOptionId
@@ -302,9 +386,10 @@ const [
         alert(
           "请选择服务方案"
         );
-      
+
         return;
       }
+
 
       if (
         !selectedPriceId
@@ -315,6 +400,7 @@ const [
 
         return;
       }
+
 
       const selectedServiceOption =
         serviceOptions.find(
@@ -361,6 +447,7 @@ const [
         }
       }
 
+
       if (
         !allEligibilityConfirmed
       ) {
@@ -371,9 +458,6 @@ const [
         return;
       }
 
-      setSubmitting(
-        true
-      );
 
       const eligibilityAcknowledgementKeys =
         requiredEligibilityItems
@@ -389,10 +473,9 @@ const [
               item.key
           );
 
-      const order =
-        await createOrder({
-          serviceId,
 
+      const submission:
+        PendingSubmission = {
           priceId:
             selectedPriceId,
 
@@ -400,12 +483,69 @@ const [
             data,
 
           eligibilityAcknowledgementKeys,
-        });
 
-      router.push(
-        `/account/orders/${order.id}/payment`
+          email:
+            email ??
+            "",
+        };
+
+
+      /*
+       * =====================================
+       * Soft Login Gate
+       * =====================================
+       *
+       * 已登录：
+       * 直接建立订单。
+       *
+       * 未登录：
+       * 先保存当前申请，
+       * 完成邮箱 OTP 后再继续建立订单。
+       */
+
+      const supabase =
+        createClient();
+
+      const {
+        data: {
+          user,
+        },
+        error:
+          userError,
+      } =
+        await supabase.auth.getUser();
+
+
+      if (
+        user &&
+        !userError
+      ) {
+        await createPendingOrder(
+          submission
+        );
+
+        return;
+      }
+
+
+      if (
+        !email
+      ) {
+        alert(
+          "请先填写电子邮箱，以便验证身份并保存订单。"
+        );
+
+        return;
+      }
+
+
+      setPendingSubmission(
+        submission
       );
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
       console.error(
         error
       );
@@ -759,38 +899,58 @@ const [
         </p>
       </section>
 
-      {/* Submit */}
+{/* Soft Login */}
 
-      <button
-        type="submit"
-        disabled={
-          (
-            hasServiceOptions &&
-            !selectedServiceOptionId
-          ) ||
-          !hasPrices ||
-          !allEligibilityConfirmed ||
-          submitting
-        }
-        className="
-          w-full
-          rounded-xl
-          bg-blue-600
-          px-6
-          py-3
-          font-medium
-          text-white
-          transition
-          hover:bg-blue-700
-          disabled:cursor-not-allowed
-          disabled:bg-gray-400
-          disabled:opacity-60
-        "
-      >
-        {submitting
-          ? "正在创建订单..."
-          : "提交申请"}
-      </button>
+{pendingSubmission && (
+  <SoftAuthGate
+    email={
+      pendingSubmission.email
+    }
+    onVerified={
+      async () => {
+        await createPendingOrder(
+          pendingSubmission
+        );
+      }
+    }
+  />
+)}
+
+
+{/* Submit */}
+
+{!pendingSubmission && (
+  <button
+    type="submit"
+    disabled={
+      (
+        hasServiceOptions &&
+        !selectedServiceOptionId
+      ) ||
+      !hasPrices ||
+      !allEligibilityConfirmed ||
+      submitting
+    }
+    className="
+      w-full
+      rounded-xl
+      bg-blue-600
+      px-6
+      py-3
+      font-medium
+      text-white
+      transition
+      hover:bg-blue-700
+      disabled:cursor-not-allowed
+      disabled:bg-gray-400
+      disabled:opacity-60
+    "
+  >
+    {submitting
+      ? "正在创建订单..."
+      : "提交申请"}
+  </button>
+)}
     </form>
   );
 }

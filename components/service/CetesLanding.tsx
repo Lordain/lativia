@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   Service,
 } from "@/types/service";
 
@@ -89,45 +89,45 @@ const rateSourceDate =
     const currentCurrency =
     primaryPrice?.currency ??
     "MXN";
-  
+
   const currentAmount =
     primaryPrice
       ? Number(
           primaryPrice.amount
         )
       : 2000;
-  
+
     const originalAmount =
       CETES_CONSULTATION_ORIGINAL_AMOUNT;
-  
+
   const moneyFormatter =
     new Intl.NumberFormat(
       "es-MX",
       {
         style:
           "currency",
-  
+
         currency:
           currentCurrency,
-  
+
         minimumFractionDigits:
           0,
-  
+
         maximumFractionDigits:
           0,
       }
     );
-  
+
   const displayAmount =
     `${currentCurrency} ${moneyFormatter.format(
       currentAmount
     )}`;
-  
+
   const originalDisplayAmount =
     `${currentCurrency} ${moneyFormatter.format(
       originalAmount
     )}`;
-  
+
   const discountPercent =
     Math.round(
       (
@@ -137,72 +137,72 @@ const rateSourceDate =
       ) *
         100
     );
-  
+
   const coursePreviews = [
     {
       id:
         "opening",
-  
+
       number:
         "01",
-  
+
       title:
         "Cetesdirecto 开户实操",
-  
+
       description:
         "从账号创建、定位、身份资料到本人银行账户与合同签署。",
-  
+
       image:
         "/consultation/cetes/previews/preview-opening.png",
     },
-  
+
     {
       id:
         "efirma",
-  
+
       number:
         "02",
-  
+
       title:
         "e.firma 账户升级",
-  
+
       description:
         "了解账户等级，以及使用本人 e.firma 完成线上升级的完整流程。",
-  
+
       image:
         "/consultation/cetes/previews/preview-efirma.png",
     },
-  
+
     {
       id:
         "purchase",
-  
+
       number:
         "03",
-  
+
       title:
         "墨西哥国债购买实操",
-  
+
       description:
         "从 Invertir、选择期限、Subasta 到提交并确认购买指令。",
-  
+
       image:
         "/consultation/cetes/previews/preview-purchase.png",
     },
-  
+
     {
       id:
         "withdrawal",
-  
+
       number:
         "04",
-  
+
       title:
         "出金操作实操",
-  
+
       description:
         "掌握首次出金测试，并理解从 Cetesdirecto 返回本人银行账户的资金闭环。",
-  
+
       image:
         "/consultation/cetes/previews/preview-withdrawal.png",
     },
@@ -216,8 +216,8 @@ const rateSourceDate =
 ===================================== */}
 
 <section className="border-b bg-gradient-to-b from-blue-50 via-white to-white">
-  <div className="mx-auto max-w-7xl px-6 py-16 md:py-24">
-    <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_420px]">
+  <div className="mx-auto max-w-6xl px-5 py-12 md:py-16">
+    <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1.15fr)_380px]">
       {/* ===============================
           Hero Copy
       =============================== */}
@@ -227,11 +227,11 @@ const rateSourceDate =
           Cetesdirecto 中文操作咨询
         </div>
 
-        <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-gray-950 md:text-5xl lg:text-6xl">
+        <h1 className="max-w-4xl text-3xl font-bold leading-tight tracking-tight text-gray-950 md:text-4xl lg:text-5xl">
           墨西哥国债开户与操作咨询
         </h1>
 
-        <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
+        <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
           从认识墨西哥国债，到真正会操作
           Cetesdirecto。
           中文指导您完成开户、本人银行账户设置、
@@ -240,25 +240,21 @@ const rateSourceDate =
           首次出金以及账户记录检查。
         </p>
 
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-500">
-          账户、密码、e.firma、资金以及所有投资决定，
-          始终由您本人控制和操作。
-        </p>
 
         {/* Selling Points */}
 
-        <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
+        <div className="mt-6 grid max-w-3xl gap-3 sm:grid-cols-3">
           {[
             "端到端中文详细咨询课件",
-            "Cetesdirecto Web + App 实操",
-            "开户 → 入金 → 出金完整资金闭环",
+            "国债页面 Web + App 实操",
+            "开户 → 入金 → 出金全闭环",
           ].map(
             item => (
               <div
                 key={
                   item
                 }
-                className="flex items-start gap-2 rounded-xl border bg-white p-4 text-sm font-medium text-gray-800 shadow-sm"
+                className="flex items-start gap-2 rounded-xl border border-slate-200 bg-white p-3 text-sm font-medium text-gray-800 shadow-sm"
               >
                 <span className="font-bold text-blue-600">
                   ✓
@@ -276,7 +272,7 @@ const rateSourceDate =
 
         {/* Security */}
 
-        <div className="mt-8 max-w-4xl rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div className="mt-6 max-w-4xl rounded-2xl border border-amber-200 bg-amber-50 p-4">
           <p className="font-semibold text-amber-950">
             账户和资金始终由您本人控制
           </p>
@@ -284,7 +280,7 @@ const rateSourceDate =
           <p className="mt-2 text-sm leading-7 text-amber-800">
             本服务只提供中文流程咨询与操作指导。
             不提供投资建议，
-            不推荐具体产品、期限、金额或买卖时点；
+            不推荐具体产品、金额或买卖时点；
             不代客户登录账户，也不接触或保管客户资金、
             账户密码、银行密码、OTP、Token、CVV
             或 e.firma 私钥密码。
@@ -296,7 +292,7 @@ const rateSourceDate =
           Pricing
       =============================== */}
 
-      <div className="rounded-3xl border bg-white p-7 shadow-xl shadow-gray-200/60 md:p-8">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-gray-200/50 md:p-6">
         <div className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
           当前优惠
         </div>
@@ -319,7 +315,7 @@ const rateSourceDate =
           </p>
 
           <div className="mt-1 flex flex-wrap items-end gap-3">
-            <p className="text-4xl font-bold tracking-tight text-gray-950 md:text-5xl">
+            <p className="text-3xl font-bold tracking-tight text-gray-950 md:text-4xl">
               {
                 displayAmount
               }
@@ -338,7 +334,7 @@ const rateSourceDate =
           </p>
         </div>
 
-        <div className="my-7 border-t" />
+        <div className="my-5 border-t" />
 
         <div className="rounded-xl bg-gray-50 p-4 text-xs leading-5 text-gray-500">
           实际付款金额以结账页面显示的
@@ -346,26 +342,27 @@ const rateSourceDate =
         </div>
 
         <a
-          href="#cetes-overview"
-          className="mt-6 flex items-center justify-between rounded-2xl border border-blue-200 bg-blue-50 px-5 py-5 transition hover:border-blue-300 hover:bg-blue-100"
+          href="#start-consultation"
+          className="mt-5 flex min-h-11 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-bold text-white transition hover:bg-blue-700"
         >
-          <div>
-            <p className="font-semibold text-blue-950">
-              想要了解详情？
-            </p>
-
-            <p className="mt-1 text-sm text-blue-700">
-              请阅读以下服务内容与操作说明
-            </p>
-          </div>
-
-          <span
-            aria-hidden="true"
-            className="text-3xl leading-none text-blue-600"
-          >
-            ↓
-          </span>
+          开始咨询
         </a>
+
+        <a
+        href="#cetes-overview"
+        className="mt-4 flex items-center justify-between rounded-xl px-2 py-3 text-sm font-semibold text-blue-700 transition hover:text-blue-800"
+      >
+        <span>
+          先了解完整服务内容
+        </span>
+
+        <span
+          aria-hidden="true"
+          className="text-lg"
+        >
+          ↓
+        </span>
+      </a>
       </div>
     </div>
   </div>
@@ -378,15 +375,15 @@ const rateSourceDate =
 
 <section
   id="cetes-overview"
-  className="border-b bg-gray-50"
+  className="bg-white"
 >
-  <div className="mx-auto max-w-6xl px-6 py-16">
+  <div className="mx-auto max-w-6xl px-5 py-12">
     <div className="max-w-3xl">
-      <p className="text-sm font-semibold text-blue-700">
+      <p className="text-sm font-bold text-blue-700">
         PRODUCT OVERVIEW
       </p>
 
-      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
         CETES、BONOS、BONDDIA 一页看懂
       </h2>
 
@@ -397,7 +394,7 @@ const rateSourceDate =
       </p>
     </div>
 
-    <div className="mt-10 overflow-hidden rounded-2xl border bg-white">
+    <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="hidden grid-cols-[180px_1fr_1fr] border-b bg-gray-100 px-6 py-4 text-sm font-semibold text-gray-700 md:grid">
         <div>
           产品
@@ -443,7 +440,7 @@ const rateSourceDate =
             key={
               item.product
             }
-            className="grid gap-4 border-b px-6 py-6 last:border-b-0 md:grid-cols-[180px_1fr_1fr] md:items-center"
+            className="grid gap-4 border-b px-5 py-4 last:border-b-0 md:grid-cols-[180px_1fr_1fr] md:items-center"
           >
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 md:hidden">
@@ -492,14 +489,14 @@ const rateSourceDate =
     Current Rates
 ===================================== */}
 
-<section className="border-b bg-white">
-  <div className="mx-auto max-w-6xl px-6 py-16">
+<section className="bg-slate-50">
+  <div className="mx-auto max-w-6xl px-5 py-12">
     <div className="max-w-4xl">
-      <p className="text-sm font-semibold text-blue-700">
+      <p className="text-sm font-bold text-blue-700">
         OFFICIAL REFERENCE DATA
       </p>
 
-      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
         最新参考年化收益率
         <span className="mt-2 block text-base font-medium text-gray-500 md:inline md:ml-3">
           （供参考，以官方实际利率为主）
@@ -507,7 +504,7 @@ const rateSourceDate =
       </h2>
 
       <p className="mt-4 leading-7 text-gray-600">
-        页面优先从 Cetesdirecto 官方公开数据读取最新参考收益率。
+        页面优先从国债页面 Cetesdirecto 官方公开数据读取最新参考收益率。
         官方数据、开放期限和实际成交条件可能随时间变化，
         以下数据不代表未来收益，也不构成收益保证。
       </p>
@@ -516,18 +513,18 @@ const rateSourceDate =
     {displayedRates.length >
     0 ? (
       <>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {displayedRates.map(
             item => (
               <div
                 key={
                   item.id
                 }
-                className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-gray-950">
+                  <p className="text-sm font-bold text-slate-950">
                     {item.product ===
                     "CETES"
                       ? "短期国债"
@@ -537,7 +534,7 @@ const rateSourceDate =
                         : "流动性基金"}
                   </p>
 
-                  <p className="mt-1 text-sm font-medium text-gray-500">
+                  <p className="mt-1 text-xs font-medium text-slate-500">
                     {item.product} · {item.term}
                   </p>
                 </div>
@@ -550,7 +547,7 @@ const rateSourceDate =
                   )}
                 </div>
 
-                <p className="mt-5 text-4xl font-bold tracking-tight text-gray-950">
+                <p className="mt-4 text-3xl font-bold tracking-tight text-slate-950">
                   {
                     item.rate.toFixed(
                       2
@@ -616,14 +613,14 @@ const rateSourceDate =
     Consultation Value
 ===================================== */}
 
-<section className="border-b bg-white">
-  <div className="mx-auto max-w-6xl px-6 py-16">
+<section className="bg-white">
+  <div className="mx-auto max-w-6xl px-5 py-12">
     <div className="mx-auto max-w-3xl text-center">
-      <p className="text-sm font-semibold text-blue-700">
+      <p className="text-sm font-bold text-blue-700">
         CONSULTATION VALUE
       </p>
 
-      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
         不只是告诉您“去哪里点”
       </h2>
 
@@ -635,7 +632,7 @@ const rateSourceDate =
       </p>
     </div>
 
-    <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
       {[
         {
           value:
@@ -688,7 +685,7 @@ const rateSourceDate =
             key={
               item.title
             }
-            className="rounded-2xl border bg-gray-50 p-6"
+            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
           >
             <p className="text-3xl font-bold tracking-tight text-blue-700">
               {
@@ -719,13 +716,13 @@ const rateSourceDate =
       ===================================== */}
 
       <section className="bg-gray-50">
-        <div className="mx-auto max-w-6xl px-6 py-14">
+        <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold text-blue-700">
+            <p className="text-sm font-bold text-blue-700">
               CONSULTATION SERVICE
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
               咨询服务包含什么？
             </h2>
 
@@ -745,13 +742,13 @@ const rateSourceDate =
           </div>
 
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {/* =================================
                 01 Products
             ================================= */}
 
-            <div className="rounded-2xl border bg-white p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
                 01
               </div>
 
@@ -777,8 +774,8 @@ const rateSourceDate =
                 02 Account Opening
             ================================= */}
 
-            <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/60 p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
                 02
               </div>
 
@@ -808,8 +805,8 @@ const rateSourceDate =
                 03 Account Level / e.firma
             ================================= */}
 
-            <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/60 p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
                 03
               </div>
 
@@ -844,8 +841,8 @@ const rateSourceDate =
                 04 Auction
             ================================= */}
 
-            <div className="rounded-2xl border bg-white p-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-50 font-bold text-purple-700">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-50 font-bold text-purple-700">
                 04
               </div>
 
@@ -872,8 +869,8 @@ const rateSourceDate =
               05 Deposit
           ================================= */}
 
-          <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/60 p-6 shadow-sm">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+          <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
               05
             </div>
 
@@ -902,8 +899,8 @@ const rateSourceDate =
                 06 Withdrawal
             ================================= */}
 
-            <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/60 p-6 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
                 06
               </div>
 
@@ -928,187 +925,71 @@ const rateSourceDate =
             </div>
           </div>
 
-
-          {/* =====================================
-              Consultation Flow
-          ===================================== */}
-
-          <div className="mt-10 overflow-hidden rounded-2xl border border-blue-200 bg-white">
-            <div className="border-b border-blue-100 bg-blue-50 px-6 py-5">
-              <p className="text-sm font-semibold text-blue-700">
-                一次咨询，尽量完成完整闭环
-              </p>
-
-              <h3 className="mt-1 text-xl font-semibold text-blue-950">
-                标准目标：第一次咨询完成主要操作
-              </h3>
-            </div>
-
-
-            <div className="grid gap-0 md:grid-cols-3">
-              <div className="border-b p-6 md:border-b-0 md:border-r">
-                <div className="text-2xl font-bold text-blue-700">
-                  ①
-                </div>
-
-                <p className="mt-3 font-semibold">
-                  开户与账户设置
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  完成 Cetesdirecto
-                  基础开户，并根据实际情况说明
-                  账户等级及 e.firma 升级方式。
-                </p>
-              </div>
-
-
-              <div className="border-b p-6 md:border-b-0 md:border-r">
-                <div className="text-2xl font-bold text-blue-700">
-                  ②
-                </div>
-
-                <p className="mt-3 font-semibold">
-                  首次入金
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  由客户本人完成银行操作，
-                  并确认资金正确进入
-                  Cetesdirecto 账户。
-                </p>
-              </div>
-
-
-              <div className="p-6">
-                <div className="text-2xl font-bold text-blue-700">
-                  ③
-                </div>
-
-                <p className="mt-3 font-semibold">
-                  首次出金测试
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  完成一次基础出金测试，
-                  确认您已经掌握基本资金进出流程。
-                </p>
-              </div>
-            </div>
-          </div>
-
-
           {/* =====================================
               Follow-up Window
           ===================================== */}
 
-          <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6">
-            <h3 className="text-lg font-semibold">
-              如果当天无法全部完成怎么办？
-            </h3>
+<div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+  <h3 className="text-base font-bold text-slate-950">
+    如果当天无法全部完成怎么办？
+  </h3>
 
-            <p className="mt-2 text-sm leading-6 text-gray-600">
-              本服务目标是在第一次线上咨询中
-              尽可能完成主要操作流程。
-              如果因为银行处理、身份验证、
-              e.firma、Cetesdirecto 系统状态
-              或其他外部条件无法当场完成，
-              可在服务有效期内继续通过订单服务空间跟进。
-            </p>
+  <div className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+    <p>
+      本服务目标是在第一次线上咨询中，
+      尽可能完成主要操作流程。
+      如果因为银行处理、身份验证、
+      e.firma、Cetesdirecto 系统状态
+      或其他外部条件导致部分环节无法当场完成，
+      可在服务有效期内继续通过订单与您跟进说明。
+    </p>
 
+    <p className="font-semibold text-slate-900">
+      最长跟进期限：14 个日历日
+    </p>
 
-            {service.accessDurationDays && (
-              <p className="mt-3 text-sm font-medium text-gray-900">
-                最长跟进期限：
-                {" "}
-                {service.accessDurationDays}
-                {" "}
-                个日历日
-              </p>
-            )}
-
-
-            {service.completionMilestones.length >
-              0 && (
-              <>
-                <p className="mt-5 text-sm font-medium text-gray-900">
-                  本次服务的主要完成目标：
-                </p>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {service.completionMilestones.map(
-                    milestone => (
-                      <span
-                        key={
-                          milestone.key
-                        }
-                        className="rounded-full bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700"
-                      >
-                        ✓{" "}
-                        {
-                          milestone.label
-                        }
-                      </span>
-                    )
-                  )}
-                </div>
-              </>
-            )}
-
-
-            <p className="mt-4 text-xs leading-5 text-gray-500">
-              账户等级升级属于咨询与操作指导内容，
-              是否需要升级以及是否能够当场完成，
-              取决于客户实际账户状态、
-              e.firma 状态及 Cetesdirecto
-              当时适用的系统与官方要求。
-            </p>
-
-            <p className="mt-2 text-xs leading-5 text-gray-500">
-              服务完成是指本次中文咨询与操作指导完成，
-              不代表平台代您购买、出售
-              或管理任何投资产品。
-            </p>
-          </div>
+    <p>
+      后续是否能够继续推进，
+      取决于客户实际情况及当时适用的官方系统与要求。
+    </p>
+  </div>
+</div>
         </div>
       </section>
 
 
-      {/* =====================================
+{/* =====================================
     Course Preview
 ===================================== */}
 
 <section className="border-b bg-gray-950 text-white">
-  <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
+  <div className="mx-auto max-w-6xl px-5 py-10 md:py-12">
     <div className="max-w-3xl">
-      <p className="text-sm font-semibold text-blue-300">
+      <p className="text-xs font-bold tracking-wide text-blue-300">
         CONSULTATION MATERIAL
       </p>
 
-      <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+      <h2 className="mt-2 text-2xl font-bold tracking-tight text-white md:text-3xl">
         实际咨询课件预览
       </h2>
 
-      <p className="mt-4 leading-7 text-gray-400">
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-400">
         咨询过程中会结合整理后的中文课件和
         Cetesdirecto 实际页面进行讲解。
-        以下仅展示部分课件版式，
-        正文内容已模糊处理。
+        以下仅展示部分课件版式，正文内容已模糊处理。
       </p>
     </div>
 
-    <div className="mt-10 grid gap-6 md:grid-cols-2">
+    <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {coursePreviews.map(
         item => (
           <div
             key={
               item.id
             }
-            className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
+            className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.04]"
           >
-            {/* Screenshot */}
-
-            <div className="relative aspect-[16/9] overflow-hidden bg-slate-900">
+            <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
               <img
                 src={
                   item.image
@@ -1132,28 +1013,26 @@ const rateSourceDate =
               <div className="absolute inset-0 bg-slate-950/25" />
 
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-full border border-white/20 bg-black/45 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur-sm">
+                <div className="rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm">
                   🔒 咨询课件预览
                 </div>
               </div>
 
-              <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-xs font-semibold text-gray-200 backdrop-blur">
+              <div className="absolute left-3 top-3 rounded-full border border-white/15 bg-black/40 px-2 py-0.5 text-[10px] font-semibold text-gray-200 backdrop-blur">
                 {
                   item.number
                 }
               </div>
             </div>
 
-            {/* Description */}
-
-            <div className="p-6">
-              <h3 className="text-xl font-semibold">
+            <div className="p-3.5">
+              <h3 className="text-sm font-bold text-white">
                 {
                   item.title
                 }
               </h3>
 
-              <p className="mt-2 text-sm leading-6 text-gray-400">
+              <p className="mt-1.5 text-xs leading-5 text-gray-400">
                 {
                   item.description
                 }
@@ -1164,70 +1043,113 @@ const rateSourceDate =
       )}
     </div>
 
-    <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-center text-sm leading-6 text-gray-400">
+    <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-xs leading-5 text-gray-400">
       实际咨询由顾问在线结合课件进行讲解。
       页面预览仅用于展示课程结构和内容深度。
     </div>
   </div>
 </section>
 
-      {/* =====================================
-          Service Boundaries
-      ===================================== */}
+{/* =====================================
+    Service Boundaries
+===================================== */}
 
-      <section className="bg-gray-950 text-white">
-        <div className="mx-auto max-w-6xl px-6 py-14">
-          <div className="inline-flex rounded-full bg-red-500/15 px-3 py-1 text-sm font-semibold text-red-300">
-            服务边界
+<section className="bg-slate-50">
+  <div className="mx-auto max-w-6xl px-5 py-12">
+    <div className="max-w-3xl">
+      <p className="text-sm font-bold text-red-600">
+        服务边界
+      </p>
+
+      <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
+        我们不会替您做什么
+      </h2>
+
+      <p className="mt-4 leading-7 text-slate-600">
+        以下事项始终由客户本人决定和操作。
+        Lativia 只提供流程说明与咨询协助，
+        不接管账户、资金或投资决定。
+      </p>
+    </div>
+
+
+    <div className="mt-6 grid gap-3 md:grid-cols-2">
+      {[
+        "不推荐您购买 CETES、BONOS、BONDDIA 或其他具体产品",
+
+        "不推荐投资期限、金额或买卖时点",
+
+        "不提供个人资产配置或投资组合建议",
+
+        "不代为登录或操作您的 Cetesdirecto 账户",
+
+        "不接收、保管或转移您的投资资金",
+
+        "不收集账户密码、银行密码、OTP、Token、CVV 等安全凭证",
+
+        "不收集或保管 e.firma 私钥密码",
+
+        "不替客户签署 Cetesdirecto 合同或执行资金操作",
+      ].map(
+        item => (
+          <div
+            key={
+              item
+            }
+            className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          >
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M6 6l12 12" />
+                <path d="M18 6 6 18" />
+              </svg>
+            </div>
+
+            <p className="text-sm leading-6 text-slate-700">
+              {
+                item
+              }
+            </p>
           </div>
-
-          <h2 className="mt-3 text-3xl font-bold text-red-300">
-            我们不会替您做什么
-          </h2>
-
-          <p className="mt-3 max-w-3xl leading-7 text-gray-300">
-            以下事项始终由客户本人决定和操作。
-          </p>
+        )
+      )}
+    </div>
 
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {[
-              "不推荐您购买 CETES、BONOS、BONDDIA 或其他具体产品",
-
-              "不推荐投资期限、金额或买卖时点",
-
-              "不提供个人资产配置或投资组合建议",
-
-              "不代为登录或操作您的 Cetesdirecto 账户",
-
-              "不接收、保管或转移您的投资资金",
-
-              "不收集账户密码、银行密码、OTP、Token、CVV 等安全凭证",
-
-              "不收集或保管 e.firma 私钥密码",
-
-              "不替客户签署 Cetesdirecto 合同或执行资金操作",
-            ].map(
-              item => (
-                <div
-                  key={
-                    item
-                  }
-                  className="rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm leading-6 text-gray-200"
-                >
-                  <span className="mr-2 font-bold text-red-300">
-                    ×
-                  </span>
-
-                  {
-                    item
-                  }
-                </div>
-              )
-            )}
-          </div>
+    <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-4">
+      <div className="flex items-start gap-3">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-blue-700">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
         </div>
-      </section>
+
+        <p className="text-sm leading-6 text-blue-900">
+          账户登录、身份验证、银行绑定、
+          入金、出金及投资操作，
+          始终由客户本人完成。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 
       {/* =====================================
@@ -1235,13 +1157,13 @@ const rateSourceDate =
       ===================================== */}
 
       <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-14">
+        <div className="mx-auto max-w-6xl px-5 py-12">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold text-amber-700">
               BEFORE YOU START
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
               购买前需要了解的风险
             </h2>
 
@@ -1254,7 +1176,7 @@ const rateSourceDate =
           </div>
 
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
               [
                 "汇率风险",
@@ -1296,7 +1218,7 @@ const rateSourceDate =
                   key={
                     title
                   }
-                  className="rounded-2xl border p-5"
+                  className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
                 >
                   <h3 className="font-semibold">
                     {
@@ -1321,14 +1243,17 @@ const rateSourceDate =
           Purchase
       ===================================== */}
 
-      <section className="border-t bg-gray-50">
-        <div className="mx-auto max-w-4xl px-6 py-14">
+        <section
+          id="start-consultation"
+          className="bg-gray-50"
+        >
+        <div className="mx-auto max-w-3xl px-5 py-12">
           <div className="text-center">
-            <p className="text-sm font-semibold text-blue-700">
+            <p className="text-sm font-bold text-blue-700">
               开始办理
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
               先确认您符合办理条件
             </h2>
 
@@ -1341,7 +1266,7 @@ const rateSourceDate =
           </div>
 
 
-          <div className="mt-10 rounded-2xl border bg-white p-6 shadow-sm md:p-8">
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
             <DynamicForm
               serviceId={
                 service.id

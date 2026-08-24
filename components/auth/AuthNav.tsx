@@ -40,12 +40,86 @@ export default function AuthNav({
   const [
     menuOpen,
     setMenuOpen,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
+
+  const [
+    unreadCount,
+    setUnreadCount,
+  ] =
+    useState(
+      0
+    );
 
 
   useEffect(() => {
     const supabase =
       createClient();
+
+    let activeUser:
+      User | null =
+      null;
+
+
+    async function loadUnreadCount(
+      currentUser:
+        User | null
+    ) {
+      if (
+        !currentUser
+      ) {
+        setUnreadCount(
+          0
+        );
+
+        return;
+      }
+
+      const {
+        count,
+        error,
+      } =
+        await supabase
+          .from(
+            "notifications"
+          )
+          .select(
+            "id",
+            {
+              count:
+                "exact",
+              head:
+                true,
+            }
+          )
+          .eq(
+            "user_id",
+            currentUser.id
+          )
+          .eq(
+            "status",
+            "unread"
+          );
+
+      if (
+        error
+      ) {
+        console.error(
+          "读取未读通知数量失败:",
+          error
+        );
+
+        return;
+      }
+
+      setUnreadCount(
+        count ??
+          0
+      );
+    }
+
 
     supabase.auth
       .getUser()
@@ -53,11 +127,19 @@ export default function AuthNav({
         ({
           data,
         }) => {
+          activeUser =
+            data.user;
+
           setUser(
-            data.user
+            activeUser
+          );
+
+          void loadUnreadCount(
+            activeUser
           );
         }
       );
+
 
     const {
       data: {
@@ -69,22 +151,107 @@ export default function AuthNav({
           _event,
           session
         ) => {
-          setUser(
+          activeUser =
             session?.user ??
-              null
+            null;
+
+          setUser(
+            activeUser
+          );
+
+          void loadUnreadCount(
+            activeUser
           );
         }
       );
 
+
+    function refreshUnreadCount() {
+      void loadUnreadCount(
+        activeUser
+      );
+    }
+
+
+    function handleVisibilityChange() {
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+        refreshUnreadCount();
+      }
+    }
+
+
+    window.addEventListener(
+      "focus",
+      refreshUnreadCount
+    );
+
+    window.addEventListener(
+      "notifications:changed",
+      refreshUnreadCount
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+
+    const interval =
+      window.setInterval(
+        refreshUnreadCount,
+        60_000
+      );
+
+
     return () => {
       subscription.unsubscribe();
+
+      window.clearInterval(
+        interval
+      );
+
+      window.removeEventListener(
+        "focus",
+        refreshUnreadCount
+      );
+
+      window.removeEventListener(
+        "notifications:changed",
+        refreshUnreadCount
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
     };
   }, []);
 
 
   function closeMenu() {
-    setMenuOpen(false);
+    setMenuOpen(
+      false
+    );
   }
+
+
+  const notificationBadge =
+    unreadCount >
+    0 ? (
+      <span className="relative ml-1.5 inline-flex items-center">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-30" />
+
+        <span className="relative inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+          {unreadCount >
+          99
+            ? "99+"
+            : unreadCount}
+        </span>
+      </span>
+    ) : null;
 
 
   return (
@@ -102,9 +269,13 @@ export default function AuthNav({
 
             <Link
               href="/account/notifications"
-              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
+              className="flex items-center rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
             >
               通知
+
+              {
+                notificationBadge
+              }
             </Link>
 
             <div className="ml-1 flex items-center gap-2 border-l border-slate-200 pl-3">
@@ -142,7 +313,7 @@ export default function AuthNav({
           type="button"
           onClick={() =>
             setMenuOpen(
-              (current) =>
+              current =>
                 !current
             )
           }
@@ -150,7 +321,7 @@ export default function AuthNav({
             menuOpen
           }
           aria-label="打开导航菜单"
-          className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50"
+          className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50"
         >
           <span className="sr-only">
             导航菜单
@@ -161,6 +332,16 @@ export default function AuthNav({
             <span className="block h-0.5 w-5 rounded-full bg-current" />
             <span className="block h-0.5 w-5 rounded-full bg-current" />
           </div>
+
+          {unreadCount >
+            0 && (
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-bold text-white">
+              {unreadCount >
+              9
+                ? "9+"
+                : unreadCount}
+            </span>
+          )}
         </button>
 
 
@@ -169,9 +350,7 @@ export default function AuthNav({
             <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
               <nav className="grid gap-1">
                 {mainNavigation.map(
-                  (
-                    item
-                  ) => (
+                  item => (
                     <Link
                       key={
                         item.href
@@ -213,9 +392,13 @@ export default function AuthNav({
                     onClick={
                       closeMenu
                     }
-                    className="rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-50"
+                    className="flex items-center rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition hover:bg-slate-50"
                   >
                     通知
+
+                    {
+                      notificationBadge
+                    }
                   </Link>
 
                   <div className="mt-2 rounded-xl bg-slate-50 p-4">

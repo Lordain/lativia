@@ -1,136 +1,253 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  useState,
+} from "react";
 
-import type { RegisterFormData } from "@/types/auth";
-import { registerSchema } from "@/lib/validation/authSchema";
-import { signUp } from "@/lib/auth/signUp";
+import {
+  useForm,
+} from "react-hook-form";
+
+import {
+  zodResolver,
+} from "@hookform/resolvers/zod";
+
+import type {
+  RegisterFormData,
+} from "@/types/auth";
+
+import {
+  registerSchema,
+} from "@/lib/validation/authSchema";
+
+import {
+  signUp,
+} from "@/lib/auth/signUp";
 
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
 
+
 export default function RegisterForm() {
-  const [loading, setLoading] = useState(false);
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(
+      false
+    );
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
+    formState: {
+      errors,
     },
-  });
+  } =
+    useForm<RegisterFormData>({
+      resolver:
+        zodResolver(
+          registerSchema
+        ),
 
-  async function submitForm(data: RegisterFormData) {
-    setLoading(true);
+      defaultValues: {
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      },
+    });
+
+
+  async function submitForm(
+    data:
+      RegisterFormData
+  ) {
+    setLoading(
+      true
+    );
 
     try {
-      await signUp(data);
+      await signUp(
+        data
+      );
 
-      alert("注册成功");
-    } catch (error) {
-      console.error(error);
+      alert(
+        "注册成功"
+      );
+
+    } catch (
+      error
+    ) {
+      console.error(
+        error
+      );
 
       alert(
         error instanceof Error
           ? error.message
           : "注册失败，请稍后再试"
       );
+
     } finally {
-      setLoading(false);
+      setLoading(
+        false
+      );
     }
   }
 
+
   return (
     <form
-      onSubmit={handleSubmit(submitForm)}
-      className="space-y-6"
+      onSubmit={
+        handleSubmit(
+          submitForm
+        )
+      }
+      className="space-y-4"
     >
       <FormField
         label="姓名"
-        error={errors.name?.message}
+        error={
+          errors.name
+            ?.message
+        }
       >
         <Input
           type="text"
           placeholder="请输入姓名"
-          error={!!errors.name}
-          {...register("name")}
+          autoComplete="name"
+          error={
+            !!errors.name
+          }
+          {...register(
+            "name"
+          )}
         />
       </FormField>
 
+
       <FormField
         label="Email"
-        error={errors.email?.message}
+        error={
+          errors.email
+            ?.message
+        }
       >
         <Input
           type="email"
           placeholder="name@example.com"
-          error={!!errors.email}
-          {...register("email")}
+          autoComplete="email"
+          error={
+            !!errors.email
+          }
+          {...register(
+            "email"
+          )}
         />
       </FormField>
+
 
       <FormField
         label="电话（可选）"
-        error={errors.phone?.message}
+        error={
+          errors.phone
+            ?.message
+        }
       >
         <Input
           type="tel"
-          error={!!errors.phone}
-          {...register("phone")}
+          placeholder="例如：55 1234 5678"
+          autoComplete="tel"
+          error={
+            !!errors.phone
+          }
+          {...register(
+            "phone"
+          )}
         />
       </FormField>
 
+
       <FormField
         label="密码"
-        error={errors.password?.message}
+        error={
+          errors.password
+            ?.message
+        }
       >
         <Input
           type="password"
           placeholder="至少 6 位"
-          error={!!errors.password}
-          {...register("password")}
+          autoComplete="new-password"
+          error={
+            !!errors.password
+          }
+          {...register(
+            "password"
+          )}
         />
       </FormField>
 
+
       <FormField
         label="确认密码"
-        error={errors.confirmPassword?.message}
+        error={
+          errors.confirmPassword
+            ?.message
+        }
       >
         <Input
           type="password"
           placeholder="再次输入密码"
-          error={!!errors.confirmPassword}
-          {...register("confirmPassword")}
+          autoComplete="new-password"
+          error={
+            !!errors
+              .confirmPassword
+          }
+          {...register(
+            "confirmPassword"
+          )}
         />
       </FormField>
 
+
       <button
         type="submit"
-        disabled={loading}
+        disabled={
+          loading
+        }
         className="
+          flex
+          min-h-11
           w-full
-          rounded-lg
-          bg-blue-600
-          px-6
-          py-3
+          items-center
+          justify-center
+          rounded-xl
+          bg-blue-700
+          px-5
+          text-sm
+          font-semibold
           text-white
+          shadow-sm
           transition
-          hover:bg-blue-700
+          hover:bg-blue-800
           disabled:cursor-not-allowed
           disabled:opacity-60
         "
       >
-        {loading ? "注册中..." : "注册"}
+        {loading
+          ? "创建中..."
+          : "创建账号"}
       </button>
+
+
+      <p className="text-xs leading-5 text-slate-400">
+        请设置仅用于 Lativia
+        登录的密码。请勿在此填写银行密码、
+        OTP、Token、CVV 或 e.firma 私钥密码。
+      </p>
     </form>
   );
 }

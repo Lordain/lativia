@@ -2,6 +2,8 @@ import {
   getAdminDashboardStats,
 } from "@/lib/admin/getAdminDashboardStats";
 
+import AdminMetricCard from "@/components/admin/AdminMetricCard";
+
 import {
   getRecentAdminActivity,
 } from "@/lib/admin/getRecentAdminActivity";
@@ -152,45 +154,32 @@ export default async function AdminPage() {
         {/* 30-Day Summary */}
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg border bg-white p-4">
-            <p className="text-xs text-gray-500">
-              30 天订单
-            </p>
+          <AdminMetricCard
+            label="30 天订单"
+            value={
+              trends.totals.orders
+            }
+            description="最近 30 天创建的订单"
+            tone="blue"
+          />
 
-            <p className="mt-1 text-2xl font-bold">
-              {
-                trends.totals.orders
-              }
-            </p>
-          </div>
+          <AdminMetricCard
+            label="30 天 MXN 收入"
+            value={`$${trends.totals.revenueMXN.toFixed(
+              2
+            )}`}
+            description="最近 30 天已确认 MXN 收入"
+            tone="emerald"
+          />
 
-          <div className="rounded-lg border bg-white p-4">
-            <p className="text-xs text-gray-500">
-              30 天 MXN 收入
-            </p>
-
-            <p className="mt-1 text-2xl font-bold">
-              $
-              {trends.totals.revenueMXN.toFixed(
-                2
-              )}{" "}
-              MXN
-            </p>
-          </div>
-
-          <div className="rounded-lg border bg-white p-4">
-            <p className="text-xs text-gray-500">
-              30 天 CNY 收入
-            </p>
-
-            <p className="mt-1 text-2xl font-bold">
-              ¥
-              {trends.totals.revenueCNY.toFixed(
-                2
-              )}{" "}
-              CNY
-            </p>
-          </div>
+          <AdminMetricCard
+            label="30 天 CNY 收入"
+            value={`¥${trends.totals.revenueCNY.toFixed(
+              2
+            )}`}
+            description="最近 30 天已确认 CNY 收入"
+            tone="violet"
+          />
         </div>
 
         {/* Charts */}

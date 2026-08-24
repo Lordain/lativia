@@ -6,6 +6,12 @@ import {
 
 import RetryNotificationEmailButton from "@/components/admin/RetryNotificationEmailButton";
 
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+
+import AdminMetricCard from "@/components/admin/AdminMetricCard";
+
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+
 
 function getStatusStyle(
   status:
@@ -15,7 +21,7 @@ function getStatusStyle(
     status
   ) {
     case "sent":
-      return "bg-green-50 text-green-700";
+      return "bg-emerald-50 text-emerald-700";
 
     case "failed":
       return "bg-red-50 text-red-700";
@@ -27,10 +33,10 @@ function getStatusStyle(
       return "bg-amber-50 text-amber-700";
 
     case "unknown":
-      return "bg-purple-50 text-purple-700";
+      return "bg-violet-50 text-violet-700";
 
     default:
-      return "bg-gray-100 text-gray-700";
+      return "bg-slate-100 text-slate-700";
   }
 }
 
@@ -68,12 +74,6 @@ export default async function AdminNotificationsPage() {
     await getAdminNotificationDeliveries();
 
 
-  /*
-   * ========================================
-   * Email Delivery Only
-   * ========================================
-   */
-
   const emailItems =
     items.filter(
       item =>
@@ -81,12 +81,6 @@ export default async function AdminNotificationsPage() {
         "email"
     );
 
-
-  /*
-   * ========================================
-   * Summary
-   * ========================================
-   */
 
   const sentCount =
     emailItems.filter(
@@ -123,412 +117,354 @@ export default async function AdminNotificationsPage() {
 
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      {/* =====================================
-          Header
-      ===================================== */}
+    <div>
+      <AdminPageHeader
+        title="通知管理"
+        description="查看客户 Email 通知的发送状态、Provider Message ID、失败原因、重试次数，以及需要人工核对的异常投递。"
+      />
 
-      <div>
-        <p className="text-sm font-medium text-blue-600">
-          Admin
-        </p>
+      <section className="mt-8">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <AdminMetricCard
+            label="已发送"
+            value={
+              sentCount
+            }
+            description="Provider 已确认接受发送"
+            tone="emerald"
+          />
 
-        <h1 className="mt-1 text-3xl font-bold">
-          通知管理
-        </h1>
+          <AdminMetricCard
+            label="处理中"
+            value={
+              processingCount
+            }
+            description="包括 pending 和 processing"
+            tone="blue"
+          />
 
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-gray-500">
-          查看客户 Email 通知的发送状态、
-          Provider Message ID、失败原因、
-          重试次数，以及需要人工核对的异常投递。
-        </p>
-      </div>
+          <AdminMetricCard
+            label="发送失败"
+            value={
+              failedCount
+            }
+            description="可在修复问题后人工重试"
+            tone={
+              failedCount >
+              0
+                ? "red"
+                : "slate"
+            }
+          />
 
-
-      {/* =====================================
-          Summary Cards
-      ===================================== */}
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border bg-white p-5">
-          <p className="text-sm text-gray-500">
-            已发送
-          </p>
-
-          <p className="mt-2 text-2xl font-semibold text-green-700">
-            {sentCount}
-          </p>
+          <AdminMetricCard
+            label="待人工核对"
+            value={
+              unknownCount
+            }
+            description="禁止直接重发，避免客户重复收件"
+            tone={
+              unknownCount >
+              0
+                ? "violet"
+                : "slate"
+            }
+          />
         </div>
+      </section>
 
+      {unknownCount >
+        0 && (
+        <section className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-5 shadow-sm">
+          <div className="flex gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+              !
+            </div>
 
-        <div className="rounded-xl border bg-white p-5">
-          <p className="text-sm text-gray-500">
-            处理中
-          </p>
+            <div>
+              <h2 className="font-bold text-violet-950">
+                有 Email 需要人工核对
+              </h2>
 
-          <p className="mt-2 text-2xl font-semibold text-blue-700">
-            {processingCount}
-          </p>
-
-          <p className="mt-1 text-xs text-gray-400">
-            包括 pending 和 processing
-          </p>
-        </div>
-
-
-        <div className="rounded-xl border bg-white p-5">
-          <p className="text-sm text-gray-500">
-            发送失败
-          </p>
-
-          <p className="mt-2 text-2xl font-semibold text-red-600">
-            {failedCount}
-          </p>
-
-          <p className="mt-1 text-xs text-gray-400">
-            可在下方人工重试
-          </p>
-        </div>
-
-
-        <div className="rounded-xl border bg-white p-5">
-          <p className="text-sm text-gray-500">
-            待人工核对
-          </p>
-
-          <p className="mt-2 text-2xl font-semibold text-purple-600">
-            {unknownCount}
-          </p>
-
-          <p className="mt-1 text-xs text-gray-400">
-            Provider 结果可能已成功，禁止直接重发
-          </p>
-        </div>
-      </div>
-
-
-      {/* =====================================
-          Important State Explanation
-      ===================================== */}
-
-      {unknownCount > 0 && (
-        <div className="mt-6 rounded-xl border border-purple-200 bg-purple-50 p-5">
-          <p className="font-medium text-purple-800">
-            有 Email 需要人工核对
-          </p>
-
-          <p className="mt-2 text-sm leading-6 text-purple-700">
-            「待人工核对」表示邮件 Provider
-            可能已经接受发送请求，
-            但系统未能确认本地最终状态。
-            为避免客户收到重复邮件，
-            此状态不会提供自动重试按钮。
-            请先根据 Provider Message ID
-            到邮件服务商后台确认实际发送结果。
-          </p>
-        </div>
+              <p className="mt-2 max-w-4xl text-sm leading-6 text-violet-800">
+                「待人工核对」表示邮件 Provider
+                可能已经接受发送请求，
+                但系统未能确认本地最终状态。
+                为避免客户收到重复邮件，
+                此状态不会提供自动重试按钮。
+                请先根据 Provider Message ID
+                到邮件服务商后台确认实际发送结果。
+              </p>
+            </div>
+          </div>
+        </section>
       )}
 
+      <section className="mt-8">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold text-slate-950">
+            Email 投递记录
+          </h2>
 
-      {/* =====================================
-          Delivery Table
-      ===================================== */}
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            查看每一笔客户通知的发送状态与 Provider 回传信息。
+          </p>
+        </div>
 
-      <div className="mt-8 overflow-hidden rounded-xl border bg-white">
         {emailItems.length ===
         0 ? (
-          <div className="p-8 text-center">
-            <p className="text-sm font-medium text-gray-700">
-              当前没有 Email Delivery
-            </p>
-
-            <p className="mt-2 text-sm text-gray-500">
-              客户通知开始通过 Email 发送后，
-              投递记录会显示在这里。
-            </p>
-          </div>
+          <AdminEmptyState
+            title="当前没有 Email Delivery"
+            description="客户通知开始通过 Email 发送后，投递记录会显示在这里。"
+          />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y">
-              <thead className="bg-gray-50">
-                <tr className="text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                  <th className="px-4 py-3">
-                    通知
-                  </th>
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-3.5">
+                      通知
+                    </th>
 
-                  <th className="px-4 py-3">
-                    订单
-                  </th>
+                    <th className="px-5 py-3.5">
+                      订单
+                    </th>
 
-                  <th className="px-4 py-3">
-                    收件人
-                  </th>
+                    <th className="px-5 py-3.5">
+                      收件人
+                    </th>
 
-                  <th className="px-4 py-3">
-                    状态
-                  </th>
+                    <th className="px-5 py-3.5">
+                      状态
+                    </th>
 
-                  <th className="px-4 py-3">
-                    尝试次数
-                  </th>
+                    <th className="px-5 py-3.5">
+                      尝试
+                    </th>
 
-                  <th className="px-4 py-3">
-                    Provider ID
-                  </th>
+                    <th className="px-5 py-3.5">
+                      Provider ID
+                    </th>
 
-                  <th className="px-4 py-3">
-                    最后尝试
-                  </th>
+                    <th className="px-5 py-3.5">
+                      最后尝试
+                    </th>
 
-                  <th className="px-4 py-3">
-                    失败 / 异常原因
-                  </th>
+                    <th className="px-5 py-3.5">
+                      失败 / 异常原因
+                    </th>
 
-                  <th className="px-4 py-3">
-                    操作
-                  </th>
-                </tr>
-              </thead>
+                    <th className="px-5 py-3.5">
+                      操作
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-100">
+                  {emailItems.map(
+                    item => {
+                      const canRetry =
+                        item.deliveryStatus ===
+                          "failed" &&
+                        item.attemptCount <
+                          5;
 
 
-              <tbody className="divide-y">
-                {emailItems.map(
-                  item => {
-                    const canRetry =
-                      item.deliveryStatus ===
-                        "failed" &&
-                      item.attemptCount <
-                        5;
+                      return (
+                        <tr
+                          key={`${item.notificationId}:${item.channel}`}
+                          className="align-top transition hover:bg-slate-50/70"
+                        >
+                          <td className="min-w-60 px-5 py-4">
+                            <p className="text-sm font-semibold text-slate-900">
+                              {
+                                item.notificationTitle
+                              }
+                            </p>
 
+                            <p className="mt-1 text-xs text-slate-400">
+                              {
+                                item.notificationType
+                              }
+                            </p>
 
-                    return (
-                      <tr
-                        key={
-                          `${item.notificationId}:${item.channel}`
-                        }
-                        className="align-top"
-                      >
-                        {/* Notification */}
+                            <p className="mt-1 text-xs text-slate-400">
+                              通知建立：
+                              {new Date(
+                                item.createdAt
+                              ).toLocaleString()}
+                            </p>
+                          </td>
 
-                        <td className="min-w-56 px-4 py-4">
-                          <p className="text-sm font-medium text-gray-900">
+                          <td className="px-5 py-4">
+                            {item.orderId ? (
+                              <Link
+                                href={`/admin/orders/${item.orderId}`}
+                                className="whitespace-nowrap text-sm font-semibold text-blue-600 transition hover:text-blue-700 hover:underline"
+                              >
+                                查看订单
+                              </Link>
+                            ) : (
+                              <span className="text-sm text-slate-400">
+                                —
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="max-w-xs break-all px-5 py-4 text-sm text-slate-600">
                             {
-                              item.notificationTitle
+                              item.recipient ??
+                              "—"
                             }
-                          </p>
+                          </td>
 
-                          <p className="mt-1 text-xs text-gray-400">
-                            {
-                              item.notificationType
-                            }
-                          </p>
-
-                          <p className="mt-1 text-xs text-gray-400">
-                            通知建立：
-                            {new Date(
-                              item.createdAt
-                            ).toLocaleString()}
-                          </p>
-                        </td>
-
-
-                        {/* Order */}
-
-                        <td className="px-4 py-4">
-                          {item.orderId ? (
-                            <Link
-                              href={`/admin/orders/${item.orderId}`}
-                              className="text-sm font-medium text-blue-600 hover:underline"
-                            >
-                              查看订单
-                            </Link>
-                          ) : (
-                            <span className="text-sm text-gray-400">
-                              —
-                            </span>
-                          )}
-                        </td>
-
-
-                        {/* Recipient */}
-
-                        <td className="max-w-xs break-all px-4 py-4 text-sm text-gray-600">
-                          {
-                            item.recipient ??
-                            "—"
-                          }
-                        </td>
-
-
-                        {/* Status */}
-
-                        <td className="px-4 py-4">
-                          <span
-                            className={`
-                              inline-flex
-                              whitespace-nowrap
-                              rounded-full
-                              px-2.5
-                              py-1
-                              text-xs
-                              font-medium
-                              ${getStatusStyle(
-                                item.deliveryStatus
-                              )}
-                            `}
-                          >
-                            {
-                              getStatusLabel(
-                                item.deliveryStatus
-                              )
-                            }
-                          </span>
-                        </td>
-
-
-                        {/* Attempts */}
-
-                        <td className="px-4 py-4 text-sm text-gray-600">
-                          {
-                            item.attemptCount
-                          }
-                          /5
-                        </td>
-
-
-                        {/* Provider Message ID */}
-
-                        <td className="max-w-xs break-all px-4 py-4 text-xs text-gray-500">
-                          {
-                            item.providerMessageId ??
-                            "—"
-                          }
-                        </td>
-
-
-                        {/* Last Attempt */}
-
-                        <td className="min-w-40 px-4 py-4 text-xs text-gray-500">
-                          {item.lastAttemptAt
-                            ? new Date(
-                                item.lastAttemptAt
-                              ).toLocaleString()
-                            : "—"}
-                        </td>
-
-
-                        {/* Failure / Unknown Reason */}
-
-                        <td className="max-w-sm px-4 py-4">
-                          {item.failureReason ? (
-                            <p
+                          <td className="px-5 py-4">
+                            <span
                               className={`
+                                inline-flex
+                                whitespace-nowrap
+                                rounded-full
+                                px-2.5
+                                py-1
                                 text-xs
-                                leading-5
-                                ${
-                                  item.deliveryStatus ===
-                                  "unknown"
-                                    ? "text-purple-700"
-                                    : "text-red-600"
-                                }
+                                font-semibold
+                                ${getStatusStyle(
+                                  item.deliveryStatus
+                                )}
                               `}
                             >
                               {
-                                item.failureReason
+                                getStatusLabel(
+                                  item.deliveryStatus
+                                )
                               }
-                            </p>
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              —
                             </span>
-                          )}
+                          </td>
 
+                          <td className="px-5 py-4 text-sm text-slate-600">
+                            {
+                              item.attemptCount
+                            }
+                            /5
+                          </td>
 
-                          {item.failedAt && (
-                            <p className="mt-2 text-xs text-gray-400">
-                              失败时间：
-                              {new Date(
-                                item.failedAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
+                          <td className="max-w-xs break-all px-5 py-4 font-mono text-xs text-slate-500">
+                            {
+                              item.providerMessageId ??
+                              "—"
+                            }
+                          </td>
 
+                          <td className="min-w-44 px-5 py-4 text-xs text-slate-500">
+                            {item.lastAttemptAt
+                              ? new Date(
+                                  item.lastAttemptAt
+                                ).toLocaleString()
+                              : "—"}
+                          </td>
 
-                          {item.sentAt && (
-                            <p className="mt-2 text-xs text-gray-400">
-                              发送时间：
-                              {new Date(
-                                item.sentAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
-                        </td>
-
-
-                        {/* Action */}
-
-                        <td className="px-4 py-4">
-                          {canRetry ? (
-                            <RetryNotificationEmailButton
-                              notificationId={
-                                item.notificationId
-                              }
-                            />
-                          ) : item.deliveryStatus ===
-                            "unknown" ? (
-                            <div className="max-w-40">
-                              <p className="text-xs font-medium text-purple-700">
-                                请人工核对
+                          <td className="max-w-sm px-5 py-4">
+                            {item.failureReason ? (
+                              <p
+                                className={`
+                                  text-xs
+                                  leading-5
+                                  ${
+                                    item.deliveryStatus ===
+                                    "unknown"
+                                      ? "text-violet-700"
+                                      : "text-red-600"
+                                  }
+                                `}
+                              >
+                                {
+                                  item.failureReason
+                                }
                               </p>
+                            ) : (
+                              <span className="text-xs text-slate-400">
+                                —
+                              </span>
+                            )}
 
-                              <p className="mt-1 text-xs leading-5 text-gray-400">
-                                禁止直接重发
+                            {item.failedAt && (
+                              <p className="mt-2 text-xs text-slate-400">
+                                失败时间：
+                                {new Date(
+                                  item.failedAt
+                                ).toLocaleString()}
                               </p>
-                            </div>
-                          ) : item.deliveryStatus ===
-                              "failed" &&
-                            item.attemptCount >=
-                              5 ? (
-                            <div className="max-w-40">
-                              <p className="text-xs font-medium text-red-700">
-                                已达重试上限
-                              </p>
+                            )}
 
-                              <p className="mt-1 text-xs leading-5 text-gray-400">
-                                请人工检查配置或 Provider
+                            {item.sentAt && (
+                              <p className="mt-2 text-xs text-slate-400">
+                                发送时间：
+                                {new Date(
+                                  item.sentAt
+                                ).toLocaleString()}
                               </p>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-400">
-                              —
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  }
-                )}
-              </tbody>
-            </table>
+                            )}
+                          </td>
+
+                          <td className="px-5 py-4">
+                            {canRetry ? (
+                              <RetryNotificationEmailButton
+                                notificationId={
+                                  item.notificationId
+                                }
+                              />
+                            ) : item.deliveryStatus ===
+                              "unknown" ? (
+                              <div className="max-w-40">
+                                <p className="text-xs font-semibold text-violet-700">
+                                  请人工核对
+                                </p>
+
+                                <p className="mt-1 text-xs leading-5 text-slate-400">
+                                  禁止直接重发
+                                </p>
+                              </div>
+                            ) : item.deliveryStatus ===
+                                "failed" &&
+                              item.attemptCount >=
+                                5 ? (
+                              <div className="max-w-40">
+                                <p className="text-xs font-semibold text-red-700">
+                                  已达重试上限
+                                </p>
+
+                                <p className="mt-1 text-xs leading-5 text-slate-400">
+                                  请检查配置或 Provider
+                                </p>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-slate-400">
+                                —
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
-      </div>
+      </section>
 
-
-      {/* =====================================
-          Footer Notes
-      ===================================== */}
-
-      <div className="mt-6 rounded-xl bg-gray-50 p-5 text-sm leading-6 text-gray-600">
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-slate-100/70 p-5 text-sm leading-6 text-slate-600">
         <p>
-          <strong>
+          <strong className="text-slate-900">
             发送失败：
           </strong>{" "}
           Provider 明确返回失败，可以在修复原因后重试。
         </p>
 
         <p className="mt-2">
-          <strong>
+          <strong className="text-slate-900">
             待人工核对：
           </strong>{" "}
           Provider 可能已经接受邮件，但系统无法确认最终状态。
@@ -536,13 +472,13 @@ export default async function AdminNotificationsPage() {
         </p>
 
         <p className="mt-2">
-          <strong>
+          <strong className="text-slate-900">
             已发送：
           </strong>{" "}
           已取得 Provider Message ID，
           系统不会再次发送同一 Notification。
         </p>
-      </div>
+      </section>
     </div>
   );
 }

@@ -11,6 +11,8 @@ import {
 
 import AdminAppointmentAvailabilityGrid from "@/components/admin/AdminAppointmentAvailabilityGrid";
 
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+
 
 interface Props {
   searchParams:
@@ -26,8 +28,10 @@ export default async function AdminAppointmentAvailabilityPage({
   const params =
     await searchParams;
 
+
   const requestedWeek =
     params.week;
+
 
   const weekStart =
     requestedWeek &&
@@ -39,10 +43,12 @@ export default async function AdminAppointmentAvailabilityPage({
         )
       : getMondayDateKey();
 
+
   const week =
     await getAdminAvailabilityWeek(
       weekStart
     );
+
 
   const previousWeek =
     shiftWeek(
@@ -50,83 +56,87 @@ export default async function AdminAppointmentAvailabilityPage({
       -1
     );
 
+
   const nextWeek =
     shiftWeek(
       weekStart,
       1
     );
 
+
+  const navigationButtonClass =
+    "inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-950";
+
+
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Appointment Availability
-          </p>
+    <div>
+      <AdminPageHeader
+        title="预约时间管理"
+        description="默认全部时段为已占用。只有管理员主动设置为「可预约」的时段，客户才能选择。"
+        actions={
+          <>
+            <Link
+              href={`/admin/appointments/availability?week=${previousWeek}`}
+              className={
+                navigationButtonClass
+              }
+            >
+              ← 上一周
+            </Link>
 
-          <h1 className="mt-1 text-3xl font-bold">
-            预约时间管理
-          </h1>
+            <Link
+              href="/admin/appointments/availability"
+              className={
+                navigationButtonClass
+              }
+            >
+              本周
+            </Link>
 
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-gray-500">
-            默认全部时段为已占用。
-            只有 Admin 主动设置为
-            「可预约」的时段，
-            客户才能选择。
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={`/admin/appointments/availability?week=${previousWeek}`}
-            className="rounded-lg border bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
-          >
-            ← 上一周
-          </Link>
-
-          <Link
-            href="/admin/appointments/availability"
-            className="rounded-lg border bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
-          >
-            本周
-          </Link>
-
-          <Link
-            href={`/admin/appointments/availability?week=${nextWeek}`}
-            className="rounded-lg border bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
-          >
-            下一周 →
-          </Link>
-        </div>
-      </div>
-
-
-      <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
-        <strong>
-          当前周：
-        </strong>
-        {" "}
-        {
-          week.weekStart
-        }
-        {" → "}
-        {
-          week.weekEnd
-        }
-
-        <br />
-
-        时间统一按
-        America/Mexico_City
-        （墨西哥城）显示。
-      </div>
-
-
-      <AdminAppointmentAvailabilityGrid
-        week={
-          week
+            <Link
+              href={`/admin/appointments/availability?week=${nextWeek}`}
+              className={
+                navigationButtonClass
+              }
+            >
+              下一周 →
+            </Link>
+          </>
         }
       />
+
+      <section className="mt-7 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 shadow-sm">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+              当前周
+            </p>
+
+            <p className="mt-1 font-bold text-blue-950">
+              {
+                week.weekStart
+              }
+              {" → "}
+              {
+                week.weekEnd
+              }
+            </p>
+          </div>
+
+          <p className="text-sm text-blue-800">
+            America/Mexico_City
+            （墨西哥城时间）
+          </p>
+        </div>
+      </section>
+
+      <div className="mt-6">
+        <AdminAppointmentAvailabilityGrid
+          week={
+            week
+          }
+        />
+      </div>
     </div>
   );
 }

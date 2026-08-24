@@ -138,23 +138,18 @@ export default function AdminOrderResult({
   return (
     <div>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
-          Result Delivery
-        </p>
-
-        <h3 className="mt-1 text-lg font-semibold">
+        <h3 className="font-bold text-slate-950">
           服务结果交付
         </h3>
 
-        <p className="mt-2 text-sm leading-6 text-gray-500">
+        <p className="mt-1.5 text-sm leading-6 text-slate-500">
           正式记录本订单已经向客户交付的服务结果。
           已交付结果不会作为普通聊天消息处理。
         </p>
       </div>
 
-
       {deliveredResult ? (
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-emerald-800">
@@ -166,34 +161,31 @@ export default function AdminOrderResult({
                 }
               </p>
 
-              <h4 className="mt-2 text-lg font-semibold text-emerald-950">
+              <h4 className="mt-2 text-lg font-bold text-emerald-950">
                 {
                   deliveredResult.title
                 }
               </h4>
             </div>
 
-
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-emerald-700">
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
               已交付
             </span>
           </div>
 
-
-          <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-gray-700">
+          <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-700">
             {
               deliveredResult.summary
             }
           </p>
 
-
           <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">
+            <div className="rounded-xl border border-emerald-100 bg-white p-3">
+              <p className="text-xs font-medium text-slate-500">
                 结果类型
               </p>
 
-              <p className="mt-1 text-sm font-medium">
+              <p className="mt-1 text-sm font-semibold text-slate-900">
                 {
                   deliveredResult
                     .resultType
@@ -201,13 +193,12 @@ export default function AdminOrderResult({
               </p>
             </div>
 
-
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">
+            <div className="rounded-xl border border-emerald-100 bg-white p-3">
+              <p className="text-xs font-medium text-slate-500">
                 交付时间
               </p>
 
-              <p className="mt-1 text-sm font-medium">
+              <p className="mt-1 text-sm font-semibold text-slate-900">
                 {
                   formatDateTime(
                     deliveredResult
@@ -218,8 +209,7 @@ export default function AdminOrderResult({
             </div>
           </div>
 
-
-          <p className="mt-4 text-xs leading-5 text-gray-500">
+          <p className="mt-4 text-xs leading-5 text-slate-500">
             {
               deliveredResult
                 .resultIsOfficial
@@ -229,9 +219,9 @@ export default function AdminOrderResult({
           </p>
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border bg-gray-50 p-5">
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
           <div>
-            <label className="text-sm font-medium text-gray-900">
+            <label className="text-sm font-semibold text-slate-900">
               结果标题
             </label>
 
@@ -239,27 +229,22 @@ export default function AdminOrderResult({
               value={
                 title
               }
-
               onChange={
                 event =>
                   setTitle(
                     event.target.value
                   )
               }
-
               disabled={
                 isPending
               }
-
               placeholder="例如：Cetesdirecto 咨询服务完成"
-
-              className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             />
           </div>
 
-
           <div className="mt-4">
-            <label className="text-sm font-medium text-gray-900">
+            <label className="text-sm font-semibold text-slate-900">
               结果说明
             </label>
 
@@ -267,53 +252,43 @@ export default function AdminOrderResult({
               value={
                 summary
               }
-
               onChange={
                 event =>
                   setSummary(
                     event.target.value
                   )
               }
-
               disabled={
                 isPending
               }
-
               rows={
                 6
               }
-
               placeholder="填写客户本次实际获得的服务结果、已经完成的事项，以及必要的后续说明。"
-
-              className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-6 outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm leading-6 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             />
           </div>
 
-
           {error && (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {
                 error
               }
             </div>
           )}
 
-
-          <div className="mt-4 flex justify-end">
+          <div className="mt-5 flex justify-end">
             <button
               type="button"
-
               disabled={
                 isPending ||
                 !title.trim() ||
                 !summary.trim()
               }
-
               onClick={
                 handleDeliver
               }
-
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {
                 isPending
@@ -323,8 +298,7 @@ export default function AdminOrderResult({
             </button>
           </div>
 
-
-          <p className="mt-3 text-xs leading-5 text-gray-500">
+          <p className="mt-3 text-xs leading-5 text-slate-500">
             当前阶段通过客户订单 Workspace 交付。
             正式交付后不能直接覆盖，请确认内容无误后再提交。
           </p>

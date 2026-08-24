@@ -230,47 +230,51 @@ export default function AdminWorkspaceChat({
 
 
   return (
-    <div className="mt-8 border-t pt-6">
-      {/* =====================================
-          Header
-      ===================================== */}
-
+    <div>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="font-semibold">
+          <h4 className="font-bold text-slate-950">
             服务沟通
-          </h3>
+          </h4>
 
-          <p className="mt-1 text-sm leading-6 text-gray-500">
-            此处为客户可见沟通。
-            正式资料修正请使用 Customer Action。
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            此处内容客户可见。正式资料修正请使用客户资料与待办流程。
           </p>
         </div>
 
-
-        <span className="shrink-0 text-sm text-gray-500">
+        <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
           {
             messages.length
           } 条
         </span>
       </div>
 
-
-      {/* =====================================
-          Conversation Window
-      ===================================== */}
-
-      <div className="mt-4 overflow-hidden rounded-xl border bg-gray-50">
+      <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70">
         <div className="h-[420px] overflow-y-auto p-4 md:p-5">
           {messages.length ===
           0 ? (
             <div className="flex h-full items-center justify-center text-center">
               <div>
-                <p className="font-medium text-gray-700">
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+                  </svg>
+                </div>
+
+                <p className="mt-4 font-semibold text-slate-700">
                   暂无服务消息
                 </p>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-slate-500">
                   可以在下方发送第一条客户可见消息。
                 </p>
               </div>
@@ -305,7 +309,6 @@ export default function AdminWorkspaceChat({
                       key={
                         message.id
                       }
-
                       className={
                         fromAdmin ||
                         fromSystem
@@ -325,16 +328,15 @@ export default function AdminWorkspaceChat({
                           }
                         `}
                       >
-                        <p className="mb-1 text-xs font-medium text-gray-500">
+                        <p className="mb-1 text-xs font-medium text-slate-500">
                           {
                             fromSystem
                               ? "服务团队"
                               : fromAdmin
-                                ? "Admin"
+                                ? "管理员"
                                 : "客户"
                           }
                         </p>
-
 
                         <div
                           className={`
@@ -347,7 +349,7 @@ export default function AdminWorkspaceChat({
                             ${
                               fromAdmin ||
                               fromSystem
-                                ? "rounded-tl-sm border bg-white text-gray-800"
+                                ? "rounded-tl-sm border border-slate-200 bg-white text-slate-800"
                                 : "rounded-tr-sm bg-blue-600 text-white"
                             }
                           `}
@@ -357,7 +359,7 @@ export default function AdminWorkspaceChat({
                               className={
                                 fromAdmin ||
                                 fromSystem
-                                  ? "italic text-gray-400"
+                                  ? "italic text-slate-400"
                                   : "italic text-blue-100"
                               }
                             >
@@ -369,56 +371,45 @@ export default function AdminWorkspaceChat({
                                 value={
                                   editingValue
                                 }
-
                                 onChange={
                                   event =>
                                     setEditingValue(
                                       event.target.value
                                     )
                                 }
-
                                 rows={
                                   4
                                 }
-
                                 maxLength={
                                   10000
                                 }
-
-                                className="w-full rounded-lg border bg-white p-3 text-sm text-gray-900 outline-none"
+                                className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                               />
-
 
                               <div className="mt-2 flex gap-2">
                                 <button
                                   type="button"
-
                                   onClick={
                                     () =>
                                       saveEdit(
                                         message
                                       )
                                   }
-
                                   disabled={
                                     loadingId ===
                                     message.id
                                   }
-
-                                  className="rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white"
+                                  className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
                                 >
                                   保存
                                 </button>
 
-
                                 <button
                                   type="button"
-
                                   onClick={
                                     cancelEdit
                                   }
-
-                                  className="rounded-md border bg-white px-3 py-1.5 text-xs text-gray-700"
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                                 >
                                   取消
                                 </button>
@@ -433,11 +424,6 @@ export default function AdminWorkspaceChat({
                           )}
                         </div>
 
-
-                        {/* =====================================
-                            Meta / Controls
-                        ===================================== */}
-
                         <div
                           className={`
                             mt-1
@@ -446,7 +432,7 @@ export default function AdminWorkspaceChat({
                             items-center
                             gap-2
                             text-xs
-                            text-gray-400
+                            text-slate-400
                             ${
                               fromAdmin ||
                               fromSystem
@@ -463,7 +449,6 @@ export default function AdminWorkspaceChat({
                             }
                           </span>
 
-
                           {message.editedAt &&
                             !deleted && (
                             <span>
@@ -471,43 +456,36 @@ export default function AdminWorkspaceChat({
                             </span>
                           )}
 
-
                           {fromAdmin &&
                             !deleted &&
                             !editing && (
                             <>
                               <button
                                 type="button"
-
                                 onClick={
                                   () =>
                                     startEdit(
                                       message
                                     )
                                 }
-
-                                className="text-purple-600 hover:underline"
+                                className="font-medium text-blue-600 hover:underline"
                               >
                                 编辑
                               </button>
 
-
                               <button
                                 type="button"
-
                                 onClick={
                                   () =>
                                     handleDelete(
                                       message
                                     )
                                 }
-
                                 disabled={
                                   loadingId ===
                                   message.id
                                 }
-
-                                className="text-red-600 hover:underline disabled:opacity-50"
+                                className="font-medium text-red-600 hover:underline disabled:opacity-50"
                               >
                                 删除
                               </button>
@@ -529,17 +507,11 @@ export default function AdminWorkspaceChat({
           )}
         </div>
 
-
-        {/* =====================================
-            Input
-        ===================================== */}
-
-        <div className="border-t bg-white p-4">
+        <div className="border-t border-slate-200 bg-white p-4">
           <AdminWorkspaceMessageForm
             workspaceId={
               workspaceId
             }
-
             disabled={
               workspaceStatus !==
               "active"

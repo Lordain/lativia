@@ -15,6 +15,7 @@ import type {
   PaymentProvider,
 } from "@/types/payment";
 
+
 interface Props {
   paymentStatus:
     PaymentStatus;
@@ -39,6 +40,7 @@ interface Props {
     string | null;
 }
 
+
 export default function OrderPaymentInfo({
   paymentStatus,
   amount,
@@ -55,10 +57,14 @@ export default function OrderPaymentInfo({
       return "未设置";
     }
 
+
     const value =
       Number(
         amount
-      ).toFixed(2);
+      ).toFixed(
+        2
+      );
+
 
     if (
       currency ===
@@ -67,6 +73,7 @@ export default function OrderPaymentInfo({
       return `¥${value} CNY`;
     }
 
+
     if (
       currency ===
       "MXN"
@@ -74,79 +81,89 @@ export default function OrderPaymentInfo({
       return `$${value} MXN`;
     }
 
+
     return `${value} ${currency}`;
   }
 
-  return (
-    <section className="mt-8">
-      <h2 className="text-xl font-semibold">
-        付款信息
-      </h2>
 
-      <div className="mt-4 rounded-xl border bg-white p-5">
+  return (
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-5 sm:px-6 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-slate-950">
+            付款信息
+          </h2>
+
+          <p className="mt-1.5 text-sm leading-6 text-slate-500">
+            查看订单金额、付款方式与支付确认状态。
+          </p>
+        </div>
+
         <PaymentBadge
           status={
             paymentStatus
           }
         />
+      </div>
 
-        <div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
-          <p>
-            <span className="text-gray-500">
-              订单金额：
-            </span>
+      <div className="p-5 sm:p-6">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="text-xs font-medium text-slate-500">
+              订单金额
+            </p>
 
-            <span className="ml-2 font-medium">
+            <p className="mt-1.5 font-bold text-slate-950">
               {formatAmount()}
-            </span>
-          </p>
+            </p>
+          </div>
 
-          <p>
-            <span className="text-gray-500">
-              付款方式：
-            </span>
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="text-xs font-medium text-slate-500">
+              付款方式
+            </p>
 
-            <span className="ml-2">
+            <p className="mt-1.5 text-sm font-semibold text-slate-900">
               {paymentMethod
                 ? getPaymentMethodLabel(
                     paymentMethod
                   )
                 : "未设置"}
-            </span>
-          </p>
+            </p>
+          </div>
 
-          <p>
-            <span className="text-gray-500">
-              支付平台：
-            </span>
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="text-xs font-medium text-slate-500">
+              支付平台
+            </p>
 
-            <span className="ml-2">
+            <p className="mt-1.5 text-sm font-semibold text-slate-900">
               {paymentProvider
                 ? getPaymentProviderLabel(
                     paymentProvider
                   )
                 : "未设置"}
-            </span>
-          </p>
+            </p>
+          </div>
 
-          <p>
-            <span className="text-gray-500">
-              付款时间：
-            </span>
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="text-xs font-medium text-slate-500">
+              付款时间
+            </p>
 
-            <span className="ml-2">
+            <p className="mt-1.5 text-sm font-semibold text-slate-900">
               {paidAt
                 ? formatBusinessDateTime(
                     paidAt
                   )
                 : "尚未付款"}
-            </span>
-          </p>
+            </p>
+          </div>
         </div>
 
-        <p className="mt-4 border-t pt-4 text-xs text-gray-500">
+        <p className="mt-5 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-500">
           付款状态由支付系统、Webhook
-          与对账流程维护，管理员不能在此手动修改。
+          与支付对账流程维护，管理员不能在此手动修改。
         </p>
       </div>
     </section>

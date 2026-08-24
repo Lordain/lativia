@@ -93,7 +93,7 @@ import type {
     lastError,
   }: AdminDataCleanupStatusProps) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="font-semibold text-slate-900">
             临时资料生命周期
@@ -158,8 +158,8 @@ import type {
           "failed" &&
           lastError && (
             <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3">
-              <div className="text-xs font-medium text-red-700">
-                Cleanup Error
+              <div className="text-xs font-semibold text-red-700">
+                清理失败原因
               </div>
   
               <div className="mt-1 break-words text-xs text-red-600">

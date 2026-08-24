@@ -298,26 +298,25 @@ export default function AdminCustomerActionRequest({
     activeRequest
   ) {
     return (
-      <section className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-6">
-        <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-          Customer Action
-        </p>
+      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h4 className="font-bold text-amber-950">
+              客户资料修正
+            </h4>
 
-        <h2 className="mt-1 text-xl font-semibold text-amber-900">
-          客户资料修正
-        </h2>
+            <p className="mt-1.5 text-sm leading-6 text-amber-800">
+              已向客户发出资料修正要求。
+            </p>
+          </div>
 
-
-        <p className="mt-3 text-sm text-amber-800">
-          当前状态：
-          <strong className="ml-1">
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-amber-700 shadow-sm">
             {activeRequest.status ===
             "submitted"
-              ? "客户已提交，等待审核"
-              : "等待客户修正"}
-          </strong>
-        </p>
-
+              ? "等待审核"
+              : "等待客户"}
+          </span>
+        </div>
 
         <div className="mt-4 space-y-3">
           {Object.entries(
@@ -332,15 +331,15 @@ export default function AdminCustomerActionRequest({
                 key={
                   key
                 }
-                className="rounded-lg border border-amber-200 bg-white p-4"
+                className="rounded-xl border border-amber-200 bg-white p-4"
               >
-                <p className="font-medium">
+                <p className="font-semibold text-slate-900">
                   {
                     field.label
                   }
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-gray-600">
+                <p className="mt-2 text-sm leading-6 text-slate-600">
                   {
                     field.reason
                   }
@@ -355,24 +354,20 @@ export default function AdminCustomerActionRequest({
 
 
   return (
-    <section className="mt-8 rounded-xl border bg-white p-6">
-      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-        Customer Action
-      </p>
+    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <div>
+        <h4 className="font-bold text-slate-950">
+          要求客户修正资料
+        </h4>
 
-      <h2 className="mt-1 text-xl font-semibold">
-        要求客户修正资料
-      </h2>
-
-
-      <p className="mt-2 text-sm leading-6 text-gray-500">
-        仅选择确实需要客户重新确认或修改的文字资料。
-        客户只能修改您在这里指定的字段。
-      </p>
-
+        <p className="mt-1.5 text-sm leading-6 text-slate-500">
+          仅选择确实需要客户重新确认或修改的文字资料。
+          客户只能修改您在这里指定的字段。
+        </p>
+      </div>
 
       {!canCreate ? (
-        <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
           当前办理状态不能建立新的客户资料修正要求。
         </div>
       ) : (
@@ -394,7 +389,17 @@ export default function AdminCustomerActionRequest({
                     key={
                       field.name
                     }
-                    className="rounded-lg border p-4"
+                    className={`
+                      rounded-xl
+                      border
+                      p-4
+                      transition
+                      ${
+                        selected
+                          ? "border-amber-200 bg-amber-50/40"
+                          : "border-slate-200 bg-white"
+                      }
+                    `}
                   >
                     <label className="flex items-start gap-3">
                       <input
@@ -407,18 +412,17 @@ export default function AdminCustomerActionRequest({
                             field.name
                           )
                         }
-                        className="mt-1"
+                        className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600"
                       />
 
-
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium">
+                        <p className="font-semibold text-slate-900">
                           {
                             field.label
                           }
                         </p>
 
-                        <p className="mt-1 break-words text-sm text-gray-500">
+                        <p className="mt-1 break-words text-sm text-slate-500">
                           当前：
                           {formData[
                             field.name
@@ -430,7 +434,6 @@ export default function AdminCustomerActionRequest({
                         </p>
                       </div>
                     </label>
-
 
                     {selected && (
                       <textarea
@@ -458,7 +461,7 @@ export default function AdminCustomerActionRequest({
                           3
                         }
                         placeholder={`说明为什么需要修正${field.label}`}
-                        className="mt-3 w-full rounded-lg border border-gray-300 p-3 text-sm"
+                        className="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                       />
                     )}
                   </div>
@@ -467,9 +470,8 @@ export default function AdminCustomerActionRequest({
             )}
           </div>
 
-
           <div className="mt-5">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-semibold text-slate-900">
               给客户的整体说明（可选）
             </label>
 
@@ -488,10 +490,9 @@ export default function AdminCustomerActionRequest({
                 3
               }
               placeholder="例如：我们在审核资料时发现以下信息需要您重新确认。"
-              className="mt-2 w-full rounded-lg border border-gray-300 p-3 text-sm"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             />
           </div>
-
 
           <button
             type="button"
@@ -501,20 +502,7 @@ export default function AdminCustomerActionRequest({
             disabled={
               loading
             }
-            className="
-              mt-5
-              rounded-lg
-              bg-amber-600
-              px-4
-              py-2.5
-              text-sm
-              font-medium
-              text-white
-              transition
-              hover:bg-amber-700
-              disabled:cursor-not-allowed
-              disabled:opacity-60
-            "
+            className="mt-5 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading
               ? "建立中..."

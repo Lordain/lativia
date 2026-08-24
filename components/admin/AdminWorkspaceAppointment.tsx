@@ -368,67 +368,56 @@ export default function AdminWorkspaceAppointment({
 
 
   return (
-    <section className="rounded-xl border bg-white p-5">
+    <div>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-          Appointment & Meeting
-        </p>
-
-        <h3 className="mt-1 text-lg font-semibold">
+        <h4 className="font-bold text-slate-950">
           咨询预约与线上会议
-        </h3>
+        </h4>
 
-        <p className="mt-2 text-sm leading-6 text-gray-500">
-          系统会根据预约规则自动开放未来10天时段，
-          客户自行选择当前可用时间。
+        <p className="mt-1 text-sm leading-6 text-slate-500">
+          客户根据预约规则自行选择可用时间；
+          预约确认后可在这里配置线上会议入口。
         </p>
       </div>
 
-
-      {/* =====================================
-          Availability Rule
-      ===================================== */}
-
       {data.rule ? (
-        <div className="mt-5 rounded-xl bg-gray-50 p-4">
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="font-semibold text-gray-900">
+              <p className="font-bold text-slate-900">
                 当前预约规则
               </p>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Timezone：
+              <p className="mt-1 text-sm text-slate-500">
+                时区：
                 {
                   data.rule.timezone
                 }
               </p>
             </div>
 
-            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-              自动开放
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              已启用
             </span>
           </div>
 
-
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <p className="text-xs font-medium text-slate-500">
                 营业日
               </p>
 
-              <p className="mt-1 font-medium">
+              <p className="mt-1 font-semibold text-slate-900">
                 周一～周六
               </p>
             </div>
 
-
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <p className="text-xs font-medium text-slate-500">
                 营业时间
               </p>
 
-              <p className="mt-1 font-medium">
+              <p className="mt-1 font-semibold text-slate-900">
                 {
                   data.rule.openTime
                     .slice(
@@ -447,70 +436,61 @@ export default function AdminWorkspaceAppointment({
               </p>
             </div>
 
-
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <p className="text-xs font-medium text-slate-500">
                 预约时长
               </p>
 
-              <p className="mt-1 font-medium">
+              <p className="mt-1 font-semibold text-slate-900">
                 {
                   data.rule.slotMinutes
                 } 分钟
               </p>
             </div>
 
-
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">
+            <div className="rounded-xl border border-slate-200 bg-white p-3">
+              <p className="text-xs font-medium text-slate-500">
                 开放范围
               </p>
 
-              <p className="mt-1 font-medium">
-                未来 {
+              <p className="mt-1 font-semibold text-slate-900">
+                未来{" "}
+                {
                   data.rule.bookingWindowDays
-                } 天
+                }{" "}
+                天
               </p>
             </div>
           </div>
 
-
-          <p className="mt-3 text-xs text-gray-500">
-            最少提前 {
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            最少提前{" "}
+            {
               data.rule.minimumNoticeHours
-            } 小时预约。
-            已被其他客户预约的时间会显示为“已占用”。
+            }{" "}
+            小时预约。
+            不可预约的时间统一向客户显示为「已占用」。
           </p>
         </div>
       ) : (
-        <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <p className="font-medium text-amber-800">
+        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <p className="font-semibold text-amber-800">
             当前没有启用的预约规则
           </p>
         </div>
       )}
 
-
-      {/* =====================================
-          No Appointment Yet
-      ===================================== */}
-
       {!data.appointment && (
-        <div className="mt-5 rounded-xl border border-dashed border-blue-200 bg-blue-50 p-4">
-          <p className="font-semibold text-blue-900">
+        <div className="mt-5 rounded-2xl border border-dashed border-blue-200 bg-blue-50 p-5">
+          <p className="font-semibold text-blue-950">
             等待客户预约
           </p>
 
           <p className="mt-2 text-sm leading-6 text-blue-700">
-            客户可以在订单服务空间中查看未来 10 天的预约时间，并从中选择咨询时间。
+            客户可以在订单服务空间中查看当前可预约时段并选择咨询时间。
           </p>
         </div>
       )}
-
-
-      {/* =====================================
-          Current Appointment
-      ===================================== */}
 
       {data.appointment &&
         data.appointment
@@ -518,14 +498,14 @@ export default function AdminWorkspaceAppointment({
         data.appointment
           .endsAt && (
         <>
-          <div className="mt-5 rounded-xl border border-green-200 bg-green-50 p-4">
+          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-green-800">
+                <p className="text-sm font-semibold text-emerald-800">
                   当前预约已确认
                 </p>
 
-                <p className="mt-2 text-lg font-semibold text-green-950">
+                <p className="mt-2 text-lg font-bold text-emerald-950">
                   {
                     formatAppointmentDate(
                       data.appointment
@@ -541,11 +521,10 @@ export default function AdminWorkspaceAppointment({
                   }
                 </p>
 
-                <p className="mt-1 text-xs text-green-700">
+                <p className="mt-1 text-xs text-emerald-700">
                   墨西哥城时间
                 </p>
               </div>
-
 
               <button
                 type="button"
@@ -555,26 +534,21 @@ export default function AdminWorkspaceAppointment({
                 onClick={
                   handleCancelAppointment
                 }
-                className="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
               >
                 取消预约
               </button>
             </div>
           </div>
 
-
-          {/* =================================
-              Online Meeting
-          ================================= */}
-
-          <div className="mt-5 rounded-xl border p-4">
+          <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h4 className="font-semibold">
+                <h4 className="font-bold text-slate-950">
                   线上会议
                 </h4>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-slate-500">
                   {
                     data.appointment
                       .meetingStatus ===
@@ -585,10 +559,9 @@ export default function AdminWorkspaceAppointment({
                 </p>
               </div>
 
-
               {data.appointment
                 .meetingProvider && (
-                <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                   {
                     getProviderLabel(
                       data.appointment
@@ -599,10 +572,9 @@ export default function AdminWorkspaceAppointment({
               )}
             </div>
 
-
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="text-sm">
-                <span className="font-medium text-gray-700">
+                <span className="font-semibold text-slate-700">
                   会议工具
                 </span>
 
@@ -619,7 +591,7 @@ export default function AdminWorkspaceAppointment({
                           ""
                       )
                   }
-                  className="mt-1 w-full rounded-lg border bg-white px-3 py-2.5"
+                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 >
                   <option value="">
                     请选择
@@ -643,9 +615,8 @@ export default function AdminWorkspaceAppointment({
                 </select>
               </label>
 
-
               <label className="text-sm">
-                <span className="font-medium text-gray-700">
+                <span className="font-semibold text-slate-700">
                   会议主题
                 </span>
 
@@ -660,15 +631,14 @@ export default function AdminWorkspaceAppointment({
                         event.target.value
                       )
                   }
-                  className="mt-1 w-full rounded-lg border px-3 py-2.5"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                   placeholder="例如：Cetesdirecto 首次开户咨询"
                 />
               </label>
             </div>
 
-
             <label className="mt-4 block text-sm">
-              <span className="font-medium text-gray-700">
+              <span className="font-semibold text-slate-700">
                 会议链接
               </span>
 
@@ -683,14 +653,13 @@ export default function AdminWorkspaceAppointment({
                       event.target.value
                     )
                 }
-                className="mt-1 w-full rounded-lg border px-3 py-2.5"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 placeholder="https://..."
               />
             </label>
 
-
             <label className="mt-4 block text-sm">
-              <span className="font-medium text-gray-700">
+              <span className="font-semibold text-slate-700">
                 会议说明
               </span>
 
@@ -707,11 +676,10 @@ export default function AdminWorkspaceAppointment({
                       event.target.value
                     )
                 }
-                className="mt-1 w-full rounded-lg border px-3 py-2.5"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 placeholder="例如：请提前 5 分钟进入会议。"
               />
             </label>
-
 
             <button
               type="button"
@@ -721,7 +689,7 @@ export default function AdminWorkspaceAppointment({
               onClick={
                 handleSaveMeeting
               }
-              className="mt-4 rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+              className="mt-4 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
             >
               {
                 pending
@@ -733,18 +701,17 @@ export default function AdminWorkspaceAppointment({
         </>
       )}
 
-
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </p>
       )}
 
       {success && (
-        <p className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
           {success}
         </p>
       )}
-    </section>
+    </div>
   );
 }

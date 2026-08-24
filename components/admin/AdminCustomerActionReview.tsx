@@ -210,21 +210,17 @@ export default function AdminCustomerActionReview({
 
 
   return (
-    <section className="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-6">
-      <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
-        Customer Review
-      </p>
+    <section className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+      <div>
+        <h4 className="font-bold text-blue-950">
+          审核客户修正资料
+        </h4>
 
-      <h2 className="mt-1 text-xl font-semibold text-blue-900">
-        审核客户修正资料
-      </h2>
-
-
-      <p className="mt-2 text-sm leading-6 text-blue-700">
-        请比较订单当前资料与客户重新填写的资料。
-        只有审核通过后，新值才会正式更新到订单。
-      </p>
-
+        <p className="mt-1.5 text-sm leading-6 text-blue-700">
+          请比较订单当前资料与客户重新填写的资料。
+          只有审核通过后，新值才会正式更新到订单。
+        </p>
+      </div>
 
       <div className="mt-5 space-y-4">
         {Object.entries(
@@ -254,43 +250,40 @@ export default function AdminCustomerActionReview({
                 key={
                   fieldName
                 }
-                className="rounded-xl border bg-white p-5"
+                className="rounded-xl border border-blue-200 bg-white p-5"
               >
-                <p className="font-semibold">
+                <p className="font-semibold text-slate-900">
                   {
                     field.label
                   }
                 </p>
 
-
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs leading-5 text-slate-500">
                   要求修正原因：
                   {
                     field.reason
                   }
                 </p>
 
-
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-400">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold text-slate-500">
                       当前订单资料
                     </p>
 
-                    <p className="mt-2 break-words text-sm text-gray-700">
+                    <p className="mt-2 break-words text-sm text-slate-700">
                       {oldValue.trim()
                         ? oldValue
                         : "未填写"}
                     </p>
                   </div>
 
-
-                  <div className="rounded-lg bg-green-50 p-4">
-                    <p className="text-xs font-medium text-green-700">
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                    <p className="text-xs font-semibold text-emerald-700">
                       客户重新填写
                     </p>
 
-                    <p className="mt-2 break-words text-sm font-medium text-green-800">
+                    <p className="mt-2 break-words text-sm font-semibold text-emerald-800">
                       {newValue.trim()
                         ? newValue
                         : "未填写"}
@@ -303,8 +296,7 @@ export default function AdminCustomerActionReview({
         )}
       </div>
 
-
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-5 flex flex-wrap gap-3">
         <button
           type="button"
           onClick={
@@ -313,17 +305,7 @@ export default function AdminCustomerActionReview({
           disabled={
             loading
           }
-          className="
-            rounded-lg
-            bg-green-600
-            px-4
-            py-2.5
-            text-sm
-            font-medium
-            text-white
-            hover:bg-green-700
-            disabled:opacity-60
-          "
+          className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60"
         >
           {loading
             ? "处理中..."
@@ -331,9 +313,8 @@ export default function AdminCustomerActionReview({
         </button>
       </div>
 
-
-      <div className="mt-6 border-t pt-6">
-        <label className="text-sm font-medium text-gray-700">
+      <div className="mt-6 border-t border-blue-200 pt-5">
+        <label className="text-sm font-semibold text-slate-700">
           驳回原因
         </label>
 
@@ -352,9 +333,8 @@ export default function AdminCustomerActionReview({
             3
           }
           placeholder="例如：CURP 仍然不正确，请重新确认后填写。"
-          className="mt-2 w-full rounded-lg border border-gray-300 p-3 text-sm"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
         />
-
 
         <button
           type="button"
@@ -364,20 +344,7 @@ export default function AdminCustomerActionReview({
           disabled={
             loading
           }
-          className="
-            mt-3
-            rounded-lg
-            border
-            border-red-300
-            bg-white
-            px-4
-            py-2.5
-            text-sm
-            font-medium
-            text-red-700
-            hover:bg-red-50
-            disabled:opacity-60
-          "
+          className="mt-3 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
         >
           {loading
             ? "处理中..."

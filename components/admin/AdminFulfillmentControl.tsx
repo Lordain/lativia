@@ -86,13 +86,13 @@ const STATUS_LABELS:
   };
 
 
-const STATUS_STYLES:
+  const STATUS_STYLES:
   Record<
     FulfillmentStatus,
     string
   > = {
     queued:
-      "bg-gray-100 text-gray-700",
+      "bg-slate-100 text-slate-700",
 
     validating:
       "bg-blue-50 text-blue-700",
@@ -107,16 +107,16 @@ const STATUS_STYLES:
       "bg-amber-50 text-amber-700",
 
     manual_review:
-      "bg-orange-50 text-orange-700",
+      "bg-amber-50 text-amber-700",
 
     completed:
-      "bg-green-50 text-green-700",
+      "bg-emerald-50 text-emerald-700",
 
     failed:
       "bg-red-50 text-red-700",
 
     refund_review:
-      "bg-purple-50 text-purple-700",
+      "bg-violet-50 text-violet-700",
   };
 
 
@@ -139,42 +139,42 @@ const STATUS_STYLES:
           {
             status:
               "processing",
-  
+
             label:
               "开始办理",
-  
+
             description:
               "开始正式处理本次服务。",
-  
+
             currentStep:
               "processing",
-  
+
             requiresReason:
               false,
           },
-  
+
           {
             status:
               "failed",
-  
+
             label:
               "标记无法办理",
-  
+
             description:
               "确认当前服务无法继续完成。",
-  
+
             currentStep:
               "service_failed",
-  
+
             requiresReason:
               true,
-  
+
             confirmMessage:
               "确定将这笔服务标记为无法办理吗？",
           },
         ];
-  
-  
+
+
       /*
        * Legacy 状态兼容。
        *
@@ -186,59 +186,59 @@ const STATUS_STYLES:
           {
             status:
               "processing",
-  
+
             label:
               "继续办理",
-  
+
             description:
               "继续正式办理本次服务。",
-  
+
             currentStep:
               "processing",
-  
+
             requiresReason:
               false,
           },
-  
+
           {
             status:
               "waiting_customer",
-  
+
             label:
               "等待客户补充",
-  
+
             description:
               "需要客户补充资料或完成其他操作。",
-  
+
             currentStep:
               "waiting_customer",
-  
+
             requiresReason:
               true,
           },
-  
+
           {
             status:
               "failed",
-  
+
             label:
               "标记无法办理",
-  
+
             description:
               "确认当前服务无法继续完成。",
-  
+
             currentStep:
               "service_failed",
-  
+
             requiresReason:
               true,
-  
+
             confirmMessage:
               "确定将这笔服务标记为无法办理吗？",
           },
         ];
-  
-  
+
+
       /*
        * 正常办理主状态
        */
@@ -247,62 +247,62 @@ const STATUS_STYLES:
           {
             status:
               "completed",
-  
+
             label:
               "确认服务完成",
-  
+
             description:
               "确认本次服务已经完成。",
-  
+
             currentStep:
               "service_completed",
-  
+
             requiresReason:
               false,
-  
+
             confirmMessage:
               "确定本次服务已经完成吗？",
           },
-  
+
           {
             status:
               "waiting_customer",
-  
+
             label:
               "等待客户补充",
-  
+
             description:
               "客户需要补充资料或完成其他操作。",
-  
+
             currentStep:
               "waiting_customer",
-  
+
             requiresReason:
               true,
           },
-  
+
           {
             status:
               "failed",
-  
+
             label:
               "标记无法办理",
-  
+
             description:
               "服务因客观原因无法完成。",
-  
+
             currentStep:
               "service_failed",
-  
+
             requiresReason:
               true,
-  
+
             confirmMessage:
               "确定当前服务无法完成吗？",
           },
         ];
-  
-  
+
+
       /*
        * 客户完成补充以后直接恢复办理。
        *
@@ -313,42 +313,42 @@ const STATUS_STYLES:
           {
             status:
               "processing",
-  
+
             label:
               "继续办理",
-  
+
             description:
               "客户所需操作已经完成，可以继续办理。",
-  
+
             currentStep:
               "processing",
-  
+
             requiresReason:
               false,
           },
-  
+
           {
             status:
               "failed",
-  
+
             label:
               "标记无法办理",
-  
+
             description:
               "确认服务已无法继续。",
-  
+
             currentStep:
               "service_failed",
-  
+
             requiresReason:
               true,
-  
+
             confirmMessage:
               "确定当前服务无法完成吗？",
           },
         ];
-  
-  
+
+
       /*
        * Legacy 状态。
        *
@@ -361,59 +361,59 @@ const STATUS_STYLES:
           {
             status:
               "processing",
-  
+
             label:
               "继续办理",
-  
+
             description:
               "恢复正常办理流程。",
-  
+
             currentStep:
               "processing",
-  
+
             requiresReason:
               false,
           },
-  
+
           {
             status:
               "waiting_customer",
-  
+
             label:
               "等待客户补充",
-  
+
             description:
               "需要客户补充资料或完成其他操作。",
-  
+
             currentStep:
               "waiting_customer",
-  
+
             requiresReason:
               true,
           },
-  
+
           {
             status:
               "failed",
-  
+
             label:
               "标记无法办理",
-  
+
             description:
               "确认服务无法继续完成。",
-  
+
             currentStep:
               "service_failed",
-  
+
             requiresReason:
               true,
-  
+
             confirmMessage:
               "确定当前服务无法完成吗？",
           },
         ];
-  
-  
+
+
       /*
        * 服务无法完成以后，
        * 仍保留退款审核入口。
@@ -423,25 +423,25 @@ const STATUS_STYLES:
           {
             status:
               "refund_review",
-  
+
             label:
               "进入退款审核",
-  
+
             description:
               "服务无法完成，进入退款资格审核流程。",
-  
+
             currentStep:
               "refund_review",
-  
+
             requiresReason:
               true,
-  
+
             confirmMessage:
               "确定进入退款资格审核吗？",
           },
         ];
-  
-  
+
+
       case "refund_review":
       case "completed":
       default:
@@ -477,28 +477,30 @@ export default function AdminFulfillmentControl({
 
   if (!fulfillment) {
     return (
-      <section className="mt-8 rounded-xl border bg-white p-6">
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-          Fulfillment Operations
-        </p>
+      <div>
+        <div>
+          <h3 className="font-bold text-slate-950">
+            办理控制
+          </h3>
 
-        <h2 className="mt-1 text-xl font-semibold">
-          办理控制
-        </h2>
+          <p className="mt-1.5 text-sm leading-6 text-slate-500">
+            实际业务办理状态由 Fulfillment 统一管理。
+          </p>
+        </div>
 
         {paymentStatus ===
         "unpaid" ? (
-          <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm leading-6 text-gray-600">
+          <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
             当前订单尚未完成付款。
             付款确认后系统会自动建立办理任务。
           </div>
         ) : (
-          <div className="mt-4 rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
             当前订单没有对应的 Fulfillment 记录，
             请检查付款确认流程。
           </div>
         )}
-      </section>
+      </div>
     );
   }
 
@@ -662,26 +664,21 @@ export default function AdminFulfillmentControl({
 
 
   return (
-    <section className="mt-8 rounded-xl border bg-white p-6">
+    <div>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-          Fulfillment Operations
-        </p>
-
-        <h2 className="mt-1 text-xl font-semibold">
+        <h3 className="font-bold text-slate-950">
           办理控制
-        </h2>
+        </h3>
 
-        <p className="mt-2 text-sm leading-6 text-gray-500">
+        <p className="mt-1.5 text-sm leading-6 text-slate-500">
           实际业务办理状态统一由 Fulfillment 管理。
-          页面只显示当前状态合法的下一步操作。
+          页面只显示当前状态允许执行的下一步操作。
         </p>
       </div>
 
-
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-gray-500">
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+          <p className="text-xs font-medium text-slate-500">
             当前状态
           </p>
 
@@ -693,7 +690,7 @@ export default function AdminFulfillmentControl({
                 px-2.5
                 py-1
                 text-xs
-                font-medium
+                font-semibold
                 ${
                   STATUS_STYLES[
                     currentFulfillment.status
@@ -710,25 +707,23 @@ export default function AdminFulfillmentControl({
           </div>
         </div>
 
-
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-gray-500">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+          <p className="text-xs font-medium text-slate-500">
             当前步骤
           </p>
 
-          <p className="mt-2 break-words text-sm font-medium text-gray-800">
+          <p className="mt-2 break-words text-sm font-semibold text-slate-900">
             {currentFulfillment.currentStep ??
               "尚未记录"}
           </p>
         </div>
 
-
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-gray-500">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+          <p className="text-xs font-medium text-slate-500">
             客户操作
           </p>
 
-          <p className="mt-2 text-sm font-medium text-gray-800">
+          <p className="mt-2 text-sm font-semibold text-slate-900">
             {currentFulfillment
               .customerActionRequired
               ? "需要"
@@ -737,14 +732,13 @@ export default function AdminFulfillmentControl({
         </div>
       </div>
 
-
       {isRefundTerminal && (
-        <div className="mt-6 rounded-lg border border-green-200 bg-green-50 p-5">
-          <p className="font-medium text-green-800">
+        <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="font-semibold text-emerald-800">
             服务流程已结束，退款已经完成
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-green-700">
+          <p className="mt-2 text-sm leading-6 text-emerald-700">
             该订单已经完成原路退款，
             不再允许重新进入人工复核、
             退款审核或其他办理状态。
@@ -752,15 +746,14 @@ export default function AdminFulfillmentControl({
         </div>
       )}
 
-
       {!isRefundTerminal &&
         isCompletedTerminal && (
-          <div className="mt-6 rounded-lg border border-green-200 bg-green-50 p-5">
-            <p className="font-medium text-green-800">
+          <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="font-semibold text-emerald-800">
               服务已经成功完成
             </p>
 
-            <p className="mt-2 text-sm leading-6 text-green-700">
+            <p className="mt-2 text-sm leading-6 text-emerald-700">
               服务已经完成并交付，
               当前状态为业务终态，
               不再允许继续修改办理状态。
@@ -768,12 +761,11 @@ export default function AdminFulfillmentControl({
           </div>
         )}
 
-
       {!isRefundTerminal &&
         currentFulfillment
           .humanReviewReason && (
-          <div className="mt-6 rounded-lg bg-amber-50 p-4">
-            <p className="text-xs font-medium text-amber-700">
+          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-xs font-semibold text-amber-700">
               人工处理原因
             </p>
 
@@ -786,12 +778,11 @@ export default function AdminFulfillmentControl({
           </div>
         )}
 
-
       {!isRefundTerminal &&
         currentFulfillment
           .customerActionReason && (
-          <div className="mt-4 rounded-lg bg-amber-50 p-4">
-            <p className="text-xs font-medium text-amber-700">
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-xs font-semibold text-amber-700">
               等待客户原因
             </p>
 
@@ -804,11 +795,10 @@ export default function AdminFulfillmentControl({
           </div>
         )}
 
-
       {currentFulfillment
         .failureReason && (
-        <div className="mt-4 rounded-lg bg-red-50 p-4">
-          <p className="text-xs font-medium text-red-700">
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="text-xs font-semibold text-red-700">
             无法完成原因
           </p>
 
@@ -821,50 +811,45 @@ export default function AdminFulfillmentControl({
         </div>
       )}
 
-
       {!isRefundTerminal &&
         currentFulfillment.status ===
           "refund_review" && (
-          <div className="mt-6 rounded-lg border border-purple-200 bg-purple-50 p-5">
-            <p className="font-medium text-purple-800">
+          <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 p-4">
+            <p className="font-semibold text-violet-800">
               已进入退款审核
             </p>
 
-            <p className="mt-2 text-sm leading-6 text-purple-700">
+            <p className="mt-2 text-sm leading-6 text-violet-700">
               当前服务已经停止正常办理。
               后续退款资格审核与资金退款，
-              请在下方 Refund Management 区域完成。
+              请在下方退款管理区域完成。
             </p>
           </div>
         )}
-
 
       {!isRefundTerminal &&
         !isCompletedTerminal &&
         currentFulfillment.status !==
           "refund_review" && (
-          <div className="mt-6 border-t pt-5">
-            <p className="text-sm font-semibold text-gray-800">
+          <div className="mt-6 border-t border-slate-200 pt-5">
+            <p className="text-sm font-bold text-slate-900">
               可执行操作
             </p>
 
-            <p className="mt-1 text-xs leading-5 text-gray-500">
+            <p className="mt-1 text-xs leading-5 text-slate-500">
               页面只显示当前状态允许执行的操作，
               数据库状态机仍会进行最终校验。
             </p>
 
-
             {actions.length ===
             0 ? (
-              <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+              <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
                 当前没有可执行的下一步操作。
               </div>
             ) : (
               <div className="mt-4 flex flex-wrap gap-3">
                 {actions.map(
-                  (
-                    action
-                  ) => {
+                  action => {
                     const loading =
                       loadingStatus ===
                       action.status;
@@ -893,19 +878,19 @@ export default function AdminFulfillmentControl({
                           null
                         }
                         className={`
-                          rounded-lg
+                          rounded-xl
                           border
                           px-4
                           py-2.5
                           text-sm
-                          font-medium
+                          font-semibold
                           transition
                           disabled:cursor-not-allowed
                           disabled:opacity-60
                           ${
                             dangerous
-                              ? "border-orange-300 bg-white text-orange-700 hover:bg-orange-50"
-                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                              ? "border-red-200 bg-white text-red-700 hover:bg-red-50"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                           }
                         `}
                       >
@@ -920,6 +905,6 @@ export default function AdminFulfillmentControl({
             )}
           </div>
         )}
-    </section>
+    </div>
   );
 }

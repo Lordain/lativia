@@ -12,8 +12,6 @@ import {
   getAdminOrder,
 } from "@/lib/orders/getAdminOrder";
 
-import AdminOrderResult from "@/components/admin/AdminOrderResult";
-
 import {
   getAdminOrderDocuments,
 } from "@/lib/documents/getAdminOrderDocuments";
@@ -51,12 +49,12 @@ import {
 } from "@/lib/workspaces/getAdminOrderWorkspace";
 
 import {
-  AdminDataCleanupStatus,
-} from "@/components/admin/AdminDataCleanupStatus";
-
-import {
   getAdminOrderAppointment,
 } from "@/lib/appointments/getAdminOrderAppointment";
+
+import {
+  AdminDataCleanupStatus,
+} from "@/components/admin/AdminDataCleanupStatus";
 
 import StatusBadge from "@/components/orders/StatusBadge";
 
@@ -77,6 +75,14 @@ import AdminCustomerActionRequest from "@/components/admin/AdminCustomerActionRe
 import AdminCustomerActionReview from "@/components/admin/AdminCustomerActionReview";
 
 import AdminOrderWorkspace from "@/components/admin/AdminOrderWorkspace";
+
+import AdminOrderResult from "@/components/admin/AdminOrderResult";
+
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+
+import AdminSectionCard from "@/components/admin/AdminSectionCard";
+
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
 
 import type {
   OrderStatus,
@@ -119,15 +125,47 @@ const EMPTY_APPOINTMENT_DATA:
   };
 
 
+function InfoItem({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string;
+
+  value: React.ReactNode;
+
+  mono?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+      <p className="text-xs font-medium text-slate-500">
+        {label}
+      </p>
+
+      <div
+        className={`
+          mt-1.5
+          break-words
+          text-sm
+          font-semibold
+          text-slate-900
+          ${
+            mono
+              ? "font-mono text-xs"
+              : ""
+          }
+        `}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+
 export default async function AdminOrderDetailPage({
   params,
 }: Props) {
-  /*
-   * =====================================
-   * Admin Authorization
-   * =====================================
-   */
-
   await requireAdmin();
 
 
@@ -136,12 +174,6 @@ export default async function AdminOrderDetailPage({
   } =
     await params;
 
-
-  /*
-   * =====================================
-   * Order
-   * =====================================
-   */
 
   const order =
     await getAdminOrder(
@@ -153,17 +185,6 @@ export default async function AdminOrderDetailPage({
     notFound();
   }
 
-
-  /*
-   * =====================================
-   * Additional Admin Data
-   *
-   * Payment Audit / Fulfillment / Refund
-   * Customer Action / Workspace
-   *
-   * 并行读取，减少页面等待时间。
-   * =====================================
-   */
 
   const [
     auditLogs,
@@ -193,18 +214,12 @@ export default async function AdminOrderDetailPage({
       getAdminOrderWorkspace(
         order.id
       ),
-      
+
       getAdminOrderDocuments(
         order.id
       ),
     ]);
 
-
-  /*
-   * =====================================
-   * Customer Action Submission
-   * =====================================
-   */
 
   const customerActionSubmission =
     customerActionRequest
@@ -214,17 +229,10 @@ export default async function AdminOrderDetailPage({
       : null;
 
 
-  /*
-   * =====================================
-   * Appointment / Meeting
-   *
-   * Appointment belongs to Workspace.
-   * =====================================
-   */
-
   const showAppointment =
     order.services?.slug ===
     "cetesdirecto-consultation";
+
 
   const appointmentData =
     workspaceData &&
@@ -235,37 +243,13 @@ export default async function AdminOrderDetailPage({
       : EMPTY_APPOINTMENT_DATA;
 
 
-  /*
-   * =====================================
-   * Service-specific Consultation Type
-   * =====================================
-   *
-   * Current Phase 1:
-   *
-   * Cetes consultation gets its own
-   * structured consultation type.
-   *
-   * Future services may add:
-   *
-   * rfc_initial_consultation
-   * efirma_initial_consultation
-   * etc.
-   * =====================================
-   */
-
   const defaultConsultationType =
     order.services
       ?.slug ===
-      "cetesdirecto-consultation"
+    "cetesdirecto-consultation"
       ? "cetes_initial_consultation"
       : null;
 
-
-  /*
-   * =====================================
-   * Dynamic Application Form
-   * =====================================
-   */
 
   const formSchema =
     (
@@ -275,20 +259,6 @@ export default async function AdminOrderDetailPage({
     ) as
       FormFieldSchema[];
 
-
-  /*
-   * =====================================
-   * Unified Operations Timeline
-   *
-   * 底层数据仍分别保存在：
-   *
-   * payment_transactions
-   * payment_audit_logs
-   * fulfillment_activity
-   *
-   * Admin 页面统一转换为一个 Timeline。
-   * =====================================
-   */
 
   const timeline =
     buildAdminOrderTimeline({
@@ -304,35 +274,30 @@ export default async function AdminOrderDetailPage({
           .activity,
     });
 
-    /*
-   * =========================================
-   * Service Option Snapshot
-   * =========================================
-   */
 
-    const serviceOptionSnapshot =
+  const serviceOptionSnapshot =
     order
       .service_option_snapshot as
         | {
             title?:
               string;
-  
+
             optionKey?:
               string;
-  
+
             serviceMode?:
-              "appointment_only" |
-              "appointment_plus_onsite";
-  
+              | "appointment_only"
+              | "appointment_plus_onsite";
+
             onsiteAvailable?:
               boolean;
-  
+
             requiresDocumentReview?:
               boolean;
-  
+
             workspaceRequired?:
               boolean;
-  
+
             allowedRegions?:
               string[];
           }
@@ -345,583 +310,400 @@ export default async function AdminOrderDetailPage({
     true;
 
 
+  const applicationEntries =
+    Object.entries(
+      order.form_data ??
+        {}
+    );
+
+
   return (
     <div>
-      {/* =====================================
-          Header
-      ===================================== */}
-
-      <div>
-        <h1 className="text-3xl font-bold">
-          {order.services
+      <AdminPageHeader
+        title={
+          order.services
             ?.title ??
-            "订单详情"}
-        </h1>
-
-        <div className="mt-4">
-          <StatusBadge
-            status={
-              order.status as
-                OrderStatus
-            }
-          />
-        </div>
-
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500">
-          订单状态用于显示客户层面的整体办理进度。
-          实际业务办理流程由 Fulfillment Operations
-          统一管理并自动同步。
-        </p>
-      </div>
-
-      <section className="mt-6 rounded-xl border bg-white p-6">
-  <div>
-    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-      Service & Fulfillment
-    </p>
-
-    <h2 className="mt-1 text-xl font-semibold">
-      服务与办理
-    </h2>
-
-    <p className="mt-2 text-sm leading-6 text-gray-500">
-      查看客户购买的服务方案，并在这里直接管理当前办理状态。
-    </p>
-  </div>
-
-
-  {serviceOptionSnapshot && (
-    <div className="mt-5 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-5">
-      <div className="rounded-lg bg-gray-50 p-4">
-        <p className="text-xs text-gray-400">
-          客户购买方案
-        </p>
-
-        <p className="mt-1 font-semibold text-gray-900">
-          {serviceOptionSnapshot.title ??
-            "未记录"}
-        </p>
-      </div>
-
-
-      <div className="rounded-lg bg-gray-50 p-4">
-        <p className="text-xs text-gray-400">
-          服务模式
-        </p>
-
-        <p className="mt-1 font-semibold text-gray-900">
-          {serviceOptionSnapshot.serviceMode ===
-          "appointment_plus_onsite"
-            ? "预约 + 现场办理陪同（翻译）"
-            : serviceOptionSnapshot.serviceMode ===
-                "appointment_only"
-              ? "预约协助"
-              : "未记录"}
-        </p>
-      </div>
-
-
-      <div className="rounded-lg bg-gray-50 p-4">
-        <p className="text-xs text-gray-400">
-          现场陪同
-        </p>
-
-        <p className="mt-1 font-semibold text-gray-900">
-          {serviceOptionSnapshot.onsiteAvailable
-            ? "包含"
-            : "不包含"}
-        </p>
-      </div>
-
-
-      <div className="rounded-lg bg-gray-50 p-4">
-        <p className="text-xs text-gray-400">
-          资料预审
-        </p>
-
-        <p className="mt-1 font-semibold text-gray-900">
-          {serviceOptionSnapshot.requiresDocumentReview
-            ? "需要"
-            : "不需要"}
-        </p>
-      </div>
-
-
-      <div className="rounded-lg bg-gray-50 p-4">
-        <p className="text-xs text-gray-400">
-          Workspace
-        </p>
-
-        <p className="mt-1 font-semibold text-gray-900">
-          {serviceOptionSnapshot.workspaceRequired
-            ? "需要"
-            : "不需要"}
-        </p>
-      </div>
-    </div>
-  )}
-
-
-<div className="mt-6 border-t pt-6 [&>section]:mt-0 [&>section]:rounded-none [&>section]:border-0 [&>section]:bg-transparent [&>section]:p-0">
-    <AdminFulfillmentControl
-      fulfillment={
-        fulfillmentData
-          .fulfillment
-      }
-
-      paymentStatus={
-        order.payment_status
-      }
-    />
-  </div>
-</section>
-
-
-      {/* =====================================
-          Customer Information
-      ===================================== */}
-
-      <section className="mt-8 rounded-xl border bg-white p-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Customer
-          </p>
-
-          <h2 className="mt-1 text-xl font-semibold">
-            客户信息
-          </h2>
-        </div>
-
-        <div className="mt-5 grid gap-4 text-sm text-gray-600 md:grid-cols-2">
-          <div>
-            <p className="text-xs text-gray-400">
-              客户
-            </p>
-
-            <p className="mt-1 font-medium text-gray-700">
-              {order.profiles
-                ?.name ??
-                "未知用户"}
-            </p>
-          </div>
-
-
-          <div>
-            <p className="text-xs text-gray-400">
-              电话
-            </p>
-
-            <p className="mt-1 font-medium text-gray-700">
-              {order.profiles
-                ?.phone ??
-                "未填写"}
-            </p>
-          </div>
-
-
-          <div>
-            <p className="text-xs text-gray-400">
-              提交时间
-            </p>
-
-            <p className="mt-1 font-medium text-gray-700">
-              {formatBusinessDateTime(
-                order.created_at
-              )}
-            </p>
-          </div>
-
-
-          <div>
-            <p className="text-xs text-gray-400">
-              订单 ID
-            </p>
-
-            <p className="mt-1 break-all font-medium text-gray-700">
-              {order.id}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================
-          Payment Summary
-
-          这里只显示当前付款状态摘要。
-
-          Payment Transaction / Audit 的历史记录
-          已统一进入下方 Order Timeline。
-      ===================================== */}
-
-<OrderPaymentInfo
-        paymentStatus={
-          order.payment_status as
-            PaymentStatus
+          "订单详情"
         }
+        description="查看订单、付款、办理进度、客户资料与服务空间，并完成当前订单所需的后台操作。"
+        actions={
+          <>
+            <StatusBadge
+              status={
+                order.status as
+                  OrderStatus
+              }
+            />
 
-        amount={
-          order.amount
-        }
-
-        currency={
-          order.currency
-        }
-
-        paymentMethod={
-          order.payment_method as
-            | PaymentMethod
-            | null
-        }
-
-        paymentProvider={
-          order.payment_provider as
-            | PaymentProvider
-            | null
-        }
-
-        paidAt={
-          order.paid_at
+            <Link
+              href="/admin/orders"
+              className="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-950"
+            >
+              ← 返回订单管理
+            </Link>
+          </>
         }
       />
 
-
-
-      {/* =====================================
-          Application Data
-      ===================================== */}
-
-      <section className="mt-8">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Application
-          </p>
-
-          <h2 className="mt-1 text-xl font-semibold">
-            申请资料
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-gray-500">
-            以下资料由客户在提交本次服务申请时提供，
-            仅用于当前业务办理。
-          </p>
-        </div>
-
-
-        {Object.keys(
-          order.form_data ??
-            {}
-        ).length ===
-        0 ? (
-          <div className="mt-4 rounded-xl border bg-white p-6 text-sm text-gray-500">
-            暂无申请资料。
-          </div>
-        ) : (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {Object.entries(
-              order.form_data ??
-                {}
-            ).map(
-              ([
-                key,
-                value,
-              ]) => {
-                const field =
-                  formSchema.find(
-                    item =>
-                      item.name ===
-                      key
-                  );
-
-
-                return (
-                  <div
-                    key={
-                      key
-                    }
-                    className="rounded-xl border bg-white p-4"
-                  >
-                    <p className="text-sm text-gray-500">
-                      {field
-                        ?.label ??
-                        key}
-                    </p>
-
-                    <p className="mt-1 whitespace-pre-wrap font-medium text-gray-800">
-                      {value ===
-                        null ||
-                      value ===
-                        undefined ||
-                      String(
-                        value
-                      ).trim() ===
-                        ""
-                        ? "未填写"
-                        : String(
-                            value
-                          )}
-                    </p>
-                  </div>
-                );
-              }
-            )}
-          </div>
-        )}
-      </section>
-
-
-      {/* =====================================
-          Order Workspace
-
-          只有 workspace_required 服务付款后
-          建立了 Workspace 才显示。
-
-          Appointment / Online Meeting
-          现在也统一位于 Workspace 内。
-      ===================================== */}
-
-      {workspaceData && (
-        <AdminOrderWorkspace
-          data={
-            workspaceData
-          }
-
-          orderId={
-            order.id
-          }
-
-          fulfillmentId={
-            fulfillmentData
-              .fulfillment
-              ?.id ??
-            null
-          }
-
-          fulfillmentStatus={
-            fulfillmentData
-              .fulfillment
-              ?.status ??
-            null
-          }
-
-          formSchema={
-            formSchema
-          }
-
-          formData={
-            (
-              order.form_data ??
-              {}
-            ) as Record<
-              string,
-              string
-            >
-          }
-
-          customerActionRequest={
-            customerActionRequest
-          }
-
-          customerActionSubmission={
-            customerActionSubmission
-          }
-
-          requiresDocumentReview={
-            requiresDocumentReview
-          }
-          
-          documents={
-            orderDocuments
-          }
-
-          appointmentData={
-            appointmentData
-          }
-
-          showAppointment={
-            showAppointment
-          }
-
-          defaultConsultationType={
-            defaultConsultationType
+      <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <InfoItem
+          label="客户"
+          value={
+            order.profiles
+              ?.name ??
+            "未知用户"
           }
         />
-      )}
 
-      {/* =====================================
-    Cetes Consultation Presentation
+        <InfoItem
+          label="联系电话"
+          value={
+            order.profiles
+              ?.phone ??
+            "未填写"
+          }
+        />
 
-    Admin-only internal presentation.
-===================================== */}
+        <InfoItem
+          label="提交时间"
+          value={
+            formatBusinessDateTime(
+              order.created_at
+            )
+          }
+        />
 
-{order.services?.slug ===
-  "cetesdirecto-consultation" &&
-  order.payment_status ===
-    "paid" && (
-    <section className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-6">
-      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-        <div>
-          <div className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">
-            INTERNAL CONSULTATION
-          </div>
-
-          <h2 className="mt-3 text-xl font-semibold text-blue-950">
-            Cetesdirecto 咨询课件
-          </h2>
-
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-800">
-            管理员内部咨询演示工具。
-            在线会议过程中可通过屏幕共享向客户讲解，
-            客户账户本身不会获得课件访问权限。
-          </p>
-
-          <p className="mt-2 text-xs leading-5 text-blue-700">
-            课件包含订单专属动态浮水印，
-            不提供客户下载入口。
-          </p>
-        </div>
-
-        <Link
-          href={`/admin/orders/${order.id}/consultation`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="
-            inline-flex
-            shrink-0
-            items-center
-            justify-center
-            rounded-xl
-            bg-blue-600
-            px-5
-            py-3
-            text-sm
-            font-semibold
-            text-white
-            shadow-sm
-            transition
-            hover:bg-blue-700
-          "
-        >
-          打开咨询课件 ↗
-        </Link>
+        <InfoItem
+          label="订单 ID"
+          value={
+            order.id
+          }
+          mono
+        />
       </div>
-    </section>
-  )}
+
+      <div className="mt-8 space-y-8">
+        <AdminSectionCard
+          title="服务与办理"
+          description="查看客户购买的服务方案，并管理当前 Fulfillment 办理状态。"
+        >
+          {serviceOptionSnapshot && (
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <InfoItem
+                label="客户购买方案"
+                value={
+                  serviceOptionSnapshot.title ??
+                  "未记录"
+                }
+              />
+
+              <InfoItem
+                label="服务模式"
+                value={
+                  serviceOptionSnapshot.serviceMode ===
+                  "appointment_plus_onsite"
+                    ? "预约 + 现场办理陪同（翻译）"
+                    : serviceOptionSnapshot.serviceMode ===
+                        "appointment_only"
+                      ? "预约协助"
+                      : "未记录"
+                }
+              />
+
+              <InfoItem
+                label="现场陪同"
+                value={
+                  serviceOptionSnapshot.onsiteAvailable
+                    ? "包含"
+                    : "不包含"
+                }
+              />
+
+              <InfoItem
+                label="资料预审"
+                value={
+                  serviceOptionSnapshot.requiresDocumentReview
+                    ? "需要"
+                    : "不需要"
+                }
+              />
+
+              <InfoItem
+                label="客户服务空间"
+                value={
+                  serviceOptionSnapshot.workspaceRequired
+                    ? "需要"
+                    : "不需要"
+                }
+              />
+            </div>
+          )}
+
+          <div
+            className={`
+              ${
+                serviceOptionSnapshot
+                  ? "mt-6 border-t border-slate-200 pt-6"
+                  : ""
+              }
+              [&>section]:mt-0
+              [&>section]:rounded-none
+              [&>section]:border-0
+              [&>section]:bg-transparent
+              [&>section]:p-0
+              [&>section]:shadow-none
+            `}
+          >
+            <AdminFulfillmentControl
+              fulfillment={
+                fulfillmentData
+                  .fulfillment
+              }
+              paymentStatus={
+                order.payment_status
+              }
+            />
+          </div>
+        </AdminSectionCard>
+
+        <OrderPaymentInfo
+          paymentStatus={
+            order.payment_status as
+              PaymentStatus
+          }
+          amount={
+            order.amount
+          }
+          currency={
+            order.currency
+          }
+          paymentMethod={
+            order.payment_method as
+              | PaymentMethod
+              | null
+          }
+          paymentProvider={
+            order.payment_provider as
+              | PaymentProvider
+              | null
+          }
+          paidAt={
+            order.paid_at
+          }
+        />
+
+        <AdminSectionCard
+          title="申请资料"
+          description="以下资料由客户提交本次服务申请时提供，仅用于当前业务办理。"
+        >
+          {applicationEntries.length ===
+          0 ? (
+            <AdminEmptyState
+              title="暂无申请资料"
+              description="此订单没有记录客户提交的申请字段。"
+            />
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {applicationEntries.map(
+                ([
+                  key,
+                  value,
+                ]) => {
+                  const field =
+                    formSchema.find(
+                      item =>
+                        item.name ===
+                        key
+                    );
 
 
-      {/* =====================================
-          Result Delivery
-          服务结果交付
+                  return (
+                    <InfoItem
+                      key={
+                        key
+                      }
+                      label={
+                        field
+                          ?.label ??
+                        key
+                      }
+                      value={
+                        value ===
+                          null ||
+                        value ===
+                          undefined ||
+                        String(
+                          value
+                        ).trim() ===
+                          ""
+                          ? "未填写"
+                          : (
+                            <span className="whitespace-pre-wrap">
+                              {
+                                String(
+                                  value
+                                )
+                              }
+                            </span>
+                          )
+                      }
+                    />
+                  );
+                }
+              )}
+            </div>
+          )}
+        </AdminSectionCard>
 
-          放在 Fulfillment Operations 之后。
-      ===================================== */}
-
-      {workspaceData && (
-        <div className="mt-8 rounded-xl border bg-white p-6">
-          <AdminOrderResult
+        {workspaceData && (
+          <AdminOrderWorkspace
+            data={
+              workspaceData
+            }
             orderId={
               order.id
             }
-
-            results={
-              workspaceData.results
-            }
-          />
-        </div>
-      )}
-
-      {/* =====================================
-    Data Retention / Privacy
-    临时资料生命周期
-===================================== */}
-
-<div className="mt-8">
-  <AdminDataCleanupStatus
-    status={
-      order.data_cleanup_status
-    }
-
-    purposeEndedAt={
-      order.data_purpose_ended_at
-    }
-
-    cleanupDueAt={
-      order.data_cleanup_due_at
-    }
-
-    cleanedAt={
-      order.data_cleaned_at
-    }
-
-    lastError={
-      order.data_cleanup_last_error
-    }
-  />
-</div>
-
-
-      {/* =====================================
-          Customer Action Fallback
-
-          有 Workspace：
-          已显示在 AdminOrderWorkspace 内。
-
-          无 Workspace：
-          继续保留原来的独立 Customer Action，
-          避免非 Workspace 服务失去补件能力。
-      ===================================== */}
-
-      {!workspaceData && (
-        <>
-          <AdminCustomerActionRequest
-            orderId={
-              order.id
-            }
-
             fulfillmentId={
               fulfillmentData
                 .fulfillment
                 ?.id ??
               null
             }
-
             fulfillmentStatus={
               fulfillmentData
                 .fulfillment
                 ?.status ??
               null
             }
-
             formSchema={
               formSchema
             }
-
             formData={
               (
                 order.form_data ??
-                  {}
+                {}
               ) as Record<
                 string,
                 string
               >
             }
-
-            activeRequest={
+            customerActionRequest={
               customerActionRequest
             }
+            customerActionSubmission={
+              customerActionSubmission
+            }
+            requiresDocumentReview={
+              requiresDocumentReview
+            }
+            documents={
+              orderDocuments
+            }
+            appointmentData={
+              appointmentData
+            }
+            showAppointment={
+              showAppointment
+            }
+            defaultConsultationType={
+              defaultConsultationType
+            }
           />
+        )}
 
+        {order.services?.slug ===
+          "cetesdirecto-consultation" &&
+          order.payment_status ===
+            "paid" && (
+          <section className="rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow-sm">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-blue-950">
+                  Cetesdirecto 咨询课件
+                </h2>
 
-          {customerActionRequest && (
-            <AdminCustomerActionReview
-              request={
-                customerActionRequest
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-800">
+                  管理员内部咨询演示工具。
+                  在线会议过程中可通过屏幕共享向客户讲解，
+                  客户账户本身不会获得课件访问权限。
+                </p>
+
+                <p className="mt-2 text-xs leading-5 text-blue-700">
+                  课件包含订单专属动态浮水印，
+                  不提供客户下载入口。
+                </p>
+              </div>
+
+              <Link
+                href={`/admin/orders/${order.id}/consultation`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                打开咨询课件 ↗
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {workspaceData && (
+          <AdminSectionCard
+            title="服务结果"
+            description="管理本订单最终交付给客户的服务结果。"
+          >
+            <div className="[&>section]:mt-0 [&>section]:rounded-none [&>section]:border-0 [&>section]:bg-transparent [&>section]:p-0 [&>section]:shadow-none">
+              <AdminOrderResult
+                orderId={
+                  order.id
+                }
+                results={
+                  workspaceData.results
+                }
+              />
+            </div>
+          </AdminSectionCard>
+        )}
+
+        <AdminDataCleanupStatus
+          status={
+            order.data_cleanup_status
+          }
+          purposeEndedAt={
+            order.data_purpose_ended_at
+          }
+          cleanupDueAt={
+            order.data_cleanup_due_at
+          }
+          cleanedAt={
+            order.data_cleaned_at
+          }
+          lastError={
+            order.data_cleanup_last_error
+          }
+        />
+
+        {!workspaceData && (
+          <div className="space-y-8">
+            <AdminCustomerActionRequest
+              orderId={
+                order.id
               }
-
-              submission={
-                customerActionSubmission
+              fulfillmentId={
+                fulfillmentData
+                  .fulfillment
+                  ?.id ??
+                null
               }
-
-              currentFormData={
+              fulfillmentStatus={
+                fulfillmentData
+                  .fulfillment
+                  ?.status ??
+                null
+              }
+              formSchema={
+                formSchema
+              }
+              formData={
                 (
                   order.form_data ??
                     {}
@@ -930,76 +712,69 @@ export default async function AdminOrderDetailPage({
                   string
                 >
               }
+              activeRequest={
+                customerActionRequest
+              }
             />
-          )}
-        </>
-      )}
 
+            {customerActionRequest && (
+              <AdminCustomerActionReview
+                request={
+                  customerActionRequest
+                }
+                submission={
+                  customerActionSubmission
+                }
+                currentFormData={
+                  (
+                    order.form_data ??
+                      {}
+                  ) as Record<
+                    string,
+                    string
+                  >
+                }
+              />
+            )}
+          </div>
+        )}
 
-      {/* =====================================
-          Refund Management
-      ===================================== */}
+        {refundData.refund && (
+          <AdminRefundReview
+            refund={
+              refundData.refund
+            }
+            activity={
+              refundData.activity
+            }
+          />
+        )}
 
-      {refundData.refund && (
-        <AdminRefundReview
-          refund={
-            refundData.refund
-          }
+        {refundData.refund && (
+          <AdminRefundExecution
+            refund={
+              refundData.refund
+            }
+          />
+        )}
 
-          activity={
-            refundData.activity
+        {fulfillmentData
+          .fulfillment && (
+          <AddFulfillmentNoteForm
+            fulfillmentId={
+              fulfillmentData
+                .fulfillment
+                .id
+            }
+          />
+        )}
+
+        <AdminOrderTimeline
+          items={
+            timeline
           }
         />
-      )}
-
-
-      {refundData.refund && (
-        <AdminRefundExecution
-          refund={
-            refundData.refund
-          }
-        />
-      )}
-
-
-      {/* =====================================
-          Internal Note
-
-          新备注统一进入 fulfillment_activity。
-
-          不再写入 legacy order_activity。
-      ===================================== */}
-
-      {fulfillmentData
-        .fulfillment && (
-        <AddFulfillmentNoteForm
-          fulfillmentId={
-            fulfillmentData
-              .fulfillment
-              .id
-          }
-        />
-      )}
-
-
-      {/* =====================================
-          Unified Order Timeline
-
-          Payment
-          Payment Audit
-          Fulfillment
-          Human Review
-          Internal Notes
-          Failure
-          Refund Review
-          Completion
-      ===================================== */}
-
-      <AdminOrderTimeline
-        items={
-          timeline
-        }
-      />
+      </div>
     </div>
   );
 }

@@ -250,287 +250,247 @@ export default function AdminRefundReview({
     refund.status ===
     "pending_review";
 
-  return (
-    <section className="mt-8 rounded-xl border border-orange-200 bg-orange-50/40 p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-orange-600">
-            Refund Management
-          </p>
+    return (
+      <section className="overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-violet-100 bg-violet-50/50 px-5 py-5 sm:px-6">
+          <div>
+            <h2 className="text-lg font-bold text-slate-950">
+              退款审核
+            </h2>
 
-          <h2 className="mt-1 text-xl font-semibold">
-            退款审核
-          </h2>
-
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            服务无法完成后才可进入退款审核。
-            服务一旦成功完成并交付，系统禁止退款。
-          </p>
-        </div>
-
-        <span
-          className={`
-            rounded-full
-            px-3
-            py-1.5
-            text-sm
-            font-medium
-            ${getStatusClass(
-              refund.status
-            )}
-          `}
-        >
-          {getStatusLabel(
-            refund.status
-          )}
-        </span>
-      </div>
-
-      {/* Refund Summary */}
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border bg-white p-4">
-          <p className="text-xs text-gray-500">
-            退款金额
-          </p>
-
-          <p className="mt-1 text-lg font-semibold">
-            {refund.currency}{" "}
-            {refund.amount.toFixed(
-              2
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-white p-4">
-          <p className="text-xs text-gray-500">
-            原支付渠道
-          </p>
-
-          <p className="mt-1 text-lg font-semibold">
-            {getProviderLabel(
-              refund.provider
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-white p-4">
-          <p className="text-xs text-gray-500">
-            原付款 ID
-          </p>
-
-          <p className="mt-1 break-all text-sm font-medium">
-            {refund.providerPaymentId ??
-              "未记录"}
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-white p-4">
-          <p className="text-xs text-gray-500">
-            Refund ID
-          </p>
-
-          <p className="mt-1 break-all text-sm font-medium">
-            {refund.id}
-          </p>
-        </div>
-      </div>
-
-      {/* Failure / Refund Reason */}
-
-      <div className="mt-5 rounded-lg border bg-white p-5">
-        <p className="text-sm font-semibold">
-          退款审核原因
-        </p>
-
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">
-          {refund.reason}
-        </p>
-      </div>
-
-      {/* Review */}
-
-      {canReview && (
-        <div className="mt-5 rounded-lg border bg-white p-5">
-          <label className="text-sm font-semibold">
-            管理员审核备注
-          </label>
-
-          <p className="mt-1 text-xs leading-5 text-gray-500">
-            批准退款时备注可选；
-            拒绝退款时必须填写明确原因。
-          </p>
-
-          <textarea
-            rows={
-              4
-            }
-            value={
-              reviewNote
-            }
-            onChange={(
-              event
-            ) =>
-              setReviewNote(
-                event.target.value
-              )
-            }
-            placeholder="填写审核依据、客户情况或拒绝退款原因..."
-            className="mt-3 w-full rounded-lg border bg-white p-3"
-          />
-
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={
-                handleApprove
-              }
-              disabled={
-                loading !==
-                null
-              }
-              className="
-                rounded-lg
-                bg-blue-600
-                px-4
-                py-2.5
-                text-sm
-                font-medium
-                text-white
-                transition
-                hover:bg-blue-700
-                disabled:cursor-not-allowed
-                disabled:opacity-60
-              "
-            >
-              {loading ===
-              "approve"
-                ? "处理中..."
-                : "批准退款"}
-            </button>
-
-            <button
-              type="button"
-              onClick={
-                handleReject
-              }
-              disabled={
-                loading !==
-                null
-              }
-              className="
-                rounded-lg
-                border
-                border-red-300
-                bg-white
-                px-4
-                py-2.5
-                text-sm
-                font-medium
-                text-red-700
-                transition
-                hover:bg-red-50
-                disabled:cursor-not-allowed
-                disabled:opacity-60
-              "
-            >
-              {loading ===
-              "reject"
-                ? "处理中..."
-                : "拒绝退款"}
-            </button>
-          </div>
-
-          <div className="mt-4 rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-800">
-            “批准退款”目前只代表退款资格审核通过，
-            不会立即调用支付平台。真正的 Stripe /
-            Mercado Pago 原路退款将在下一阶段执行。
-          </div>
-        </div>
-      )}
-
-      {/* Review Result */}
-
-      {!canReview &&
-        refund.reviewedAt && (
-          <div className="mt-5 rounded-lg border bg-white p-5">
-            <p className="text-sm font-semibold">
-              审核结果
+            <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-600">
+              服务无法完成后才可进入退款审核。
+              服务一旦成功完成并交付，系统禁止退款。
             </p>
+          </div>
 
-            <p className="mt-2 text-sm text-gray-600">
-              状态：
-              {getStatusLabel(
+          <span
+            className={`
+              rounded-full
+              px-3
+              py-1.5
+              text-xs
+              font-semibold
+              ${getStatusClass(
                 refund.status
               )}
-            </p>
+            `}
+          >
+            {getStatusLabel(
+              refund.status
+            )}
+          </span>
+        </div>
 
-            {refund.reviewNote && (
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">
-                {refund.reviewNote}
+        <div className="p-5 sm:p-6">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+              <p className="text-xs font-medium text-slate-500">
+                退款金额
               </p>
-            )}
 
-            <p className="mt-2 text-xs text-gray-400">
-              审核时间：
-              {new Date(
-                refund.reviewedAt
-              ).toLocaleString()}
+              <p className="mt-1.5 text-lg font-bold text-slate-950">
+                {refund.currency}{" "}
+                {refund.amount.toFixed(
+                  2
+                )}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+              <p className="text-xs font-medium text-slate-500">
+                原支付渠道
+              </p>
+
+              <p className="mt-1.5 font-semibold text-slate-900">
+                {getProviderLabel(
+                  refund.provider
+                )}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+              <p className="text-xs font-medium text-slate-500">
+                原付款 ID
+              </p>
+
+              <p className="mt-1.5 break-all font-mono text-xs text-slate-700">
+                {refund.providerPaymentId ??
+                  "未记录"}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+              <p className="text-xs font-medium text-slate-500">
+                Refund ID
+              </p>
+
+              <p className="mt-1.5 break-all font-mono text-xs text-slate-700">
+                {refund.id}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="text-sm font-bold text-slate-900">
+              退款审核原因
+            </p>
+
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+              {refund.reason}
             </p>
           </div>
-        )}
 
-      {/* Refund Activity */}
+          {canReview && (
+            <div className="mt-5 rounded-xl border border-slate-200 bg-white p-5">
+              <label className="text-sm font-bold text-slate-900">
+                管理员审核备注
+              </label>
 
-      <div className="mt-6">
-        <h3 className="text-sm font-semibold">
-          退款操作记录
-        </h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                批准退款时备注可选；
+                拒绝退款时必须填写明确原因。
+              </p>
 
-        {activity.length ===
-        0 ? (
-          <p className="mt-3 text-sm text-gray-500">
-            暂无退款操作记录。
-          </p>
-        ) : (
-          <div className="mt-3 space-y-3">
-            {activity.map(
-              (
-                item
-              ) => (
-                <div
-                  key={
-                    item.id
+              <textarea
+                rows={
+                  4
+                }
+                value={
+                  reviewNote
+                }
+                onChange={(
+                  event
+                ) =>
+                  setReviewNote(
+                    event.target.value
+                  )
+                }
+                placeholder="填写审核依据、客户情况或拒绝退款原因..."
+                className="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+              />
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={
+                    handleApprove
                   }
-                  className="rounded-lg border bg-white p-4"
+                  disabled={
+                    loading !==
+                    null
+                  }
+                  className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-medium">
-                      {getActivityLabel(
-                        item.action
-                      )}
-                    </p>
+                  {loading ===
+                  "approve"
+                    ? "处理中..."
+                    : "批准退款"}
+                </button>
 
-                    <p className="text-xs text-gray-400">
-                      {new Date(
-                        item.createdAt
-                      ).toLocaleString()}
-                    </p>
-                  </div>
+                <button
+                  type="button"
+                  onClick={
+                    handleReject
+                  }
+                  disabled={
+                    loading !==
+                    null
+                  }
+                  className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ===
+                  "reject"
+                    ? "处理中..."
+                    : "拒绝退款"}
+                </button>
+              </div>
 
-                  {item.message && (
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">
-                      {
-                        item.message
-                      }
-                    </p>
+              <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
+                批准退款仅代表退款资格审核通过，
+                不会立即调用支付平台。
+                真正的原路退款需要在下一步「退款执行」中完成。
+              </div>
+            </div>
+          )}
+
+          {!canReview &&
+            refund.reviewedAt && (
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                <p className="text-sm font-bold text-slate-900">
+                  审核结果
+                </p>
+
+                <p className="mt-2 text-sm text-slate-600">
+                  状态：
+                  {getStatusLabel(
+                    refund.status
                   )}
-                </div>
-              )
+                </p>
+
+                {refund.reviewNote && (
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+                    {refund.reviewNote}
+                  </p>
+                )}
+
+                <p className="mt-2 text-xs text-slate-400">
+                  审核时间：
+                  {new Date(
+                    refund.reviewedAt
+                  ).toLocaleString()}
+                </p>
+              </div>
+            )}
+
+          <div className="mt-6 border-t border-slate-200 pt-5">
+            <h3 className="text-sm font-bold text-slate-900">
+              退款操作记录
+            </h3>
+
+            {activity.length ===
+            0 ? (
+              <p className="mt-3 text-sm text-slate-500">
+                暂无退款操作记录。
+              </p>
+            ) : (
+              <div className="mt-3 space-y-3">
+                {activity.map(
+                  item => (
+                    <div
+                      key={
+                        item.id
+                      }
+                      className="rounded-xl border border-slate-200 bg-white p-4"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-slate-900">
+                          {getActivityLabel(
+                            item.action
+                          )}
+                        </p>
+
+                        <p className="text-xs text-slate-400">
+                          {new Date(
+                            item.createdAt
+                          ).toLocaleString()}
+                        </p>
+                      </div>
+
+                      {item.message && (
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+                          {
+                            item.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
-    </section>
-  );
+        </div>
+      </section>
+    );
 }

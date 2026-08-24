@@ -120,148 +120,123 @@ export default function AdminRefundExecution({
   }
 
   return (
-    <section className="mt-5 rounded-xl border bg-white p-5">
-      <div>
-        <h3 className="font-semibold">
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 px-5 py-5 sm:px-6">
+        <h3 className="text-lg font-bold text-slate-950">
           退款执行
         </h3>
 
-        <p className="mt-2 text-sm leading-6 text-gray-500">
-          退款将按照原付款渠道原路退回。
+        <p className="mt-1.5 text-sm leading-6 text-slate-500">
+          退款按照原付款渠道原路退回。
           Stripe 订单由 Stripe 执行，
           Mercado Pago 订单由 Mercado Pago 执行。
         </p>
       </div>
 
-      {refund.status ===
-        "approved" && (
-        <div className="mt-4">
-          <div className="rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-800">
-            退款资格已经批准，但资金尚未退回客户。
-            点击下方按钮后会真正向支付平台发起退款。
+      <div className="p-5 sm:p-6">
+        {refund.status ===
+          "approved" && (
+          <div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+              退款资格已经批准，但资金尚未退回客户。
+              点击下方按钮后会真正向支付平台发起退款。
+            </div>
+
+            <button
+              type="button"
+              onClick={
+                handleExecute
+              }
+              disabled={
+                loading
+              }
+              className="mt-4 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading
+                ? "执行中..."
+                : `执行原路退款 ${refund.currency} ${refund.amount.toFixed(
+                    2
+                  )}`}
+            </button>
           </div>
+        )}
 
-          <button
-            type="button"
-            onClick={
-              handleExecute
-            }
-            disabled={
-              loading
-            }
-            className="
-              mt-4
-              rounded-lg
-              bg-red-600
-              px-4
-              py-2.5
-              text-sm
-              font-medium
-              text-white
-              transition
-              hover:bg-red-700
-              disabled:cursor-not-allowed
-              disabled:opacity-60
-            "
-          >
-            {loading
-              ? "执行中..."
-              : `执行原路退款 ${refund.currency} ${refund.amount.toFixed(
-                  2
-                )}`}
-          </button>
-        </div>
-      )}
+        {refund.status ===
+          "processing" && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
+            支付平台正在处理这笔退款。
+            暂时不要重复执行，系统将通过后续对账确认最终状态。
+          </div>
+        )}
 
-      {refund.status ===
-        "processing" && (
-        <div className="mt-4 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
-          支付平台正在处理这笔退款。
-          暂时不要重复执行，系统将通过后续对账确认最终状态。
-        </div>
-      )}
+        {refund.status ===
+          "failed" && (
+          <div>
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+              <p className="text-sm font-semibold text-red-700">
+                上一次退款执行失败
+              </p>
 
-      {refund.status ===
-        "failed" && (
-        <div className="mt-4">
-          <div className="rounded-lg bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-700">
-              上一次退款执行失败
+              {refund.failureReason && (
+                <p className="mt-2 text-sm leading-6 text-red-700">
+                  {
+                    refund.failureReason
+                  }
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={
+                handleExecute
+              }
+              disabled={
+                loading
+              }
+              className="mt-4 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+            >
+              {loading
+                ? "重新执行中..."
+                : "重新执行退款"}
+            </button>
+          </div>
+        )}
+
+        {refund.status ===
+          "succeeded" && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="font-semibold text-emerald-700">
+              退款成功
             </p>
 
-            {refund.failureReason && (
-              <p className="mt-2 text-sm leading-6 text-red-700">
+            {refund.providerRefundId && (
+              <p className="mt-2 break-all text-sm text-emerald-700">
+                Provider Refund ID：
                 {
-                  refund.failureReason
+                  refund.providerRefundId
                 }
               </p>
             )}
+
+            {refund.refundedAt && (
+              <p className="mt-2 text-xs text-emerald-700">
+                确认时间：
+                {new Date(
+                  refund.refundedAt
+                ).toLocaleString()}
+              </p>
+            )}
           </div>
+        )}
 
-          <button
-            type="button"
-            onClick={
-              handleExecute
-            }
-            disabled={
-              loading
-            }
-            className="
-              mt-4
-              rounded-lg
-              border
-              border-red-300
-              bg-white
-              px-4
-              py-2.5
-              text-sm
-              font-medium
-              text-red-700
-              transition
-              hover:bg-red-50
-              disabled:opacity-60
-            "
-          >
-            {loading
-              ? "重新执行中..."
-              : "重新执行退款"}
-          </button>
-        </div>
-      )}
-
-      {refund.status ===
-        "succeeded" && (
-        <div className="mt-4 rounded-lg bg-green-50 p-4">
-          <p className="font-medium text-green-700">
-            退款成功
-          </p>
-
-          {refund.providerRefundId && (
-            <p className="mt-2 break-all text-sm text-green-700">
-              Provider Refund ID：
-              {
-                refund.providerRefundId
-              }
-            </p>
-          )}
-
-          {refund.refundedAt && (
-            <p className="mt-2 text-xs text-green-700">
-              确认时间：
-              {new Date(
-                refund.refundedAt
-              ).toLocaleString()}
-            </p>
-          )}
-        </div>
-      )}
-
-      {refund.status ===
-        "rejected" && (
-        <div className="mt-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
-          退款申请已经被拒绝，不会向支付平台执行退款。
-        </div>
-      )}
+        {refund.status ===
+          "rejected" && (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            退款申请已经被拒绝，不会向支付平台执行退款。
+          </div>
+        )}
+      </div>
     </section>
   );
 }

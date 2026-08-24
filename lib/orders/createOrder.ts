@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import {
   createClient,
@@ -316,6 +316,36 @@ export async function createOrder(
     input.priceId
       ?.trim();
 
+      const clientRequestId =
+      input
+        .clientRequestId
+        ?.trim();
+
+
+    if (
+      !clientRequestId
+    ) {
+      throw new Error(
+        "订单请求编号无效"
+      );
+    }
+
+
+    const isValidClientRequestId =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        .test(
+          clientRequestId
+        );
+
+
+    if (
+      !isValidClientRequestId
+    ) {
+      throw new Error(
+        "订单请求编号格式无效"
+      );
+    }
+
   if (
     !serviceId
   ) {
@@ -546,15 +576,15 @@ export async function createOrder(
       .email
       ?.trim()
       .toLowerCase();
-  
-  
+
+
   const emailConfirmation =
     cleanFormData
       .email_confirmation
       ?.trim()
       .toLowerCase();
-  
-  
+
+
   if (
     emailConfirmation &&
     email !==
@@ -572,8 +602,8 @@ export async function createOrder(
       normalizeUppercaseValue(
         cleanFormData.curp
       );
-  
-  
+
+
     if (
       !isValidCurp(
         curp
@@ -583,8 +613,8 @@ export async function createOrder(
         "CURP 格式不正确，请检查后重新填写"
       );
     }
-  
-  
+
+
     cleanFormData.curp =
       curp;
   }
@@ -693,8 +723,8 @@ if (
       "no",
       "unknown",
     ];
-  
-  
+
+
     if (
       !allowedSigerValues
         .includes(
@@ -739,7 +769,7 @@ if (
         payment_method,
         payment_provider,
         active,
-      
+
         service_options (
           id,
           option_key,
@@ -751,7 +781,7 @@ if (
           workspace_required,
           active
         )
-        
+
 
       `)
       .eq(
@@ -850,8 +880,8 @@ if (
         "estado_de_mexico",
         "other",
       ];
-    
-    
+
+
       if (
         !allowedServiceRegions
           .includes(
@@ -874,8 +904,8 @@ if (
         cleanFormData
           .service_region
           ?.trim();
-  
-  
+
+
       if (
         !selectedRegion
       ) {
@@ -883,8 +913,8 @@ if (
           "请选择现场办理地区"
         );
       }
-  
-  
+
+
       const allowedRegions =
         Array.isArray(
           serviceOption
@@ -900,8 +930,8 @@ if (
                   "string"
               )
           : [];
-  
-  
+
+
       if (
         !allowedRegions.includes(
           selectedRegion
@@ -964,17 +994,71 @@ if (
    * ========================================
    */
 
-  const {
-    data,
-    error,
-  } =
-    await supabase
-      .from(
-        "orders"
-      )
-      .insert({
+      const {
+        data:
+          existingOrder,
+        error:
+          existingOrderError,
+      } =
+        await supabase
+          .from(
+            "orders"
+          )
+          .select(`
+            id,
+            service_option_id,
+            service_option_snapshot,
+            amount,
+            currency,
+            payment_method,
+            payment_provider,
+            payment_status
+          `)
+          .eq(
+            "user_id",
+            user.id
+          )
+          .eq(
+            "client_request_id",
+            clientRequestId
+          )
+          .maybeSingle();
+
+
+      if (
+        existingOrderError
+      ) {
+        console.error(
+          "createOrder idempotency lookup error:",
+          existingOrderError
+        );
+
+        throw new Error(
+          "检查订单请求失败，请稍后再试"
+        );
+      }
+
+
+      if (
+        existingOrder
+      ) {
+        return existingOrder;
+      }
+
+      const {
+        data,
+        error,
+      } =
+        await supabase
+          .from(
+            "orders"
+          )
+          .insert({
         user_id:
           user.id,
+
+        client_request_id:
+          clientRequestId,
 
         service_id:
           serviceId,
@@ -1042,16 +1126,68 @@ if (
       `)
       .single();
 
-  if (error) {
-    console.error(
-      "createOrder error:",
-      error
-    );
+      if (
+        error
+      ) {
+        /*
+         * PostgreSQL unique_violation。
+         *
+         * 两个并发请求即使同时通过前面的查询，
+         * 数据库 Unique Index 仍会保证只建立一个订单。
+         */
+        if (
+          error.code ===
+          "23505"
+        ) {
+          const {
+            data:
+              duplicateOrder,
+            error:
+              duplicateOrderError,
+          } =
+            await supabase
+              .from(
+                "orders"
+              )
+              .select(`
+                id,
+                service_option_id,
+                service_option_snapshot,
+                amount,
+                currency,
+                payment_method,
+                payment_provider,
+                payment_status
+              `)
+              .eq(
+                "user_id",
+                user.id
+              )
+              .eq(
+                "client_request_id",
+                clientRequestId
+              )
+              .maybeSingle();
 
-    throw new Error(
-      "建立订单失败，请稍后再试"
-    );
-  }
+
+          if (
+            duplicateOrder &&
+            !duplicateOrderError
+          ) {
+            return duplicateOrder;
+          }
+        }
+
+
+        console.error(
+          "createOrder error:",
+          error
+        );
+
+        throw new Error(
+          "建立订单失败，请稍后再试"
+        );
+      }
 
   return data;
 }

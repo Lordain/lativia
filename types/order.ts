@@ -133,6 +133,9 @@ export interface CreateOrderInput {
 
   priceId: string;
 
+  clientRequestId:
+    string;
+
   formData:
     Record<string, string>;
 

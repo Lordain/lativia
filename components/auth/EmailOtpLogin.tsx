@@ -198,6 +198,15 @@ export default function EmailOtpLogin() {
   ) {
     return (
       <div>
+        {process.env.NODE_ENV ===
+        "development" && (
+        <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-700">
+            开发环境提示：当前 Supabase
+            邮件模板可能仍发送登录链接；
+            正式环境会使用邮箱验证码。
+        </p>
+        )}
+
         <label
           htmlFor="otp-email"
           className="text-sm font-medium text-slate-900"

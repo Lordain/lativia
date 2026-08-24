@@ -27,6 +27,9 @@ export async function getMyOrders() {
     .select(`
       id,
       status,
+      payment_status,
+      amount,
+      currency,
       created_at,
       form_data,
 

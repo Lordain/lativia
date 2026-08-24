@@ -1,12 +1,13 @@
-import {
+﻿import {
   notFound,
 } from "next/navigation";
+
+import Link from "next/link";
 
 import {
   getMyOrder,
 } from "@/lib/orders/getMyOrder";
 
-import Link from "next/link";
 import PublicShell from "@/components/layout/PublicShell";
 
 import {
@@ -220,6 +221,18 @@ export default async function OrderDetailPage({
     order.payment_status ===
       "paid";
 
+    const canContinuePayment =
+      order.payment_status ===
+        "unpaid" ||
+      order.payment_status ===
+        "failed";
+
+    const paymentActionLabel =
+      order.payment_status ===
+      "failed"
+        ? "重新付款"
+        : "继续付款";
+
 
       return (
         <PublicShell>
@@ -249,14 +262,67 @@ export default async function OrderDetailPage({
             </p>
           </div>
 
-          <StatusBadge
-            status={
-              order.status as
-                OrderStatus
-            }
-          />
+          {order.payment_status ===
+              "unpaid" ? (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-800">
+                  等待付款
+                </span>
+              ) : order.payment_status ===
+              "failed" ? (
+                <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-3 py-1.5 text-sm font-semibold text-red-700">
+                  付款未完成
+                </span>
+              ) : (
+                <StatusBadge
+                  status={
+                    order.status as
+                      OrderStatus
+                  }
+                />
+              )}
         </div>
       </div>
+
+      {canContinuePayment && (
+        <section className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-amber-950">
+                {order.payment_status ===
+                "failed"
+                  ? "付款尚未完成"
+                  : "订单已建立，等待付款"}
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-amber-800">
+                完成付款后，我们才会开始处理您的服务申请。
+              </p>
+
+              {order.amount !==
+                null && (
+                <p className="mt-2 text-lg font-bold text-slate-950">
+                  {order.currency ??
+                    "MXN"}{" "}
+                  {Number(
+                    order.amount
+                  ).toLocaleString(
+                    "es-MX"
+                  )}
+                </p>
+              )}
+            </div>
+
+            <Link
+              href={`/account/orders/${order.id}/payment`}
+              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 px-5 text-sm font-semibold text-white transition hover:bg-blue-800"
+            >
+              {
+                paymentActionLabel
+              }
+            </Link>
+          </div>
+        </section>
+      )}
 
 
       {/* =====================================
@@ -413,15 +479,15 @@ export default async function OrderDetailPage({
           appointmentData={
             appointmentData
           }
-          
+
           showAppointment={
             showAppointment
           }
-          
+
           requiresDocumentReview={
             requiresDocumentReview
           }
-          
+
           documents={
             orderDocuments
           }

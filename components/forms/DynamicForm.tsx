@@ -24,6 +24,10 @@ import {
 import SoftAuthGate from "@/components/auth/SoftAuthGate";
 
 import {
+  savePendingOAuthOrder,
+} from "@/lib/auth/pendingOAuthOrder";
+
+import {
   createClient,
 } from "@/lib/supabase/client";
 
@@ -44,15 +48,17 @@ type DynamicFormData =
   Record<string, string>;
 
   type PendingSubmission = {
-    priceId: string;
+    clientRequestId:
+      string;
+
+    priceId:
+      string;
 
     formData:
       DynamicFormData;
 
     eligibilityAcknowledgementKeys:
       string[];
-
-    email: string;
   };
 
 interface Props {
@@ -302,19 +308,23 @@ const [
 
     try {
       const order =
-        await createOrder({
-          serviceId,
+      await createOrder({
+        serviceId,
 
-          priceId:
-            submission.priceId,
+        clientRequestId:
+          submission
+            .clientRequestId,
 
-          formData:
-            submission.formData,
+        priceId:
+          submission.priceId,
 
-          eligibilityAcknowledgementKeys:
-            submission
-              .eligibilityAcknowledgementKeys,
-        });
+        formData:
+          submission.formData,
+
+        eligibilityAcknowledgementKeys:
+          submission
+            .eligibilityAcknowledgementKeys,
+      });
 
       setPendingSubmission(
         null
@@ -474,20 +484,19 @@ const [
           );
 
 
-      const submission:
-        PendingSubmission = {
-          priceId:
-            selectedPriceId,
+          const submission:
+          PendingSubmission = {
+            clientRequestId:
+              crypto.randomUUID(),
 
-          formData:
-            data,
+            priceId:
+              selectedPriceId,
 
-          eligibilityAcknowledgementKeys,
+            formData:
+              data,
 
-          email:
-            email ??
-            "",
-        };
+            eligibilityAcknowledgementKeys,
+          };
 
 
       /*
@@ -522,17 +531,6 @@ const [
       ) {
         await createPendingOrder(
           submission
-        );
-
-        return;
-      }
-
-
-      if (
-        !email
-      ) {
-        alert(
-          "请先填写电子邮箱，以便验证身份并保存订单。"
         );
 
         return;
@@ -903,14 +901,44 @@ const [
 
 {pendingSubmission && (
   <SoftAuthGate
-    email={
-      pendingSubmission.email
+    initialEmail={
+      pendingSubmission
+        .formData
+        .email
+        ?.trim()
+        .toLowerCase() ??
+      ""
     }
+
     onVerified={
       async () => {
         await createPendingOrder(
           pendingSubmission
         );
+      }
+    }
+
+    onBeforeGoogleSignIn={
+      () => {
+        savePendingOAuthOrder({
+          clientRequestId:
+          pendingSubmission
+            .clientRequestId,
+
+          serviceId,
+
+          priceId:
+            pendingSubmission
+              .priceId,
+
+          formData:
+            pendingSubmission
+              .formData,
+
+          eligibilityAcknowledgementKeys:
+            pendingSubmission
+              .eligibilityAcknowledgementKeys,
+        });
       }
     }
   />

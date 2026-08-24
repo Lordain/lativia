@@ -91,66 +91,114 @@ export default async function MyOrdersPage() {
                 (
                   order,
                   index
-                ) => (
-                  <Link
-                    href={`/account/orders/${order.id}`}
-                    key={
-                      order.id
-                    }
-                    className={[
-                      "group block px-4 py-4 transition hover:bg-slate-50 sm:px-5",
-                      index <
-                      orders.length -
-                        1
-                        ? "border-b border-slate-100"
-                        : "",
-                    ].join(
-                      " "
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <h2 className="truncate text-sm font-semibold text-slate-950 transition group-hover:text-blue-700 sm:text-[15px]">
-                          {(
-                            order
-                              .services
-                              ?.title ??
-                            "服务"
-                          ).replaceAll(
-                            "公司",
-                            "企业"
-                          )}
-                        </h2>
+                ) => {
+                  const canContinuePayment =
+                    order.payment_status ===
+                      "unpaid" ||
+                    order.payment_status ===
+                      "failed";
 
-                        <p className="mt-1.5 text-xs text-slate-500">
-                          {formatOrderDate(
-                            order.created_at
-                          )}
-                        </p>
-                      </div>
+                  const paymentActionLabel =
+                    order.payment_status ===
+                    "failed"
+                      ? "重新付款"
+                      : "继续付款";
 
-                      <div className="flex shrink-0 items-center gap-3">
-                        <StatusBadge
-                          status={
-                            order.status
-                          }
-                        />
-
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="hidden h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600 sm:block"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                  return (
+                    <div
+                      key={
+                        order.id
+                      }
+                      className={[
+                        "px-4 py-4 sm:px-5",
+                        index <
+                        orders.length -
+                          1
+                          ? "border-b border-slate-100"
+                          : "",
+                      ].join(
+                        " "
+                      )}
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <Link
+                          href={`/account/orders/${order.id}`}
+                          className="group min-w-0 flex-1"
                         >
-                          <path d="m9 18 6-6-6-6" />
-                        </svg>
+                          <h2 className="truncate text-sm font-semibold text-slate-950 transition group-hover:text-blue-700 sm:text-[15px]">
+                            {(
+                              order
+                                .services
+                                ?.title ??
+                              "服务"
+                            ).replaceAll(
+                              "公司",
+                              "企业"
+                            )}
+                          </h2>
+
+                          <p className="mt-1.5 text-xs text-slate-500">
+                            {formatOrderDate(
+                              order.created_at
+                            )}
+                          </p>
+                        </Link>
+
+
+                        <div className="flex shrink-0 items-center gap-3">
+                          {order.payment_status ===
+                          "unpaid" ? (
+                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                              等待付款
+                            </span>
+                          ) : order.payment_status ===
+                          "failed" ? (
+                            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                              付款未完成
+                            </span>
+                          ) : (
+                            <StatusBadge
+                              status={
+                                order.status
+                              }
+                            />
+                          )}
+
+
+                          {canContinuePayment && (
+                            <Link
+                              href={`/account/orders/${order.id}/payment`}
+                              className="inline-flex min-h-9 items-center justify-center rounded-lg bg-blue-700 px-3 text-xs font-semibold text-white transition hover:bg-blue-800"
+                            >
+                              {
+                                paymentActionLabel
+                              }
+                            </Link>
+                          )}
+
+
+                          <Link
+                            href={`/account/orders/${order.id}`}
+                            aria-label="查看订单详情"
+                            className="hidden text-slate-300 transition hover:translate-x-0.5 hover:text-blue-600 sm:block"
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="m9 18 6-6-6-6" />
+                            </svg>
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </Link>
-                )
+                  );
+                }
               )}
             </div>
           )}

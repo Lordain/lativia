@@ -163,10 +163,10 @@ export default function ServiceForm({
 
             resultIsOfficial:
             false,
-          
+
           resultRequired:
             false,
-          
+
           hasResultFile:
             false,
 
@@ -292,7 +292,7 @@ export default function ServiceForm({
             服务基本资料
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             设置客户在前台看到的服务名称、说明和基本办理信息。
           </p>
         </div>
@@ -438,7 +438,7 @@ export default function ServiceForm({
               )}
             />
 
-            <p className="mt-2 text-xs leading-5 text-gray-500">
+            <p className="mt-2 text-xs leading-5 text-slate-500">
               当前仅用于页面展示；实际付款金额由付款方式配置决定。
             </p>
           </FormField>
@@ -486,7 +486,7 @@ export default function ServiceForm({
           </FormField>
         </div>
 
-        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl bg-gray-50 p-4">
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl bg-slate-50 p-4">
           <input
             type="checkbox"
             className="mt-1 h-4 w-4"
@@ -500,7 +500,7 @@ export default function ServiceForm({
               热门服务
             </p>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-slate-500">
               在客户前台优先展示。
             </p>
           </div>
@@ -517,7 +517,7 @@ export default function ServiceForm({
             服务设置
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             设置服务类型、上线优先级和当前受理状态。
           </p>
         </div>
@@ -532,7 +532,7 @@ export default function ServiceForm({
               {...register(
                 "serviceType"
               )}
-              className="w-full rounded-lg border bg-white p-3"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             >
               <option value="online_query">
                 在线查询
@@ -561,7 +561,7 @@ export default function ServiceForm({
               {...register(
                 "launchPriority"
               )}
-              className="w-full rounded-lg border bg-white p-3"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             >
               <option value="first">
                 第一优先级
@@ -582,7 +582,7 @@ export default function ServiceForm({
               {...register(
                 "serviceStatus"
               )}
-              className="w-full rounded-lg border bg-white p-3"
+              className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
             >
               <option value="active">
                 正常受理
@@ -610,7 +610,7 @@ export default function ServiceForm({
             客户条件与下单资料
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             设置客户付款前需要确认的办理条件，以及下单时需要填写的信息。
           </p>
         </div>
@@ -624,7 +624,7 @@ export default function ServiceForm({
             {...register(
               "eligibilityMode"
             )}
-            className="w-full rounded-lg border bg-white p-3"
+            className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
           >
             <option value="none">
               无需确认
@@ -650,7 +650,7 @@ export default function ServiceForm({
 
         {eligibilityMode ===
           "self_check" && (
-          <div className="mt-6 rounded-xl bg-gray-50 p-4">
+          <div className="mt-6 rounded-xl bg-slate-50 p-4">
             <EligibilityBuilder
               control={
                 control
@@ -671,7 +671,7 @@ export default function ServiceForm({
               下单时需要填写
             </h3>
 
-            <p className="mt-1 text-sm leading-6 text-gray-500">
+            <p className="mt-1 text-sm leading-6 text-slate-500">
               只添加完成本服务真正必要的信息。
             </p>
           </div>
@@ -700,12 +700,12 @@ export default function ServiceForm({
             服务执行
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             普通服务通常由管理员确认完成；复杂咨询或代办服务可开启服务空间、期限或完成节点。
           </p>
         </div>
 
-        <label className="mt-6 flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+        <label className="mt-6 flex items-start gap-3 rounded-xl bg-slate-50 p-4">
           <input
             type="checkbox"
             className="mt-1 h-4 w-4"
@@ -719,7 +719,7 @@ export default function ServiceForm({
               开启订单专属服务空间
             </p>
 
-            <p className="mt-1 text-sm leading-6 text-gray-500">
+            <p className="mt-1 text-sm leading-6 text-slate-500">
               适用于购买后需要咨询、人工沟通、培训或持续协助的服务。
             </p>
           </div>
@@ -734,7 +734,7 @@ export default function ServiceForm({
             {...register(
               "completionMode"
             )}
-            className="w-full rounded-lg border bg-white p-3"
+            className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
           >
             <option value="manual">
               管理员确认完成
@@ -792,7 +792,7 @@ export default function ServiceForm({
         )}
 
         {showMilestones && (
-          <div className="mt-6 rounded-xl bg-gray-50 p-4">
+          <div className="mt-6 rounded-xl bg-slate-50 p-4">
             {errors
               .completionMilestones
               ?.message && (
@@ -830,7 +830,7 @@ export default function ServiceForm({
       结果与退款
     </h2>
 
-    <p className="mt-2 text-sm leading-6 text-gray-500">
+    <p className="mt-2 text-sm leading-6 text-slate-500">
       说明客户最终获得什么，以及是否需要交付官方或结果文件。
     </p>
   </div>
@@ -871,7 +871,7 @@ export default function ServiceForm({
   <div className="mt-6 grid gap-4 md:grid-cols-3">
     {/* Official Result */}
 
-    <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+    <label className="flex items-start gap-3 rounded-xl bg-slate-50 p-4">
       <input
         type="checkbox"
         className="mt-1 h-4 w-4"
@@ -885,7 +885,7 @@ export default function ServiceForm({
           最终结果由官方机构出具
         </p>
 
-        <p className="mt-1 text-sm leading-6 text-gray-500">
+        <p className="mt-1 text-sm leading-6 text-slate-500">
           只有政府或相关官方机构实际出具的结果才可以勾选。
         </p>
       </div>
@@ -894,7 +894,7 @@ export default function ServiceForm({
 
     {/* Result Required */}
 
-    <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+    <label className="flex items-start gap-3 rounded-xl bg-slate-50 p-4">
       <input
         type="checkbox"
         className="mt-1 h-4 w-4"
@@ -908,7 +908,7 @@ export default function ServiceForm({
           服务完成前需要正式交付结果
         </p>
 
-        <p className="mt-1 text-sm leading-6 text-gray-500">
+        <p className="mt-1 text-sm leading-6 text-slate-500">
           适用于需要在订单服务空间中留下正式完成或结果记录的服务。
         </p>
       </div>
@@ -917,7 +917,7 @@ export default function ServiceForm({
 
     {/* Result File */}
 
-    <label className="flex items-start gap-3 rounded-xl bg-gray-50 p-4">
+    <label className="flex items-start gap-3 rounded-xl bg-slate-50 p-4">
       <input
         type="checkbox"
         className="mt-1 h-4 w-4"
@@ -931,7 +931,7 @@ export default function ServiceForm({
           有结果文件需要交付
         </p>
 
-        <p className="mt-1 text-sm leading-6 text-gray-500">
+        <p className="mt-1 text-sm leading-6 text-slate-500">
           勾选后由系统按既定交付和临时资料保留规则处理。
         </p>
       </div>
@@ -957,7 +957,7 @@ export default function ServiceForm({
         服务无法完成时，可进入退款审核
       </p>
 
-      <p className="mt-1 text-sm leading-6 text-gray-600">
+      <p className="mt-1 text-sm leading-6 text-slate-600">
         是否最终退款仍根据失败原因、已发生费用及退款规则处理。
       </p>
     </div>

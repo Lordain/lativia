@@ -179,15 +179,16 @@ export default function ServicePaymentOptions({
   }
 
   return (
-    <section className="mt-8 rounded-xl border bg-white p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">
-            付款方式
-          </h2>
+          <h3 className="font-bold text-slate-950">
+            已配置付款方案
+          </h3>
 
-          <p className="mt-2 text-sm text-gray-500">
-            管理此服务可使用的币种、金额和支付渠道。
+          <p className="mt-1.5 text-sm leading-6 text-slate-500">
+            管理此服务可以使用的币种、金额和支付渠道。
+            停用的付款方案不会提供给客户选择。
           </p>
         </div>
 
@@ -199,16 +200,7 @@ export default function ServicePaymentOptions({
                 true
               )
             }
-            className="
-              rounded-lg
-              bg-blue-600
-              px-4
-              py-2
-              text-sm
-              font-medium
-              text-white
-              hover:bg-blue-700
-            "
+            className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
           >
             ＋ 新增付款方式
           </button>
@@ -216,7 +208,17 @@ export default function ServicePaymentOptions({
       </div>
 
       {creating && (
-        <div className="mt-5">
+        <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50/40 p-5">
+          <div className="mb-4">
+            <h4 className="font-bold text-blue-950">
+              新增付款方式
+            </h4>
+
+            <p className="mt-1 text-sm text-blue-700">
+              设置币种、收费金额、付款方式及支付平台。
+            </p>
+          </div>
+
           <ServicePriceForm
             submitLabel="新增付款方式"
             onSubmit={
@@ -233,69 +235,113 @@ export default function ServicePaymentOptions({
 
       {prices.length ===
       0 ? (
-        <div className="mt-5 rounded-lg border border-dashed p-6 text-center text-sm text-gray-500">
-          此服务目前没有付款方式。
+        <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect
+                x="2"
+                y="5"
+                width="20"
+                height="14"
+                rx="2"
+              />
+
+              <path d="M2 10h20" />
+            </svg>
+          </div>
+
+          <p className="mt-3 text-sm font-semibold text-slate-700">
+            尚未配置付款方式
+          </p>
+
+          <p className="mt-1 text-sm text-slate-500">
+            新增至少一个启用的付款方案后，客户才能完成付款。
+          </p>
         </div>
       ) : (
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 space-y-3">
           {prices.map(
-            (price) => {
+            price => {
               if (
                 editingId ===
                 price.id
               ) {
                 return (
-                  <ServicePriceForm
+                  <div
                     key={
                       price.id
                     }
-                    submitLabel="保存修改"
-                    initialData={{
-                      currency:
-                        price.currency,
+                    className="rounded-2xl border border-blue-200 bg-blue-50/40 p-5"
+                  >
+                    <div className="mb-4">
+                      <h4 className="font-bold text-blue-950">
+                        编辑付款方式
+                      </h4>
 
-                      amount:
-                        String(
-                          price.amount
-                        ),
+                      <p className="mt-1 text-sm text-blue-700">
+                        修改后会影响之后新建立的订单。
+                      </p>
+                    </div>
 
-                      paymentMethod:
-                        price.paymentMethod,
+                    <ServicePriceForm
+                      submitLabel="保存修改"
+                      initialData={{
+                        currency:
+                          price.currency,
 
-                      paymentProvider:
-                        price.paymentProvider ??
-                        "",
+                        amount:
+                          String(
+                            price.amount
+                          ),
 
-                      active:
-                        price.active,
-                    }}
-                    onSubmit={(
-                      data
-                    ) =>
-                      handleUpdate(
-                        price.id,
+                        paymentMethod:
+                          price.paymentMethod,
+
+                        paymentProvider:
+                          price.paymentProvider ??
+                          "",
+
+                        active:
+                          price.active,
+                      }}
+                      onSubmit={(
                         data
-                      )
-                    }
-                    onCancel={() =>
-                      setEditingId(
-                        null
-                      )
-                    }
-                  />
+                      ) =>
+                        handleUpdate(
+                          price.id,
+                          data
+                        )
+                      }
+                      onCancel={() =>
+                        setEditingId(
+                          null
+                        )
+                      }
+                    />
+                  </div>
                 );
               }
+
 
               return (
                 <div
                   key={
                     price.id
                   }
-                  className="flex flex-col gap-4 rounded-xl border p-5 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 md:flex-row md:items-center md:justify-between"
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold">
+                      <p className="font-bold text-slate-950">
                         {getPaymentProviderLabel(
                           price.paymentProvider
                         )}
@@ -304,14 +350,14 @@ export default function ServicePaymentOptions({
                       <span
                         className={`
                           rounded-full
-                          px-2
+                          px-2.5
                           py-1
                           text-xs
-                          font-medium
+                          font-semibold
                           ${
                             price.active
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-500"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-slate-100 text-slate-500"
                           }
                         `}
                       >
@@ -321,7 +367,7 @@ export default function ServicePaymentOptions({
                       </span>
                     </div>
 
-                    <p className="mt-2 text-lg font-bold">
+                    <p className="mt-2 text-xl font-bold tracking-tight text-slate-950">
                       {price.currency ===
                       "CNY"
                         ? `¥${price.amount.toFixed(
@@ -332,14 +378,26 @@ export default function ServicePaymentOptions({
                           )} ${price.currency}`}
                     </p>
 
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getPaymentMethodLabel(
-                        price.paymentMethod
-                      )}
-                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+                      <span>
+                        {getPaymentMethodLabel(
+                          price.paymentMethod
+                        )}
+                      </span>
+
+                      <span className="text-slate-300">
+                        •
+                      </span>
+
+                      <span className="font-mono text-xs">
+                        {
+                          price.currency
+                        }
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() =>
@@ -347,7 +405,7 @@ export default function ServicePaymentOptions({
                           price.id
                         )
                       }
-                      className="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50"
+                      className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
                     >
                       编辑
                     </button>
@@ -360,15 +418,17 @@ export default function ServicePaymentOptions({
                         )
                       }
                       className={`
-                        rounded-lg
+                        rounded-xl
                         border
-                        px-3
+                        px-3.5
                         py-2
                         text-sm
+                        font-semibold
+                        transition
                         ${
                           price.active
-                            ? "border-red-200 text-red-700 hover:bg-red-50"
-                            : "border-green-200 text-green-700 hover:bg-green-50"
+                            ? "border-red-200 bg-white text-red-700 hover:bg-red-50"
+                            : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
                         }
                       `}
                     >
@@ -383,6 +443,6 @@ export default function ServicePaymentOptions({
           )}
         </div>
       )}
-    </section>
+    </div>
   );
 }

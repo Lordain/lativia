@@ -52,7 +52,7 @@ export default function CompletionMilestoneBuilder({
             服务完成节点
           </p>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             用于需要按照特定阶段判断服务完成的项目。
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function CompletionMilestoneBuilder({
                 true,
             })
           }
-          className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-gray-50"
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
         >
           + 添加节点
         </button>
@@ -75,7 +75,7 @@ export default function CompletionMilestoneBuilder({
 
 
       {fields.length === 0 && (
-        <div className="rounded-xl border border-dashed p-4 text-sm text-gray-500">
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
           尚未设置完成节点。
         </div>
       )}
@@ -90,7 +90,7 @@ export default function CompletionMilestoneBuilder({
             key={
               field.id
             }
-            className="rounded-xl border bg-gray-50 p-4"
+            className="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div>
@@ -103,7 +103,7 @@ export default function CompletionMilestoneBuilder({
                     `completionMilestones.${index}.key`
                   )}
                   placeholder="例如：account_opened"
-                  className="w-full rounded-lg border bg-white p-3 text-sm"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 />
 
                 {errors
@@ -134,14 +134,14 @@ export default function CompletionMilestoneBuilder({
                     `completionMilestones.${index}.label`
                   )}
                   placeholder="例如：完成 Cetesdirecto 开户"
-                  className="w-full rounded-lg border bg-white p-3 text-sm"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 />
               </div>
             </div>
 
 
             <div className="mt-4 flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <input
                   type="checkbox"
                   {...register(

@@ -52,7 +52,7 @@ export default function EligibilityBuilder({
             资格条件
           </p>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             客户付款前需要确认自己是否满足这些条件。
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function EligibilityBuilder({
                 true,
             })
           }
-          className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-gray-50"
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
         >
           + 添加条件
         </button>
@@ -75,7 +75,7 @@ export default function EligibilityBuilder({
 
 
       {fields.length === 0 && (
-        <div className="rounded-xl border border-dashed p-4 text-sm text-gray-500">
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
           尚未设置资格条件。
         </div>
       )}
@@ -90,7 +90,7 @@ export default function EligibilityBuilder({
             key={
               field.id
             }
-            className="rounded-xl border bg-gray-50 p-4"
+            className="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div>
@@ -103,7 +103,7 @@ export default function EligibilityBuilder({
                     `eligibilitySchema.${index}.key`
                   )}
                   placeholder="例如：rfc"
-                  className="w-full rounded-lg border bg-white p-3 text-sm"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 />
 
                 {errors
@@ -134,14 +134,14 @@ export default function EligibilityBuilder({
                     `eligibilitySchema.${index}.label`
                   )}
                   placeholder="例如：我已经拥有 RFC"
-                  className="w-full rounded-lg border bg-white p-3 text-sm"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                 />
               </div>
             </div>
 
 
             <div className="mt-4 flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <input
                   type="checkbox"
                   {...register(

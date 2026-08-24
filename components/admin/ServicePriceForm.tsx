@@ -134,13 +134,13 @@ export default function ServicePriceForm({
       onSubmit={
         handleSubmit
       }
-      className="space-y-4 rounded-xl border bg-gray-50 p-5"
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5"
     >
       <div className="grid gap-4 md:grid-cols-2">
         {/* Currency */}
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label className="mb-1 block text-sm font-semibold">
             币种
           </label>
 
@@ -156,7 +156,7 @@ export default function ServicePriceForm({
                   .value as Currency
               )
             }
-            className="w-full rounded-lg border bg-white px-3 py-2"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2"
           >
             <option value="MXN">
               MXN — 墨西哥比索
@@ -171,7 +171,7 @@ export default function ServicePriceForm({
         {/* Amount */}
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label className="mb-1 block text-sm font-semibold">
             金额
           </label>
 
@@ -191,14 +191,14 @@ export default function ServicePriceForm({
               )
             }
             placeholder="例如：500"
-            className="w-full rounded-lg border px-3 py-2"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
           />
         </div>
 
         {/* Payment Method */}
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label className="mb-1 block text-sm font-semibold">
             客户付款方式
           </label>
 
@@ -214,7 +214,7 @@ export default function ServicePriceForm({
                   .value as PaymentMethod
               )
             }
-            className="w-full rounded-lg border bg-white px-3 py-2"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2"
           >
             <option value="local_payment">
               墨西哥本地付款
@@ -233,7 +233,7 @@ export default function ServicePriceForm({
         {/* Provider */}
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label className="mb-1 block text-sm font-semibold">
             Payment Provider
           </label>
 
@@ -250,7 +250,7 @@ export default function ServicePriceForm({
                   ServicePriceFormData["paymentProvider"]
               )
             }
-            className="w-full rounded-lg border bg-white px-3 py-2"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2"
           >
             <option value="">
               尚未配置
@@ -273,7 +273,7 @@ export default function ServicePriceForm({
 
       {/* Status */}
 
-      <label className="flex items-start gap-3 rounded-lg border bg-white p-4">
+      <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
         <input
           type="checkbox"
           checked={
@@ -287,22 +287,22 @@ export default function ServicePriceForm({
                 .checked
             )
           }
-          className="mt-0.5"
+          className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600"
         />
 
         <div>
-          <p className="text-sm font-medium">
+          <p className="text-sm font-semibold">
             启用此付款方式
           </p>
 
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-slate-500">
             只有启用中的付款方式才会显示给客户。
           </p>
         </div>
       </label>
 
       {!paymentProvider && (
-        <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
           此付款方式尚未绑定正式 Payment Provider，
           请保持停用状态。
         </div>
@@ -317,7 +317,7 @@ export default function ServicePriceForm({
             loading
           }
           className="
-            rounded-lg
+            rounded-xl
             bg-blue-600
             px-4
             py-2
@@ -339,7 +339,7 @@ export default function ServicePriceForm({
             onClick={
               onCancel
             }
-            className="rounded-lg border bg-white px-4 py-2 text-sm"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm"
           >
             取消
           </button>

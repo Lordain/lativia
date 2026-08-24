@@ -79,36 +79,36 @@ export default function DynamicFormBuilder({
     append({
       name:
         "",
-    
+
       label:
         "",
-    
+
       type:
         "text",
-    
+
       placeholder:
         "",
-    
+
       helperText:
         "",
-    
+
       required:
         false,
-    
+
       options:
         [],
     });
   }
 
   return (
-    <section className="rounded-xl border bg-gray-50 p-5">
+    <section className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-base font-bold text-slate-950">
             客户申请表单
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             设置客户申请此服务时需要填写的个人资料。
           </p>
         </div>
@@ -119,13 +119,13 @@ export default function DynamicFormBuilder({
             addField
           }
           className="
-            rounded-lg
+            rounded-xl
             border
             bg-white
             px-4
             py-2
             text-sm
-            font-medium
+            font-semibold
             text-blue-700
             transition
             hover:bg-blue-50
@@ -137,8 +137,8 @@ export default function DynamicFormBuilder({
 
       {fields.length ===
       0 ? (
-        <div className="mt-5 rounded-lg border border-dashed bg-white p-6 text-center">
-          <p className="text-sm text-gray-500">
+        <div className="mt-5 rounded-xl border border-dashed bg-white p-6 text-center">
+          <p className="text-sm text-slate-500">
             此服务目前不要求客户填写额外资料。
           </p>
 
@@ -147,7 +147,7 @@ export default function DynamicFormBuilder({
             onClick={
               addField
             }
-            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
+            className="mt-3 text-sm font-semibold text-blue-600 hover:underline"
           >
             新增第一个字段
           </button>
@@ -170,10 +170,10 @@ export default function DynamicFormBuilder({
                   key={
                     field.id
                   }
-                  className="rounded-xl border bg-white p-5"
+                  className="rounded-2xl border border-slate-200 bg-white p-5"
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">
+                    <p className="font-semibold">
                       字段{" "}
                       {
                         index +
@@ -253,7 +253,7 @@ export default function DynamicFormBuilder({
                     {/* Type */}
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
+                      <label className="mb-1 block text-sm font-semibold">
                         字段类型
                       </label>
 
@@ -261,7 +261,7 @@ export default function DynamicFormBuilder({
                         {...register(
                           `formSchema.${index}.type`
                         )}
-                        className="w-full rounded-lg border bg-white px-3 py-2 text-sm"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                       >
                         {FIELD_TYPES.map(
                           (
@@ -287,7 +287,7 @@ export default function DynamicFormBuilder({
                     {/* Name */}
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
+                      <label className="mb-1 block text-sm font-semibold">
                         字段名称
                       </label>
 
@@ -299,7 +299,7 @@ export default function DynamicFormBuilder({
                         )}
                         className={`
                           w-full
-                          rounded-lg
+                          rounded-xl
                           border
                           px-3
                           py-2
@@ -325,7 +325,7 @@ export default function DynamicFormBuilder({
                         </p>
                       )}
 
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-slate-400">
                         数据库字段键，例如 curp、passport_number。
                       </p>
                     </div>
@@ -333,7 +333,7 @@ export default function DynamicFormBuilder({
                     {/* Label */}
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
+                      <label className="mb-1 block text-sm font-semibold">
                         显示名称
                       </label>
 
@@ -345,7 +345,7 @@ export default function DynamicFormBuilder({
                         )}
                         className={`
                           w-full
-                          rounded-lg
+                          rounded-xl
                           border
                           px-3
                           py-2
@@ -375,7 +375,7 @@ export default function DynamicFormBuilder({
                     {/* Placeholder */}
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium">
+                      <label className="mb-1 block text-sm font-semibold">
                         输入提示
                       </label>
 
@@ -385,14 +385,14 @@ export default function DynamicFormBuilder({
                         {...register(
                           `formSchema.${index}.placeholder`
                         )}
-                        className="w-full rounded-lg border px-3 py-2 text-sm"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                       />
                     </div>
 
                     {/* Helper Text */}
 
                   <div className="md:col-span-2">
-                    <label className="mb-1 block text-sm font-medium">
+                    <label className="mb-1 block text-sm font-semibold">
                       中文说明
                     </label>
 
@@ -404,17 +404,17 @@ export default function DynamicFormBuilder({
                       {...register(
                         `formSchema.${index}.helperText`
                       )}
-                      className="w-full rounded-lg border px-3 py-2 text-sm"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                     />
 
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-slate-400">
                       用于说明 CURP、RFC、SIGER 等墨西哥专用字段；Email 等通用字段可留空。
                     </p>
                   </div>
                   {field.type ===
                     "select" && (
-                    <div className="md:col-span-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                      <p className="text-sm font-medium text-amber-900">
+                    <div className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                      <p className="text-sm font-semibold text-amber-900">
                         下拉选项
                       </p>
 
@@ -432,13 +432,13 @@ export default function DynamicFormBuilder({
                   <label className="mt-4 flex cursor-pointer items-center gap-3">
                     <input
                       type="checkbox"
-                      className="h-4 w-4"
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600"
                       {...register(
                         `formSchema.${index}.required`
                       )}
                     />
 
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-semibold">
                       此字段为必填
                     </span>
                   </label>
@@ -449,7 +449,7 @@ export default function DynamicFormBuilder({
         </div>
       )}
 
-      <div className="mt-5 rounded-lg bg-blue-50 p-4 text-xs text-blue-800">
+      <div className="mt-5 rounded-xl bg-blue-50 p-4 text-xs text-blue-800">
         字段名称 name
         会成为订单 form_data
         中保存资料的键，请避免在同一个服务中重复使用。

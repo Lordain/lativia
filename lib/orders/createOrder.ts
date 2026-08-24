@@ -676,7 +676,7 @@ if (
     )
   ) {
     throw new Error(
-      "公司 RFC 格式不正确。应为 12 位：前 3 位为字母，中间 6 位为日期数字，最后 3 位为字母或数字。"
+      "企业 RFC 格式不正确。应为 12 位：前 3 位为字母，中间 6 位为日期数字，最后 3 位为字母或数字。"
     );
   }
 
@@ -712,6 +712,38 @@ if (
   cleanFormData
     .legal_representative_rfc =
     representativeRfc;
+}
+
+/*
+ * ========================================
+ * Mexico Postal Code Validation
+ * ========================================
+ */
+
+if (
+  cleanFormData
+    .postalCode
+) {
+  const postalCode =
+    cleanFormData
+      .postalCode
+      .trim();
+
+
+  if (
+    !/^\d{5}$/.test(
+      postalCode
+    )
+  ) {
+    throw new Error(
+      "墨西哥邮编格式不正确。请输入 5 位数字。"
+    );
+  }
+
+
+  cleanFormData
+    .postalCode =
+    postalCode;
 }
 
   if (

@@ -791,7 +791,7 @@ export default function CategoryGrid({
           "home"
         ? orderedServices.slice(
             0,
-            9
+            12
           )
         : orderedServices;
 

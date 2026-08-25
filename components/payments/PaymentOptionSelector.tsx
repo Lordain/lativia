@@ -1,29 +1,17 @@
 "use client";
 
-import type {
-  ServicePrice,
-} from "@/types/servicePrice";
+import type { ServicePrice } from "@/types/servicePrice";
 
 interface Props {
-  prices:
-    ServicePrice[];
+  prices: ServicePrice[];
 
-  value:
-    string;
+  value: string;
 
-  onChange:
-    (
-      priceId: string
-    ) => void;
+  onChange: (priceId: string) => void;
 }
 
-function getPaymentLabel(
-  paymentMethod:
-    ServicePrice["paymentMethod"]
-) {
-  switch (
-    paymentMethod
-  ) {
+function getPaymentLabel(paymentMethod: ServicePrice["paymentMethod"]) {
+  switch (paymentMethod) {
     case "local_payment":
       return "墨西哥本地付款";
 
@@ -38,13 +26,8 @@ function getPaymentLabel(
   }
 }
 
-function getPaymentDescription(
-  paymentMethod:
-    ServicePrice["paymentMethod"]
-) {
-  switch (
-    paymentMethod
-  ) {
+function getPaymentDescription(paymentMethod: ServicePrice["paymentMethod"]) {
+  switch (paymentMethod) {
     case "local_payment":
       return "通过 Mercado Pago 完成付款";
 
@@ -52,33 +35,19 @@ function getPaymentDescription(
       return "Visa · Mastercard · American Express";
 
     case "wechat_pay":
-      return "使用微信扫一扫完成付款";
+      return "人民币人工付款 · 下单后联系客服获取付款方式";
 
     default:
       return null;
   }
 }
 
-function formatAmount(
-  price: ServicePrice
-) {
-  const amount =
-    new Intl.NumberFormat(
-      "zh-CN",
-      {
-        maximumFractionDigits:
-          2,
-      }
-    ).format(
-      Number(
-        price.amount
-      )
-    );
+function formatAmount(price: ServicePrice) {
+  const amount = new Intl.NumberFormat("zh-CN", {
+    maximumFractionDigits: 2,
+  }).format(Number(price.amount));
 
-
-  switch (
-    price.currency
-  ) {
+  switch (price.currency) {
     case "MXN":
       return `MXN $${amount}`;
 
@@ -97,29 +66,17 @@ export default function PaymentOptionSelector({
 }: Props) {
   return (
     <div className="space-y-4">
-      {prices.map(
-        (price) => {
-          const selected =
-            value ===
-            price.id;
+      {prices.map((price) => {
+        const selected = value === price.id;
 
-          const description =
-            getPaymentDescription(
-              price.paymentMethod
-            );
+        const description = getPaymentDescription(price.paymentMethod);
 
-          return (
-            <button
-              key={
-                price.id
-              }
-              type="button"
-              onClick={() =>
-                onChange(
-                  price.id
-                )
-              }
-              className={`
+        return (
+          <button
+            key={price.id}
+            type="button"
+            onClick={() => onChange(price.id)}
+            className={`
                 w-full
                 rounded-xl
                 border
@@ -132,40 +89,29 @@ export default function PaymentOptionSelector({
                     : "border-gray-200 bg-white hover:border-gray-400"
                 }
               `}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-medium">
-                    {getPaymentLabel(
-                      price.paymentMethod
-                    )}
-                  </p>
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-medium">
+                  {getPaymentLabel(price.paymentMethod)}
+                </p>
 
-                  {description && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      {
-                        description
-                      }
-                    </p>
-                  )}
-                </div>
-
-                {selected && (
-                  <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-medium text-white">
-                    已选择
-                  </span>
+                {description && (
+                  <p className="mt-1 text-sm text-gray-500">{description}</p>
                 )}
               </div>
 
-              <p className="mt-3 text-2xl font-semibold">
-                {formatAmount(
-                  price
-                )}
-              </p>
-            </button>
-          );
-        }
-      )}
+              {selected && (
+                <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-medium text-white">
+                  已选择
+                </span>
+              )}
+            </div>
+
+            <p className="mt-3 text-2xl font-semibold">{formatAmount(price)}</p>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -1,11 +1,6 @@
-export type PaymentAuditAction =
-  | "reverify"
-  | "repair";
+export type PaymentAuditAction = "reverify" | "repair" | "manual_confirm";
 
-export type PaymentAuditResult =
-  | "success"
-  | "failed"
-  | "blocked";
+export type PaymentAuditResult = "success" | "failed" | "blocked";
 
 export interface PaymentAuditLog {
   id: string;

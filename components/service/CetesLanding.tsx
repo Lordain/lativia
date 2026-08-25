@@ -553,8 +553,8 @@ const rateSourceDate =
 
             {[
               "风险",
-              "收益潜力",
-              "收益确定性",
+              "当前收益水平",
+              "收益稳定性",
               "价格波动",
               "流动性",
             ].map(
@@ -577,69 +577,69 @@ const rateSourceDate =
 
         <tbody>
           {[
-            {
-              name:
-                "墨西哥国债",
+        {
+          name:
+            "墨西哥国债",
 
-              values: [
-                "低",
-                "中高",
-                "高",
-                "低",
-                "中高",
-              ],
+          values: [
+            "低",
+            "中高",
+            "高",
+            "低",
+            "中高",
+          ],
 
-              highlight:
-                true,
-            },
+          highlight:
+            true,
+        },
 
-            {
-              name:
-                "银行定存",
+        {
+          name:
+            "银行定存",
 
-              values: [
-                "低",
-                "低",
-                "高",
-                "低",
-                "低",
-              ],
+          values: [
+            "低",
+            "低",
+            "高",
+            "低",
+            "低",
+          ],
 
-              highlight:
-                false,
-            },
+          highlight:
+            false,
+        },
 
-            {
-              name:
-                "基金",
+        {
+          name:
+            "基金",
 
-              values: [
-                "中",
-                "中高",
-                "中",
-                "中",
-                "高",
-              ],
+          values: [
+            "中",
+            "中",
+            "中",
+            "中",
+            "高",
+          ],
 
-              highlight:
-                false,
-            },
+          highlight:
+            false,
+        },
 
-            {
-              name:
-                "股票",
+        {
+          name:
+            "股票",
 
-              values: [
-                "高",
-                "高",
-                "低",
-                "高",
-                "高",
-              ],
+          values: [
+            "高",
+            "高",
+            "低",
+            "高",
+            "高",
+          ],
 
-              highlight:
-                false,
-            },
+          highlight:
+            false,
+        },
           ].map(
             (
               row,
@@ -708,44 +708,44 @@ const rateSourceDate =
 
 
     <div className="mt-5 grid gap-3 sm:grid-cols-3">
-      <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
-        <p className="text-xs font-medium text-blue-600">
-          风险水平
-        </p>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
+          <p className="text-xs font-medium text-blue-600">
+            风险水平
+          </p>
 
-        <p className="mt-1 text-sm font-bold text-blue-950">
-          较低
-        </p>
+          <p className="mt-1 text-sm font-bold text-blue-950">
+            低
+          </p>
+        </div>
+
+
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
+          <p className="text-xs font-medium text-blue-600">
+            当前收益水平
+          </p>
+
+          <p className="mt-1 text-sm font-bold text-blue-950">
+            中高
+          </p>
+        </div>
+
+
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
+          <p className="text-xs font-medium text-blue-600">
+            收益稳定性
+          </p>
+
+          <p className="mt-1 text-sm font-bold text-blue-950">
+            高
+          </p>
+        </div>
       </div>
 
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
-        <p className="text-xs font-medium text-blue-600">
-          收益特征
-        </p>
-
-        <p className="mt-1 text-sm font-bold text-blue-950">
-          稳定性较强
-        </p>
-      </div>
-
-
-      <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
-        <p className="text-xs font-medium text-blue-600">
-          适合人群
-        </p>
-
-        <p className="mt-1 text-sm font-bold text-blue-950">
-          偏稳健型用户
-        </p>
-      </div>
-    </div>
-
-
-    <p className="mt-4 text-xs leading-5 text-slate-400">
+    <p className="mt-4 text-xs leading-5 text-slate-500">
       * 以上为一般特征比较，不同产品、期限和市场环境下会有变化。
-      墨西哥国债仍存在利率、流动性、税务及汇率等风险，
-      不构成投资建议或收益保证。
+      “当前收益水平”仅用于展示一般相对特征，
+      不代表未来收益，不构成投资建议或收益保证。
     </p>
   </div>
 </section>
@@ -771,6 +771,8 @@ const rateSourceDate =
       <p className="mt-4 leading-7 text-gray-600">
         展示 Cetesdirecto 最新公开参考收益率。
         实际利率、期限和成交条件以官方当时信息为准。
+        参考年化收益率不等同于客户实际最终收益，
+        实际结果还可能受到期限、成交条件、税务等因素影响。
       </p>
     </div>
 
@@ -1407,7 +1409,8 @@ const rateSourceDate =
       </h2>
 
       <p className="mt-3 text-sm leading-6 text-gray-600 md:text-base">
-        国债风险相对较低，但并不代表没有风险。
+        墨西哥国债整体风险水平可理解为低，
+        但低风险并不代表没有风险。
         决定购买前，请先了解以下主要因素。
       </p>
     </div>

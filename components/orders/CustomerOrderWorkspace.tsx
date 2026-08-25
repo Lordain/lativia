@@ -311,7 +311,23 @@ export default function CustomerOrderWorkspace({
           </p>
         </div>
 
-        <span className="inline-flex w-fit rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+        <span
+          className={`
+            inline-flex
+            w-fit
+            rounded-full
+            px-3
+            py-1
+            text-sm
+            font-medium
+            ${
+              workspace.status ===
+              "completed"
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-blue-50 text-blue-700"
+            }
+          `}
+        >
           {
             getWorkspaceStatusLabel(
               workspace.status,

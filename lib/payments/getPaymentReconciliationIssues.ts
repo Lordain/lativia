@@ -42,7 +42,9 @@ export async function getPaymentReconciliationIssues() {
     );
 
     const isManualWeChatPayment =
-      order.payment_method === "wechat_pay" && order.payment_provider === null;
+      order.currency === "CNY" &&
+      order.payment_method === "wechat_pay" &&
+      order.payment_provider === null;
 
     // 1. Order 已付款，但是没有 transaction
     if (

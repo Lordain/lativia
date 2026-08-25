@@ -92,6 +92,9 @@ function getProviderLabel(
 
     case "nuvei":
       return "Nuvei";
+
+    case null:
+      return "人民币微信人工付款";
   }
 }
 
@@ -113,6 +116,9 @@ function getActivityLabel(
 
     case "refund_succeeded":
       return "退款成功";
+
+    case "manual_refund_succeeded":
+      return "人工退款完成";
 
     case "refund_failed":
       return "退款失败";

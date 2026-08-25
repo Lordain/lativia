@@ -31,9 +31,11 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
         id,
         status,
         payment_status,
+        currency,
+        payment_method,
         payment_provider,
         created_at,
-      
+
         payment_transactions (
           id,
           status
@@ -125,7 +127,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
         order.payment_provider === "mercado_pago"
     ).length;
 
-  const paidWithoutTransaction =
+    const paidWithoutTransaction =
     orders.filter((order) => {
       const transactions =
         order.payment_transactions ?? [];
@@ -136,9 +138,21 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
             transaction.status === "paid"
         );
 
+
+        const isManualWeChatPayment =
+        order.currency ===
+          "CNY" &&
+        order.payment_method ===
+          "wechat_pay" &&
+        order.payment_provider ===
+          null;
+
+
       return (
-        order.payment_status === "paid" &&
-        !hasPaidTransaction
+        order.payment_status ===
+          "paid" &&
+        !hasPaidTransaction &&
+        !isManualWeChatPayment
       );
     }).length;
 

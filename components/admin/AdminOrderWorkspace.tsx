@@ -19,6 +19,8 @@ import type {
   OrderAppointmentData,
 } from "@/types/appointment";
 
+import AdminMilestoneControl from "@/components/admin/AdminMilestoneControl";
+
 import type {
   OrderDocument,
 } from "@/types/orderDocument";
@@ -491,35 +493,56 @@ export default function AdminOrderWorkspace({
                         </div>
                       </div>
 
-                      <div className="text-left sm:text-right">
-                        <p
-                          className={`
-                            text-sm
-                            font-semibold
-                            ${
-                              completed
-                                ? "text-emerald-700"
-                                : "text-slate-500"
-                            }
-                          `}
-                        >
-                          {
-                            completed
-                              ? "已完成"
-                              : "待完成"
-                          }
-                        </p>
-
-                        {completed &&
-                          milestone.completedAt && (
-                          <p className="mt-1 text-xs text-slate-400">
+                      <div className="flex flex-col items-start gap-2 sm:items-end">
+                        <div className="text-left sm:text-right">
+                          <p
+                            className={`
+                              text-sm
+                              font-semibold
+                              ${
+                                completed
+                                  ? "text-emerald-700"
+                                  : "text-slate-500"
+                              }
+                            `}
+                          >
                             {
-                              formatDateTime(
-                                milestone.completedAt
-                              )
+                              completed
+                                ? "已完成"
+                                : "待完成"
                             }
                           </p>
-                        )}
+
+                          {completed &&
+                            milestone.completedAt && (
+                            <p className="mt-1 text-xs text-slate-400">
+                              {
+                                formatDateTime(
+                                  milestone.completedAt
+                                )
+                              }
+                            </p>
+                          )}
+                        </div>
+
+                        <AdminMilestoneControl
+                          milestoneId={
+                            milestone.id
+                          }
+                          orderId={
+                            orderId
+                          }
+                          label={
+                            milestone.label
+                          }
+                          completed={
+                            completed
+                          }
+                          disabled={
+                            workspace.status !==
+                            "active"
+                          }
+                        />
                       </div>
                     </div>
                   );

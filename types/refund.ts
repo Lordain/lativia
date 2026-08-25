@@ -26,10 +26,7 @@ import type {
       string | null;
   
     provider:
-      Exclude<
-        PaymentProvider,
-        null
-      >;
+      PaymentProvider;
   
     providerPaymentId:
       string | null;

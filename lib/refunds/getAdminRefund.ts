@@ -21,7 +21,8 @@ import {
     payment_transaction_id:
       string | null;
   
-    provider: string;
+    provider:
+      string | null;
   
     provider_payment_id:
       string | null;

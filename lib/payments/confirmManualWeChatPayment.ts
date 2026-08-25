@@ -26,6 +26,35 @@ interface ManualPaymentOrder {
   paid_at: string | null;
 }
 
+async function ensureManualPaymentFulfillment(
+  admin: ReturnType<
+    typeof createAdminClient
+  >,
+  orderId: string
+) {
+  const {
+    error,
+  } =
+    await admin.rpc(
+      "ensure_paid_order_fulfillment",
+      {
+        p_order_id:
+          orderId,
+      }
+    );
+
+  if (error) {
+    console.error(
+      "ensure_paid_order_fulfillment error:",
+      error
+    );
+
+    throw new Error(
+      "付款已经确认，但建立办理任务失败，请重新进入订单后重试。"
+    );
+  }
+}
+
 export async function confirmManualWeChatPayment(orderId: string) {
   /*
    * ========================================
@@ -139,7 +168,14 @@ export async function confirmManualWeChatPayment(orderId: string) {
    */
 
   if (order.payment_status === "paid") {
-    await safeEnsureOrderWorkspace(order.id);
+    await ensureManualPaymentFulfillment(
+      admin,
+      order.id
+    );
+
+    await safeEnsureOrderWorkspace(
+      order.id
+    );
 
     await createOrderNotification({
       orderId: order.id,
@@ -273,8 +309,18 @@ export async function confirmManualWeChatPayment(orderId: string) {
       .eq("id", order.id)
       .maybeSingle();
 
-    if (latestOrder?.payment_status === "paid") {
-      await safeEnsureOrderWorkspace(order.id);
+      if (
+        latestOrder?.payment_status ===
+        "paid"
+      ) {
+        await ensureManualPaymentFulfillment(
+          admin,
+          order.id
+        );
+
+        await safeEnsureOrderWorkspace(
+          order.id
+        );
 
       await createOrderNotification({
         orderId: order.id,
@@ -349,7 +395,14 @@ export async function confirmManualWeChatPayment(orderId: string) {
    * 本身具有幂等能力。
    */
 
-  await safeEnsureOrderWorkspace(order.id);
+  await ensureManualPaymentFulfillment(
+    admin,
+    order.id
+  );
+
+  await safeEnsureOrderWorkspace(
+    order.id
+  );
 
   /*
    * ========================================

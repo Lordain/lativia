@@ -79,6 +79,14 @@ function getFriendlyError(
     return "办理资料尚未全部检查通过，不能标记为服务完成。";
   }
 
+  if (
+    message.includes(
+      "REQUIRED_MILESTONES_NOT_COMPLETED"
+    )
+  ) {
+    return "客户服务进度尚未全部完成，不能确认整个服务已经完成。";
+  }
+
 
   if (
     message.includes(
@@ -122,6 +130,32 @@ function getFriendlyError(
     )
   ) {
     return "此服务当前不符合进入退款审核的条件。";
+  }
+
+  if (
+    message.includes(
+      "REFUND_REVIEW_REASON_REQUIRED"
+    )
+  ) {
+    return "进入退款审核前必须填写具体审核原因。";
+  }
+
+
+  if (
+    message.includes(
+      "INVALID_REFUND_REVIEW_TRANSITION_FROM"
+    )
+  ) {
+    return "当前办理状态不能直接进入退款审核。请先将服务标记为无法完成。";
+  }
+
+
+  if (
+    message.includes(
+      "SERVICE_NOT_ELIGIBLE_FOR_REFUND"
+    )
+  ) {
+    return "当前服务不符合普通退款规则。";
   }
 
 
@@ -186,181 +220,298 @@ export async function transitionAdminFulfillment(
    * ========================================
    */
 
-    /*
+/*
+ * ========================================
+ * 2A. Completion Guards
+ *
+ * 仅在准备进入 completed 时检查：
+ *
+ * 1. Required Documents
+ * 2. Required Milestones
+ * ========================================
+ */
+
+if (
+  input.newStatus ===
+  "completed"
+) {
+  const admin =
+    createAdminClient();
+
+
+  /*
    * ========================================
-   * 2A. Required Document Completion Guard
-   *
-   * 仅在准备进入 completed 时检查。
+   * Read Fulfillment / Order Context
    * ========================================
    */
 
-    if (
-      input.newStatus ===
-      "completed"
-    ) {
-      const admin =
-        createAdminClient();
-  
-  
-      const {
-        data:
-          fulfillmentForGuard,
-  
-        error:
-          fulfillmentGuardError,
-      } =
-        await admin
-          .from(
-            "fulfillments"
+  const {
+    data:
+      fulfillmentForGuard,
+
+    error:
+      fulfillmentGuardError,
+  } =
+    await admin
+      .from(
+        "fulfillments"
+      )
+      .select(`
+        id,
+        order_id,
+        orders (
+          service_option_snapshot,
+          services (
+            slug
           )
-          .select(`
-            id,
-            order_id,
-            orders (
-              service_option_snapshot,
-              services (
-                slug
-              )
-            )
-          `)
-          .eq(
-            "id",
-            input.fulfillmentId
-          )
-          .maybeSingle();
-  
-  
-      if (
-        fulfillmentGuardError ||
-        !fulfillmentForGuard
-      ) {
-        throw new Error(
-          "FULFILLMENT_NOT_FOUND"
-        );
-      }
-  
-  
-      const orderRelation =
-        Array.isArray(
-          fulfillmentForGuard.orders
         )
-          ? fulfillmentForGuard.orders[0]
-          : fulfillmentForGuard.orders;
-  
-  
-      const serviceOptionSnapshot =
-        (
-          orderRelation
-            ?.service_option_snapshot ??
-          null
-        ) as
-          | {
-              requiresDocumentReview?:
-                boolean;
-            }
-          | null;
-  
-  
-      if (
-        serviceOptionSnapshot
-          ?.requiresDocumentReview ===
-        true
-      ) {
-        const serviceRelation =
-          Array.isArray(
-            orderRelation?.services
-          )
-            ? orderRelation
-                ?.services[0]
-            : orderRelation
-                ?.services;
-  
-  
-        const serviceSlug =
-          serviceRelation
-            ?.slug ??
-          "";
-  
-  
-        const requiredDocumentTypes =
-          serviceSlug.startsWith(
-            "company-"
-          )
-            ? COMPANY_ORDER_DOCUMENT_TYPES
-            : PERSONAL_ORDER_DOCUMENT_TYPES;
-  
-  
-        const {
-          data:
-            approvedDocuments,
-  
-          error:
-            approvedDocumentsError,
-        } =
-          await admin
-            .from(
-              "order_documents"
-            )
-            .select(`
-              document_type
-            `)
-            .eq(
-              "order_id",
-              fulfillmentForGuard.order_id
-            )
-            .eq(
-              "status",
-              "approved"
-            );
-  
-  
-        if (
-          approvedDocumentsError
-        ) {
-          console.error(
-            "Required document guard lookup error:",
-            approvedDocumentsError
-          );
-  
-  
-          throw new Error(
-            "无法检查办理资料状态"
-          );
+      `)
+      .eq(
+        "id",
+        input.fulfillmentId
+      )
+      .maybeSingle();
+
+
+  if (
+    fulfillmentGuardError ||
+    !fulfillmentForGuard
+  ) {
+    throw new Error(
+      "FULFILLMENT_NOT_FOUND"
+    );
+  }
+
+
+  /*
+   * ========================================
+   * 2A-1. Required Document Guard
+   * ========================================
+   */
+
+  const orderRelation =
+    Array.isArray(
+      fulfillmentForGuard.orders
+    )
+      ? fulfillmentForGuard.orders[0]
+      : fulfillmentForGuard.orders;
+
+
+  const serviceOptionSnapshot =
+    (
+      orderRelation
+        ?.service_option_snapshot ??
+      null
+    ) as
+      | {
+          requiresDocumentReview?:
+            boolean;
         }
-  
-  
-        const approvedTypes =
-          new Set(
-            (
-              approvedDocuments ??
-              []
-            ).map(
-              document =>
-                document.document_type
-            )
-          );
-  
-  
-        const missingDocumentTypes =
-          requiredDocumentTypes.filter(
-            item =>
-              !approvedTypes.has(
-                item.value
-              )
-          );
-  
-  
-        if (
-          missingDocumentTypes.length >
-          0
-        ) {
-          throw new Error(
-            "办理资料尚未全部检查通过，不能确认服务完成。请先完成所有必需资料的分类与审核。"
-          );
-        }
-      }
+      | null;
+
+
+  if (
+    serviceOptionSnapshot
+      ?.requiresDocumentReview ===
+    true
+  ) {
+    const serviceRelation =
+      Array.isArray(
+        orderRelation?.services
+      )
+        ? orderRelation
+            ?.services[0]
+        : orderRelation
+            ?.services;
+
+
+    const serviceSlug =
+      serviceRelation
+        ?.slug ??
+      "";
+
+
+    const requiredDocumentTypes =
+      serviceSlug.startsWith(
+        "company-"
+      )
+        ? COMPANY_ORDER_DOCUMENT_TYPES
+        : PERSONAL_ORDER_DOCUMENT_TYPES;
+
+
+    const {
+      data:
+        approvedDocuments,
+
+      error:
+        approvedDocumentsError,
+    } =
+      await admin
+        .from(
+          "order_documents"
+        )
+        .select(`
+          document_type
+        `)
+        .eq(
+          "order_id",
+          fulfillmentForGuard.order_id
+        )
+        .eq(
+          "status",
+          "approved"
+        );
+
+
+    if (
+      approvedDocumentsError
+    ) {
+      console.error(
+        "Required document guard lookup error:",
+        approvedDocumentsError
+      );
+
+
+      throw new Error(
+        "无法检查办理资料状态"
+      );
     }
 
+
+    const approvedTypes =
+      new Set(
+        (
+          approvedDocuments ??
+          []
+        ).map(
+          document =>
+            document.document_type
+        )
+      );
+
+
+    const missingDocumentTypes =
+      requiredDocumentTypes.filter(
+        item =>
+          !approvedTypes.has(
+            item.value
+          )
+      );
+
+
+    if (
+      missingDocumentTypes.length >
+      0
+    ) {
+      throw new Error(
+        "REQUIRED_DOCUMENTS_NOT_APPROVED"
+      );
+    }
+  }
+
+
+  /*
+   * ========================================
+   * 2A-2. Required Milestone Guard
+   *
+   * 如果订单存在 required Milestone，
+   * 必须全部 completed，
+   * 才允许整个 Fulfillment completed。
+   *
+   * 没有 required Milestone 的服务
+   * 不受影响。
+   * ========================================
+   */
+
+  const {
+    data:
+      requiredMilestones,
+
+    error:
+      requiredMilestonesError,
+  } =
+    await admin
+      .from(
+        "order_milestones"
+      )
+      .select(`
+        id,
+        milestone_key,
+        label,
+        status,
+        required
+      `)
+      .eq(
+        "order_id",
+        fulfillmentForGuard.order_id
+      )
+      .eq(
+        "required",
+        true
+      );
+
+
+  if (
+    requiredMilestonesError
+  ) {
+    console.error(
+      "Required milestone guard lookup error:",
+      requiredMilestonesError
+    );
+
+
+    throw new Error(
+      "无法检查客户服务进度"
+    );
+  }
+
+
+  const incompleteRequiredMilestones =
+    (
+      requiredMilestones ??
+      []
+    ).filter(
+      milestone =>
+        milestone.status !==
+        "completed"
+    );
+
+
+  if (
+    incompleteRequiredMilestones.length >
+    0
+  ) {
+    console.error(
+      "Required milestones not completed:",
+      {
+        orderId:
+          fulfillmentForGuard.order_id,
+
+        milestones:
+          incompleteRequiredMilestones.map(
+            milestone => ({
+              id:
+                milestone.id,
+
+              key:
+                milestone.milestone_key,
+
+              label:
+                milestone.label,
+
+              status:
+                milestone.status,
+            })
+          ),
+      }
+    );
+
+
+    throw new Error(
+      "REQUIRED_MILESTONES_NOT_COMPLETED"
+    );
+  }
+}
   /*
    * ========================================
    * Queued -> Processing shortcut
@@ -467,6 +618,83 @@ export async function transitionAdminFulfillment(
   }
 
 
+/*
+ * ========================================
+ * Refund Review
+ *
+ * refund_review 使用专用原子 RPC：
+ *
+ * failed
+ * → refund_review
+ * → Refund Case pending_review
+ *
+ * 对默认不退款的服务，
+ * 这代表 Admin 主动开启特殊案件审核，
+ * 并不代表退款已经批准。
+ * ========================================
+ */
+
+if (
+  input.newStatus ===
+  "refund_review"
+) {
+  const cleanReason =
+    input.reason.trim();
+
+
+  if (!cleanReason) {
+    throw new Error(
+      "进入退款审核前必须填写具体审核原因。"
+    );
+  }
+
+
+  const refundAdmin =
+  createAdminClient();
+
+
+const {
+  error:
+    refundReviewError,
+} =
+  await refundAdmin.rpc(
+    "enter_admin_refund_review",
+    {
+      p_fulfillment_id:
+        input.fulfillmentId,
+
+      p_admin_user_id:
+        user.id,
+
+      p_reason:
+        cleanReason,
+    }
+  );
+
+
+  if (
+    refundReviewError
+  ) {
+    console.error(
+      "enter_admin_refund_review error:",
+      refundReviewError
+    );
+
+
+    throw new Error(
+      getFriendlyError(
+        refundReviewError.message
+      )
+    );
+  }
+
+} else {
+  /*
+   * ========================================
+   * Normal Fulfillment Transition
+   * ========================================
+   */
+
   const {
     error,
   } =
@@ -516,7 +744,7 @@ export async function transitionAdminFulfillment(
       )
     );
   }
-
+}
 
   /*
    * ========================================

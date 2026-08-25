@@ -101,16 +101,25 @@ export default function ServicePriceForm({
   ) {
     event.preventDefault();
 
-    if (
-      active &&
-      !paymentProvider
-    ) {
-      alert(
-        "启用付款方式前必须选择 Payment Provider"
-      );
+    const isManualWeChatPayment =
+    currency ===
+      "CNY" &&
+    paymentMethod ===
+      "wechat_pay" &&
+    !paymentProvider;
 
-      return;
-    }
+
+  if (
+    active &&
+    !paymentProvider &&
+    !isManualWeChatPayment
+  ) {
+    alert(
+      "启用付款方式前必须选择 Payment Provider；仅人民币微信人工付款允许不绑定 Provider"
+    );
+
+    return;
+  }
 
     setLoading(true);
 
@@ -225,7 +234,7 @@ export default function ServicePriceForm({
             </option>
 
             <option value="wechat_pay">
-              微信支付
+              人民币微信付款
             </option>
           </select>
         </div>
@@ -302,10 +311,23 @@ export default function ServicePriceForm({
       </label>
 
       {!paymentProvider && (
-        <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
-          此付款方式尚未绑定正式 Payment Provider，
-          请保持停用状态。
-        </div>
+        currency ===
+          "CNY" &&
+        paymentMethod ===
+          "wechat_pay" ? (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-800">
+            当前配置为人民币微信人工付款。
+            无需绑定 Payment Provider，
+            客户下单后将通过官方客服获取付款方式，
+            并由管理员在实际到账后人工确认。
+          </div>
+        ) : (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+            此付款方式尚未绑定正式 Payment Provider。
+            如果启用此付款方式，
+            请先选择对应的支付平台。
+          </div>
+        )
       )}
 
       {/* Actions */}

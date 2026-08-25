@@ -19,7 +19,7 @@ function getPaymentLabel(paymentMethod: ServicePrice["paymentMethod"]) {
       return "国际信用卡 / Debit Card";
 
     case "wechat_pay":
-      return "微信支付";
+      return "人民币微信付款";
 
     default:
       return paymentMethod;
@@ -39,6 +39,26 @@ function getPaymentDescription(paymentMethod: ServicePrice["paymentMethod"]) {
 
     default:
       return null;
+  }
+}
+
+function getPaymentSortOrder(
+  price: ServicePrice
+) {
+  switch (
+    price.paymentMethod
+  ) {
+    case "card":
+      return 1;
+
+    case "local_payment":
+      return 2;
+
+    case "wechat_pay":
+      return 3;
+
+    default:
+      return 99;
   }
 }
 
@@ -66,7 +86,16 @@ export default function PaymentOptionSelector({
 }: Props) {
   return (
     <div className="space-y-4">
-      {prices.map((price) => {
+      {[...prices]
+        .sort(
+          (
+            a,
+            b
+          ) =>
+            getPaymentSortOrder(a) -
+            getPaymentSortOrder(b)
+        )
+        .map((price) => {
         const selected = value === price.id;
 
         const description = getPaymentDescription(price.paymentMethod);

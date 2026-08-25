@@ -9,6 +9,11 @@ import PaymentBadge from "@/components/orders/PaymentBadge";
 import { getMyOrder } from "@/lib/orders/getMyOrder";
 
 import {
+  SUPPORT_WHATSAPP,
+  hasSupportWhatsApp,
+} from "@/lib/support/contact";
+
+import {
   getPaymentMethodLabel,
   getPaymentProviderLabel,
 } from "@/lib/payments/paymentLabel";
@@ -66,6 +71,17 @@ export default async function PaymentPage({ params }: Props) {
     order.currency === "CNY" &&
     order.payment_method === "wechat_pay" &&
     order.payment_provider === null;
+
+  const whatsappMessage =
+    `您好，我想咨询 Lativia 订单 ${order.id} 的人民币微信付款方式。`;
+
+
+  const whatsappHref =
+    hasSupportWhatsApp
+      ? `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(
+          whatsappMessage
+        )}`
+      : null;
 
   const canPay =
     (order.payment_status === "unpaid" || order.payment_status === "failed") &&
@@ -181,9 +197,10 @@ export default async function PaymentPage({ params }: Props) {
                       </p>
 
                       <p className="mt-1.5 text-sm leading-6 text-slate-600">
-                        此付款方式由 Lativia 客服人工提供微信收款信息。
-                        请通过官方帮助中心联系客服，
-                        获取本订单的付款方式后再进行转账。
+                      此付款方式由 Lativia
+                      客服人工提供微信收款信息。
+                      请通过官方 WhatsApp 联系客服，
+                      获取本订单的付款方式后再进行转账。
                       </p>
 
                       <div className="mt-4 rounded-xl border border-blue-100 bg-white px-4 py-3">
@@ -196,12 +213,25 @@ export default async function PaymentPage({ params }: Props) {
                         </p>
                       </div>
 
-                      <Link
-                        href="/help"
-                        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-700 px-5 text-sm font-semibold text-white transition hover:bg-blue-800 sm:w-auto"
-                      >
-                        前往帮助中心联系官方客服
-                      </Link>
+                      {whatsappHref ? (
+                        <a
+                          href={
+                            whatsappHref
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-700 px-5 text-sm font-semibold text-white transition hover:bg-blue-800 sm:w-auto"
+                        >
+                          通过 WhatsApp 联系客服
+                        </a>
+                      ) : (
+                        <Link
+                          href="/help"
+                          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-700 px-5 text-sm font-semibold text-white transition hover:bg-blue-800 sm:w-auto"
+                        >
+                          前往帮助中心联系客服
+                        </Link>
+                      )}
 
                       <p className="mt-3 text-xs leading-5 text-slate-500">
                         完成转账后无需在网站自行确认付款。 客服核对实际到账后，
@@ -220,7 +250,7 @@ export default async function PaymentPage({ params }: Props) {
 
                   <p className="mt-1 text-xs leading-5 text-amber-800">
                     此订单使用人民币微信人工付款， 不需要重新发起第三方支付。
-                    请通过帮助中心联系官方客服核对付款情况。
+                    请通过官方 WhatsApp 联系客服核对付款情况。
                   </p>
                 </div>
               )}

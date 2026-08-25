@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   useMemo,
@@ -76,6 +76,39 @@ interface Props {
   eligibilitySchema:
     EligibilityItem[];
 
+}
+
+function getPreferredPrice(
+  prices: ServicePrice[]
+) {
+  return (
+    prices.find(
+      price =>
+        price.paymentMethod ===
+          "card" &&
+        price.currency ===
+          "MXN"
+    ) ??
+    prices.find(
+      price =>
+        price.paymentMethod ===
+          "local_payment" &&
+        price.currency ===
+          "MXN"
+    ) ??
+    prices.find(
+      price =>
+        price.currency ===
+          "MXN"
+    ) ??
+    prices.find(
+      price =>
+        price.paymentMethod !==
+          "wechat_pay"
+    ) ??
+    prices[0] ??
+    null
+  );
 }
 
 export default function DynamicForm({
@@ -169,17 +202,18 @@ const filteredPrices =
   );
 
 
-const [
-  selectedPriceId,
-  setSelectedPriceId,
-] =
-  useState(
-    hasServiceOptions
-      ? filteredPrices[0]?.id ??
+  const [
+    selectedPriceId,
+    setSelectedPriceId,
+  ] =
+    useState(
+      getPreferredPrice(
+        hasServiceOptions
+          ? filteredPrices
+          : prices
+      )?.id ??
         ""
-      : prices[0]?.id ??
-        ""
-  );
+    );
 
   const [
     acknowledgedEligibility,
@@ -263,18 +297,24 @@ const [
       );
 
 
-      const firstPrice =
-        prices.find(
-          price =>
-            price.serviceOptionId ===
-            serviceOptionId
-        );
-
-
-      setSelectedPriceId(
-        firstPrice?.id ??
-          ""
+      const optionPrices =
+      prices.filter(
+        price =>
+          price.serviceOptionId ===
+          serviceOptionId
       );
+
+
+    const preferredPrice =
+      getPreferredPrice(
+        optionPrices
+      );
+
+
+    setSelectedPriceId(
+      preferredPrice?.id ??
+        ""
+    );
     }
 
 

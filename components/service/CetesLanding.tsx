@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   Service,
 } from "@/types/service";
 
@@ -75,13 +75,18 @@ const rateSourceDate =
 
 
   const activePrices =
-    prices.filter(
-      price =>
-        price.active
-    );
+  prices.filter(
+    price =>
+      price.active
+  );
 
 
   const primaryPrice =
+    activePrices.find(
+      price =>
+        price.currency ===
+          "MXN"
+    ) ??
     activePrices[0] ??
     null;
 
@@ -118,15 +123,48 @@ const rateSourceDate =
       }
     );
 
-  const displayAmount =
-    `${currentCurrency} ${moneyFormatter.format(
+    const formattedCurrentAmount =
+    new Intl.NumberFormat(
+      "es-MX",
+      {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+      }
+    ).format(
       currentAmount
-    )}`;
+    );
+
+
+  const formattedOriginalAmount =
+    new Intl.NumberFormat(
+      "es-MX",
+      {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+      }
+    ).format(
+      originalAmount
+    );
+
+
+  const displayAmount =
+    currentCurrency ===
+      "MXN"
+      ? `MXN $${formattedCurrentAmount}`
+      : currentCurrency ===
+          "CNY"
+        ? `CNY ¥${formattedCurrentAmount}`
+        : `${currentCurrency} ${formattedCurrentAmount}`;
+
 
   const originalDisplayAmount =
-    `${currentCurrency} ${moneyFormatter.format(
-      originalAmount
-    )}`;
+    currentCurrency ===
+      "MXN"
+      ? `MXN $${formattedOriginalAmount}`
+      : currentCurrency ===
+          "CNY"
+        ? `CNY ¥${formattedOriginalAmount}`
+        : `${currentCurrency} ${formattedOriginalAmount}`;
 
   const discountPercent =
     Math.round(

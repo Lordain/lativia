@@ -61,6 +61,11 @@ export default function AdminWorkspaceChat({
       null
     );
 
+  const scrollContainerRef =
+    useRef<HTMLDivElement | null>(
+      null
+    );
+
 
   const [
     editingId,
@@ -93,18 +98,51 @@ export default function AdminWorkspaceChat({
     );
 
 
-  useEffect(
-    () => {
-      bottomRef.current
-        ?.scrollIntoView({
+    useEffect(
+      () => {
+        const container =
+          scrollContainerRef.current;
+
+        if (!container) {
+          return;
+        }
+
+
+        container.scrollTo({
+          top:
+            container.scrollHeight,
+
           behavior:
             "smooth",
         });
-    },
-    [
-      messages.length,
-    ]
-  );
+      },
+      [
+        messages.length,
+      ]
+    );
+
+
+    useEffect(
+      () => {
+        const intervalId =
+          window.setInterval(
+            () => {
+              router.refresh();
+            },
+            4000
+          );
+
+
+        return () => {
+          window.clearInterval(
+            intervalId
+          );
+        };
+      },
+      [
+        router,
+      ]
+    );
 
 
   function startEdit(
@@ -250,7 +288,12 @@ export default function AdminWorkspaceChat({
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/70">
-        <div className="h-[420px] overflow-y-auto p-4 md:p-5">
+        <div
+            ref={
+              scrollContainerRef
+            }
+            className="h-[420px] overflow-y-auto p-4 md:p-5"
+          >
           {messages.length ===
           0 ? (
             <div className="flex h-full items-center justify-center text-center">

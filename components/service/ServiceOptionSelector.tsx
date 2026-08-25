@@ -141,10 +141,21 @@ export default function ServiceOptionSelector({
       );
 
 
-    if (
+    const shouldUsePrice =
       !existing ||
-      price.amount <
-        existing.minimumAmount
+      (
+        price.currency === "MXN" &&
+        existing.currency !== "MXN"
+      ) ||
+      (
+        price.currency ===
+          existing.currency &&
+        price.amount <
+          existing.minimumAmount
+      );
+
+    if (
+      shouldUsePrice
     ) {
       optionMap.set(
         option.id,

@@ -173,28 +173,41 @@ export default async function ServicePage({
       );
 
 
-    if (
-      !existing ||
-      price.amount <
-        existing.amount
-    ) {
-      priceSummaryMap.set(
-        option.id,
-        {
-          label:
-            option.title,
+      const shouldUsePrice =
+        !existing ||
+        (
+          price.currency ===
+            "MXN" &&
+          existing.currency !==
+            "MXN"
+        ) ||
+        (
+          price.currency ===
+            existing.currency &&
+          price.amount <
+            existing.amount
+        );
 
-          amount:
-            price.amount,
+      if (
+        shouldUsePrice
+      ) {
+        priceSummaryMap.set(
+          option.id,
+          {
+            label:
+              option.title,
 
-          currency:
-            price.currency,
+            amount:
+              price.amount,
 
-          sortOrder:
-            option.sortOrder,
-        }
-      );
-    }
+            currency:
+              price.currency,
+
+            sortOrder:
+              option.sortOrder,
+          }
+        );
+      }
   }
 
 

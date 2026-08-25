@@ -89,6 +89,17 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-10 lg:mt-0">
+              <Link
+                href="/"
+                className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition hover:text-blue-700"
+              >
+                <span aria-hidden="true">
+                  ←
+                </span>
+
+                返回首页
+              </Link>
+
               <p className="text-xs font-bold tracking-wide text-blue-700">
                 ACCOUNT LOGIN
               </p>

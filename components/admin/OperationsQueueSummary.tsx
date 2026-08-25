@@ -108,10 +108,6 @@ export default function OperationsQueueSummary({
     <section className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-            Operations Center
-          </p>
-
           <h2 className="mt-2 text-xl font-bold text-slate-950">
             运营待办概览
           </h2>
@@ -126,7 +122,7 @@ export default function OperationsQueueSummary({
           0 && (
           <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-3 shadow-sm">
             <p className="text-xs font-medium text-red-600">
-              待办超过 24 小时
+              超 24 小时
             </p>
 
             <p className="mt-1 text-2xl font-bold text-red-700">

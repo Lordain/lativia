@@ -540,7 +540,8 @@ export default function AdminOrderWorkspace({
                           }
                           disabled={
                             workspace.status !==
-                            "active"
+                              "active" ||
+                            !workspace.startedAt
                           }
                         />
                       </div>

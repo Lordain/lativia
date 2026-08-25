@@ -27,6 +27,9 @@ export async function getMyOrder(id: string) {
       updated_at,
       form_data,
 
+      eligibility_acknowledgements,
+      eligibility_confirmed_at,
+
       service_option_id,
       service_option_snapshot,
 

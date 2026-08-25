@@ -135,8 +135,19 @@ function getRemainingDays(
 
 function getWorkspaceStatusLabel(
   status:
-    OrderWorkspaceData["workspace"]["status"]
+    OrderWorkspaceData["workspace"]["status"],
+  startedAt:
+    string | null
 ) {
+  if (
+    status ===
+      "active" &&
+    !startedAt
+  ) {
+    return "待开始";
+  }
+
+
   switch (
     status
   ) {
@@ -303,7 +314,8 @@ export default function CustomerOrderWorkspace({
         <span className="inline-flex w-fit rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
           {
             getWorkspaceStatusLabel(
-              workspace.status
+              workspace.status,
+              workspace.startedAt
             )
           }
         </span>

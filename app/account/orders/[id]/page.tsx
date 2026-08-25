@@ -201,9 +201,46 @@ export default async function OrderDetailPage({
     true;
 
 
-  const serviceSlug =
+    const serviceSlug =
     order.services?.slug ??
     "";
+
+
+  const eligibilityAcknowledgements =
+    Array.isArray(
+      order
+        .eligibility_acknowledgements
+    )
+      ? (
+          order
+            .eligibility_acknowledgements as Array<{
+              key?: unknown;
+              label?: unknown;
+            }>
+        )
+          .map(
+            item => ({
+              key:
+                typeof item.key ===
+                "string"
+                  ? item.key
+                  : "",
+
+              label:
+                typeof item.label ===
+                "string"
+                  ? item.label
+                  : "",
+            })
+          )
+          .filter(
+            item =>
+              item.key.length >
+                0 &&
+              item.label.length >
+                0
+          )
+      : [];
 
 
   const documentProfile:
@@ -345,9 +382,55 @@ export default async function OrderDetailPage({
           {}
         ).length ===
         0 ? (
-          <div className="mt-4 rounded-lg border p-4 text-sm text-gray-500">
-            暂无申请资料。
-          </div>
+          serviceSlug ===
+            "cetesdirecto-consultation" &&
+          eligibilityAcknowledgements.length >
+            0 ? (
+            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-semibold text-slate-950">
+                    已确认办理条件
+                  </p>
+
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    以下为您提交订单时确认具备的办理条件。
+                  </p>
+                </div>
+
+                <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  已确认
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {eligibilityAcknowledgements.map(
+                  item => (
+                    <div
+                      key={
+                        item.key
+                      }
+                      className="flex items-start gap-3 rounded-lg border border-blue-100 bg-white px-4 py-3"
+                    >
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">
+                        ✓
+                      </span>
+
+                      <span className="text-sm leading-5 text-slate-700">
+                        {
+                          item.label
+                        }
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4 rounded-lg border p-4 text-sm text-gray-500">
+              暂无申请资料。
+            </div>
+          )
         ) : (
           <div className="mt-4 space-y-3">
             {Object.entries(

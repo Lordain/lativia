@@ -1,8 +1,12 @@
-﻿"use server";
+"use server";
 
 import {
   createClient,
 } from "@/lib/supabase/server";
+
+import {
+  safeSendAdminManualWeChatOrderEmail,
+} from "@/lib/notifications/sendAdminManualWeChatOrderEmail";
 
 import type {
   CreateOrderInput,
@@ -1221,5 +1225,34 @@ if (
         );
       }
 
-  return data;
-}
+    /*
+   * ========================================
+   * Manual WeChat Admin Notification
+   * ========================================
+   *
+   * 这里只处理真正首次 insert 成功的订单。
+   *
+   * existingOrder / 23505 duplicateOrder
+   * 已经在前面 return，
+   * 因此浏览器重复提交不会重复发送邮件。
+   */
+
+    if (
+      data &&
+      data.payment_status ===
+        "unpaid" &&
+      data.currency ===
+        "CNY" &&
+      data.payment_method ===
+        "wechat_pay" &&
+      data.payment_provider ===
+        null
+    ) {
+      await safeSendAdminManualWeChatOrderEmail(
+        data.id
+      );
+    }
+
+
+    return data;
+  }

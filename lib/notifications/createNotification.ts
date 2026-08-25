@@ -6,11 +6,14 @@ import {
   sendNotificationEmail,
 } from "@/lib/notifications/sendNotificationEmail";
 
+import {
+  safeSendAdminPaidOrderEmail,
+} from "@/lib/notifications/sendAdminPaidOrderEmail";
+
 import type {
   CreateNotificationInput,
   Notification,
 } from "@/types/notification";
-
 
 interface NotificationRow {
   id: string;
@@ -231,10 +234,17 @@ export async function createNotification(
       .maybeSingle();
 
 
-  let notificationRow:
-    NotificationRow | null =
-    insertedNotification as
-      NotificationRow | null;
+    let notificationRow:
+      NotificationRow | null =
+      insertedNotification as
+        NotificationRow | null;
+
+
+    const isNewNotification =
+      !insertError &&
+      Boolean(
+        insertedNotification
+      );
 
 
   /*
@@ -443,6 +453,32 @@ export async function createNotification(
 
         error,
       }
+    );
+  }
+
+
+  /*
+   * ========================================
+   * 6. Admin Paid Order Email
+   * ========================================
+   *
+   * 只有第一次成功建立 payment_confirmed
+   * Notification 时才发送。
+   *
+   * Webhook retry 命中相同 idempotency_key
+   * 时不会重复给管理员发送邮件。
+   *
+   * Admin Email 同样属于 secondary side effect。
+   */
+
+  if (
+    isNewNotification &&
+    notification.type ===
+      "payment_confirmed" &&
+    notification.orderId
+  ) {
+    await safeSendAdminPaidOrderEmail(
+      notification.orderId
     );
   }
 

@@ -1,3 +1,7 @@
+import type {
+  Metadata,
+} from "next";
+
 import PublicShell from "@/components/layout/PublicShell";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import {
@@ -7,6 +11,36 @@ import {
 import {
   getServices,
 } from "@/lib/services/getServices";
+
+export const metadata:
+  Metadata = {
+    title:
+      "墨西哥华人办事服务｜RFC、e.firma、SAT、INM 中文协助",
+
+    description:
+      "为中国用户整理墨西哥常见官方手续与中文办理协助，包括 RFC、e.firma、SAT、INM、Cetesdirecto 等服务，查看资料要求、流程、时间和费用。",
+
+    alternates: {
+      canonical:
+        "/services",
+    },
+
+    openGraph: {
+      type:
+        "website",
+
+      url:
+        "/services",
+
+      title:
+        "墨西哥华人办事服务｜Lativia",
+
+      description:
+        "面向中国用户的墨西哥 RFC、e.firma、SAT、INM、Cetesdirecto 中文说明与办理协助。",
+    },
+  };
+
+
 
 
 export default async function ServicesPage() {

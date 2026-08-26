@@ -31,15 +31,75 @@ const geistMono =
 
 export const metadata:
   Metadata = {
+    metadataBase:
+      new URL(
+        "https://lativiaglobal.com"
+      ),
+
     title: {
       default:
-        "Lativia｜拉美办事与咨询服务平台",
+        "Lativia｜墨西哥华人办事与官方手续中文协助",
       template:
         "%s | Lativia",
     },
 
     description:
-      "Lativia 为中文用户提供墨西哥及拉美地区的办事与咨询服务，当前重点包括墨西哥国债中文咨询、RFC、e.firma 办理等服务。",
+      "面向在墨西哥生活、工作和投资的中国用户，提供 RFC、e.firma、SAT、INM、Cetesdirecto 等墨西哥官方流程的中文说明与办理协助。",
+
+    applicationName:
+      "Lativia",
+
+    authors: [
+      {
+        name:
+          "Lativia",
+      },
+    ],
+
+    creator:
+      "Lativia",
+
+    publisher:
+      "Lativia",
+
+    formatDetection: {
+      email:
+        false,
+
+      address:
+        false,
+
+      telephone:
+        false,
+    },
+
+    openGraph: {
+      type:
+        "website",
+
+      locale:
+        "zh_CN",
+
+      siteName:
+        "Lativia",
+
+      title:
+        "Lativia｜墨西哥华人办事与官方手续中文协助",
+
+      description:
+        "面向中国用户提供墨西哥 RFC、e.firma、SAT、INM、Cetesdirecto 等官方流程的中文说明与办理协助。",
+    },
+
+    twitter: {
+      card:
+        "summary",
+
+      title:
+        "Lativia｜墨西哥华人办事与官方手续中文协助",
+
+      description:
+        "面向中国用户提供墨西哥 RFC、e.firma、SAT、INM、Cetesdirecto 等官方流程的中文说明与办理协助。",
+    },
   };
 
 

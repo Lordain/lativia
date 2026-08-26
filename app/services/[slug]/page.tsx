@@ -57,12 +57,92 @@ export async function generateMetadata({
     };
   }
 
+  const canonicalUrl =
+    `/services/${service.slug}`;
+
+
+  const baseDescription =
+    service.shortDescription ||
+    service.description;
+
+
+  const seoDescription =
+    `${baseDescription} 面向在墨西哥生活、工作或投资的中国用户，提供中文流程说明与办理协助。`
+      .slice(
+        0,
+        160
+      );
+
+
+  let seoTitle =
+    service.title;
+
+
+  if (
+    service.slug ===
+    "cetesdirecto-consultation"
+  ) {
+    seoTitle =
+      "Cetesdirecto 中文开户与操作咨询｜墨西哥 CETES 政府债券";
+  } else if (
+    service.slug.includes(
+      "rfc"
+    )
+  ) {
+    seoTitle =
+      `${service.title}｜墨西哥 SAT 中文办理协助`;
+  } else if (
+    service.slug.includes(
+      "efirma"
+    )
+  ) {
+    seoTitle =
+      `${service.title}｜墨西哥 SAT 中文办理协助`;
+  }
+
+
   return {
     title:
-     `${service.title} | ${brandConfig.name}`,
+      seoTitle,
 
     description:
-      service.description,
+      seoDescription,
+
+    alternates: {
+      canonical:
+        canonicalUrl,
+    },
+
+    openGraph: {
+      type:
+        "website",
+
+      url:
+        canonicalUrl,
+
+      title:
+        seoTitle,
+
+      description:
+        seoDescription,
+
+      siteName:
+        brandConfig.name,
+
+      locale:
+        "zh_CN",
+    },
+
+    twitter: {
+      card:
+        "summary",
+
+      title:
+        seoTitle,
+
+      description:
+        seoDescription,
+    },
   };
 }
 

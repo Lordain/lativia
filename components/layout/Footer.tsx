@@ -54,6 +54,13 @@ export default function Footer() {
 
             <div className="mt-4 grid gap-3 text-sm">
               <Link
+                href="/guides"
+                className="transition hover:text-white"
+              >
+                办事指南
+              </Link>
+
+              <Link
                 href="/help"
                 className="transition hover:text-white"
               >

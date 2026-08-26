@@ -17,10 +17,15 @@ import type {
   export const metadata:
     Metadata = {
       title:
-        "帮助中心 | Lativia",
+        "帮助中心",
 
-        description:
-        "Lativia 帮助中心：查看服务选择、办理流程、订单、付款、退款、墨西哥发票、账户及墨西哥国债咨询常见问题。",
+      description:
+        "Lativia 帮助中心：查看服务选择、订单进度、付款、退款、墨西哥 CFDI、账户安全及咨询服务使用说明。",
+
+      alternates: {
+        canonical:
+          "/help",
+      },
     };
 
 
@@ -708,6 +713,13 @@ import type {
                 </Link>
 
                 <Link
+                  href="/guides"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] px-5 font-bold text-white transition hover:bg-white/10"
+                >
+                  查看办事指南
+                </Link>
+
+                <Link
                   href="/account/orders"
                   className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] px-5 font-bold text-white transition hover:bg-white/10"
                 >
@@ -970,7 +982,20 @@ import type {
                         →
                       </span>
                     </Link>
+                    <Link
+                      href="/guides"
+                      className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 font-bold text-slate-950 transition hover:border-blue-200"
+                    >
+                      <span>
+                        我想先了解办理流程
+                      </span>
+
+                      <span className="text-blue-700">
+                        →
+                      </span>
+                    </Link>
                   </div>
+
 
                   <div className="my-5 border-t border-slate-200" />
 

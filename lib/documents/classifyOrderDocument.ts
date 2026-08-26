@@ -13,9 +13,8 @@ import {
 } from "@/lib/supabase/admin";
 
 import {
-  COMPANY_ORDER_DOCUMENT_TYPES,
   OTHER_ORDER_DOCUMENT_TYPE,
-  PERSONAL_ORDER_DOCUMENT_TYPES,
+  getRequiredOrderDocumentTypes,
 } from "@/lib/documents/orderDocumentTypes";
 
 
@@ -143,11 +142,9 @@ export async function classifyOrderDocument(
 
 
   const allowedDocumentTypes =
-    serviceSlug.startsWith(
-      "company-"
-    )
-      ? COMPANY_ORDER_DOCUMENT_TYPES
-      : PERSONAL_ORDER_DOCUMENT_TYPES;
+    getRequiredOrderDocumentTypes(
+      serviceSlug
+    );
 
 
   const allowedValues =

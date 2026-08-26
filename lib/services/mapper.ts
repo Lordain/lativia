@@ -57,7 +57,9 @@ export function normalizeService(
         ? String(
             data.requirements
           )
-            .split(",")
+            .split(
+              /[\r\n,]+/
+            )
             .map(
               (
                 item: string

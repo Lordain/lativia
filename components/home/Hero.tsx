@@ -326,7 +326,7 @@ export default function Hero({
                 <div className="flex min-h-[190px] flex-col items-center justify-between rounded-2xl border border-white/[0.08] bg-black/10 p-5 text-center">
                   <div>
                     <p className="text-sm font-bold text-white">
-                      流动性基金
+                      活期投资账户
                     </p>
 
                     <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">

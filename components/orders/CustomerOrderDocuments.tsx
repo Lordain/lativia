@@ -22,8 +22,7 @@ import {
 } from "@/lib/documents/deleteMyOrderDocument";
 
 import {
-  PERSONAL_ORDER_DOCUMENT_TYPES,
-  COMPANY_ORDER_DOCUMENT_TYPES,
+  getRequiredOrderDocumentTypes,
 } from "@/lib/documents/orderDocumentTypes";
 
 
@@ -34,9 +33,8 @@ interface Props {
   documents:
     OrderDocument[];
 
-  documentProfile:
-    "personal" |
-    "company";
+  serviceSlug:
+    string;
 }
 
 
@@ -102,7 +100,7 @@ function formatSize(
 export default function CustomerOrderDocuments({
   orderId,
   documents,
-  documentProfile,
+  serviceSlug,
 }: Props) {
   const router =
     useRouter();
@@ -158,11 +156,10 @@ export default function CustomerOrderDocuments({
         activeDocumentCount
     );
 
-  const requiredDocumentTypes =
-    documentProfile ===
-    "company"
-      ? COMPANY_ORDER_DOCUMENT_TYPES
-      : PERSONAL_ORDER_DOCUMENT_TYPES;
+    const requiredDocumentTypes =
+      getRequiredOrderDocumentTypes(
+        serviceSlug
+      );
 
 
   async function handleUpload() {

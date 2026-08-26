@@ -23,9 +23,8 @@ import CustomerWorkspaceAppointment from "@/components/orders/CustomerWorkspaceA
 import CustomerOrderResult from "@/components/orders/CustomerOrderResult";
 
 import {
-  COMPANY_ORDER_DOCUMENT_TYPES,
-  PERSONAL_ORDER_DOCUMENT_TYPES,
   getOrderDocumentTypeLabel,
+  getRequiredOrderDocumentTypes,
 } from "@/lib/documents/orderDocumentTypes";
 
 interface Props {
@@ -67,6 +66,9 @@ interface Props {
   documentProfile:
     "personal" |
     "company";
+
+  serviceSlug:
+    string;
 }
 
 
@@ -179,7 +181,8 @@ export default function CustomerOrderWorkspace({
   requiresDocumentReview = false,
   documents = [],
   documentProfile,
-}: Props) {
+  serviceSlug,
+  }: Props) {
   const {
     workspace,
     milestones,
@@ -239,10 +242,9 @@ export default function CustomerOrderWorkspace({
   
   
   const requiredDocumentTypes =
-    documentProfile ===
-      "company"
-      ? COMPANY_ORDER_DOCUMENT_TYPES
-      : PERSONAL_ORDER_DOCUMENT_TYPES;
+    getRequiredOrderDocumentTypes(
+      serviceSlug
+    );
   
   
   const approvedDocumentTypes =

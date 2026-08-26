@@ -29,8 +29,7 @@ import {
 } from "@/lib/workspaces/safeStartOrderWorkspace";
 
 import {
-  COMPANY_ORDER_DOCUMENT_TYPES,
-  PERSONAL_ORDER_DOCUMENT_TYPES,
+  getRequiredOrderDocumentTypes,
 } from "@/lib/documents/orderDocumentTypes";
 
 
@@ -332,11 +331,9 @@ if (
 
 
     const requiredDocumentTypes =
-      serviceSlug.startsWith(
-        "company-"
-      )
-        ? COMPANY_ORDER_DOCUMENT_TYPES
-        : PERSONAL_ORDER_DOCUMENT_TYPES;
+      getRequiredOrderDocumentTypes(
+        serviceSlug
+      );
 
 
     const {

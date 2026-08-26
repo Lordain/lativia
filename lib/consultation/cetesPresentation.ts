@@ -611,16 +611,16 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
           "BONDDIA",
 
         type:
-          "每日流动的债务投资基金，不是单一国债",
+          "活期投资账户（每日流动的债务投资基金）",
 
         yieldExample:
           "1 日指标约 6.34%",
 
         purchase:
-          "无需购买；入金后资金可直接进入 BONDDIA",
+          "无需另外购买；入金后资金可直接进入 BONDDIA",
 
         purpose:
-          "流动资金、等待后续购买或提款",
+          "账户内短期资金停放、等待后续购买或提款",
       },
     ],
   },
@@ -2710,7 +2710,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
         "可以持有到期，也可以 Venta Anticipada（提前卖出）",
 
       bonddia:
-        "属于每日流动资金，可按规则提款",
+        "活期投资账户，可按规则自由提款",
     },
   ],
 

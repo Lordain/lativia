@@ -501,8 +501,8 @@ export default async function OrderDetailPage({
               orderDocuments
             }
 
-            documentProfile={
-              documentProfile
+            serviceSlug={
+              serviceSlug
             }
           />
         ) : (
@@ -577,6 +577,10 @@ export default async function OrderDetailPage({
 
           documentProfile={
             documentProfile
+          }
+
+          serviceSlug={
+            serviceSlug
           }
         />
       )}

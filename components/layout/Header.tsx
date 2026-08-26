@@ -2,6 +2,10 @@ import Link from "next/link";
 
 import AuthNav from "@/components/auth/AuthNav";
 
+import {
+  brandConfig,
+} from "@/lib/brand/brandConfig";
+
 
 const mainNavigation = [
   {
@@ -30,9 +34,26 @@ export default function Header() {
         {/* Brand */}
         <Link
           href="/"
-          className="shrink-0 text-[22px] font-bold tracking-tight text-slate-950 transition hover:text-blue-700 sm:text-2xl"
+          className="flex shrink-0 items-center"
+          aria-label={`${brandConfig.name} 首页`}
         >
-          Lativia
+          {brandConfig.logoUrl ? (
+            <img
+              src={
+                brandConfig.logoUrl
+              }
+              alt={
+                brandConfig.name
+              }
+              className="h-8 w-auto max-w-[150px] object-contain sm:h-9 sm:max-w-[170px]"
+            />
+          ) : (
+            <span className="text-[22px] font-bold tracking-tight text-slate-950 transition hover:text-blue-700 sm:text-2xl">
+              {
+                brandConfig.name
+              }
+            </span>
+          )}
         </Link>
 
 

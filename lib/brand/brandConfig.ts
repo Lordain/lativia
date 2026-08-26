@@ -1,12 +1,29 @@
 export const brandConfig = {
-  name: "Lativia",
+  name:
+    "Lativia",
 
-  shortName: "LATIVIA",
+  shortName:
+    "LATIVIA",
 
-  // 以后正式 Logo 放到：
-  // public/brand/logo.png
-  // 然后改成 "/brand/logo.png"
-  logoUrl: null as string | null,
+  logoUrl:
+    "/brand/logo-1.png" as string | null,
+
+  footerLogoUrl:
+    "/brand/logo-2.png" as string | null,
+
+  presentationLogoUrl:
+    "/brand/logo-2.png" as string | null,
+
+  logoDisplay: {
+    headerClassName:
+      "h-7 sm:h-8 lg:h-9",
+
+    presentationClassName:
+      "h-8 sm:h-9",
+
+    footerClassName:
+      "h-7 sm:h-8",
+  },
 
   presentation: {
     watermarkLabel:

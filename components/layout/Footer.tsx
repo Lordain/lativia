@@ -1,18 +1,40 @@
 import Link from "next/link";
 
+import {
+  brandConfig,
+} from "@/lib/brand/brandConfig";
+
 
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-slate-200 bg-slate-950 text-slate-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+
           {/* Brand */}
           <div>
             <Link
               href="/"
-              className="text-2xl font-bold tracking-tight text-white"
+              className="inline-flex items-center"
+              aria-label={`${brandConfig.name} 首页`}
             >
-              Lativia
+              {brandConfig.footerLogoUrl ? (
+                <img
+                  src={
+                    brandConfig.footerLogoUrl
+                  }
+                  alt={
+                    brandConfig.name
+                  }
+                  className={`${brandConfig.logoDisplay.footerClassName} w-auto max-w-[190px] object-contain`}
+                />
+              ) : (
+                <span className="text-2xl font-bold tracking-tight text-white">
+                  {
+                    brandConfig.name
+                  }
+                </span>
+              )}
             </Link>
 
             <p className="mt-4 max-w-sm text-sm leading-6 text-slate-400">
@@ -20,7 +42,6 @@ export default function Footer() {
               提供清晰、透明的服务流程与办理协助。
             </p>
           </div>
-
 
           {/* Services */}
           <div>

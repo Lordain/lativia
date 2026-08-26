@@ -315,15 +315,30 @@ export default function AdminLayoutShell({
         <aside className="hidden w-[240px] shrink-0 border-r border-slate-200 bg-white lg:block">
           <div className="sticky top-0 flex h-screen flex-col">
             <div className="px-6 pb-6 pt-7">
-              <Link
+            <Link
                 href="/admin"
                 className="block"
+                aria-label={`${brandConfig.name} 管理后台`}
               >
-                <p className="text-sm font-black tracking-wide text-blue-600">
-                  {brandConfig.shortName}
-                </p>
+                {brandConfig.logoUrl ? (
+                  <img
+                    src={
+                      brandConfig.logoUrl
+                    }
+                    alt={
+                      brandConfig.name
+                    }
+                    className="h-7 w-auto max-w-[150px] object-contain"
+                  />
+                ) : (
+                  <span className="text-lg font-semibold tracking-tight text-slate-950">
+                    {
+                      brandConfig.name
+                    }
+                  </span>
+                )}
 
-                <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-950">
+                <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-slate-950">
                   管理后台
                 </h1>
               </Link>

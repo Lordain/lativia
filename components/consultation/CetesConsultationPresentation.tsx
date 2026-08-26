@@ -51,60 +51,40 @@ function BrandLogo({
 }: {
   compact?: boolean;
 }) {
+  const logoUrl =
+    brandConfig
+      .presentationLogoUrl;
+
+
   return (
-    <div className="flex items-center gap-3">
-      {brandConfig.logoUrl ? (
+    <div className="flex items-center">
+      {logoUrl ? (
         <img
-          src={brandConfig.logoUrl}
-          alt={brandConfig.name}
+          src={
+            logoUrl
+          }
+          alt={
+            brandConfig.name
+          }
           className={
             compact
-              ? "h-8 w-auto object-contain"
-              : "h-10 w-auto object-contain"
+              ? "h-7 w-auto max-w-[170px] object-contain"
+              : `${brandConfig.logoDisplay.presentationClassName} w-auto max-w-[220px] object-contain`
           }
         />
       ) : (
-        <div
-          className={`
-            flex
-            shrink-0
-            items-center
-            justify-center
-            rounded-xl
-            border
-            border-white/15
-            bg-white/[0.06]
-            font-bold
-            tracking-tight
-            text-white
-            ${
-              compact
-                ? "h-8 w-8 text-xs"
-                : "h-10 w-10 text-sm"
-            }
-          `}
-        >
-          MH
-        </div>
-      )}
-
-      <div>
-        <p
+        <span
           className={
             compact
-              ? "text-xs font-bold tracking-[0.12em] text-white"
-              : "text-sm font-bold tracking-[0.1em] text-white"
+              ? "text-sm font-semibold tracking-wide text-white"
+              : "text-lg font-semibold tracking-wide text-white"
           }
         >
-          {brandConfig.shortName}
-        </p>
-
-        {!compact && (
-          <p className="mt-0.5 text-xs text-slate-500">
-            {brandConfig.name}
-          </p>
-        )}
-      </div>
+          {
+            brandConfig.name
+          }
+        </span>
+      )}
     </div>
   );
 }
@@ -2040,7 +2020,7 @@ export default function CetesConsultationPresentation({
                       ...row,
 
                       yieldExample:
-                        `1 日约 ${formatRate(
+                        `每日参考 ${formatRate(
                           bonddiaDaily
                             ?.rate ??
                             null
@@ -2233,10 +2213,6 @@ export default function CetesConsultationPresentation({
                   className="whitespace-nowrap text-center text-[11px] font-bold uppercase tracking-[0.25em] text-white"
                 >
                   <div>
-                    {brandConfig.shortName}
-                  </div>
-
-                  <div className="mt-1">
                     {
                       brandConfig
                         .presentation
@@ -2261,23 +2237,21 @@ export default function CetesConsultationPresentation({
           className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center"
         >
           <div className="rotate-[-12deg] opacity-[0.025]">
-            {brandConfig.logoUrl ? (
-              <img
-                src={brandConfig.logoUrl}
-                alt=""
-                className="max-h-[360px] max-w-[520px] object-contain"
-              />
+            {brandConfig.presentationLogoUrl ? (
+                <img
+                  src={
+                    brandConfig.presentationLogoUrl
+                  }
+                  alt=""
+                  className="max-h-[360px] max-w-[520px] object-contain"
+                />
             ) : (
               <div className="text-center text-white">
-                <div className="text-[120px] font-black leading-none tracking-[-0.07em]">
-                  MH
+                <div className="text-[96px] font-semibold leading-none">
+                  L
                 </div>
 
-                <div className="mt-6 text-4xl font-black tracking-[0.25em]">
-                  {brandConfig.shortName}
-                </div>
-
-                <div className="mt-4 text-xl font-semibold tracking-[0.18em]">
+                <div className="mt-5 text-xl font-semibold tracking-[0.18em]">
                   {
                     brandConfig
                       .presentation

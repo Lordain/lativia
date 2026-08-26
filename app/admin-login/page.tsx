@@ -78,13 +78,27 @@ import {
         <div className="w-full max-w-md">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-200/60 sm:p-9">
             <div className="mb-8">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-                {brandConfig.shortName}
-              </p>
-  
-              <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
-                管理后台
-              </h1>
+              {brandConfig.logoUrl ? (
+                  <img
+                    src={
+                      brandConfig.logoUrl
+                    }
+                    alt={
+                      brandConfig.name
+                    }
+                    className="h-7 w-auto max-w-[150px] object-contain"
+                  />
+                ) : (
+                  <p className="text-lg font-semibold tracking-tight text-slate-950">
+                    {
+                      brandConfig.name
+                    }
+                  </p>
+                )}
+
+                <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+                  管理后台
+                </h1>
   
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 使用管理员用户名和密码登录。

@@ -20,7 +20,6 @@ export default function robots():
           "/admin-login",
           "/auth/",
           "/api/",
-          "/test",
         ],
       },
     ],

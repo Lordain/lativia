@@ -305,6 +305,14 @@ export async function POST(
           },
 
           // ==================================
+          // Payment Webhook
+          // ==================================
+
+          notification_url:
+          `${normalizedSiteUrl}/api/webhooks/mercado-pago?source_news=webhooks`,
+
+
+          // ==================================
           // Checkout 完成后的浏览器跳转
           // ==================================
 

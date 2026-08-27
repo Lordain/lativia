@@ -80,19 +80,6 @@ export default function PayNowButton({
         PaymentApiResponse =
         await response.json();
 
-      console.log(
-        "PAYMENT DEBUG:",
-        {
-          provider,
-          route,
-          httpStatus:
-            response.status,
-          responseOk:
-            response.ok,
-          result,
-        }
-      );
-
       if (!response.ok) {
         throw new Error(
           typeof result.error ===
@@ -115,11 +102,6 @@ export default function PayNowButton({
           "string" ||
         !paymentUrl
       ) {
-        console.error(
-          "PAYMENT URL MISSING:",
-          result
-        );
-
         throw new Error(
           "支付平台已响应，但没有返回可用的付款地址"
         );

@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/payments/stripe";
 import { createClient } from "@/lib/supabase/server";
 
+import {
+  checkPaymentCheckoutRateLimit,
+} from "@/lib/payments/checkPaymentCheckoutRateLimit";
+
 export async function POST(
   request: Request
 ) {
@@ -158,6 +162,42 @@ export async function POST(
         },
         {
           status: 400,
+        }
+      );
+    }
+
+    const rateLimit =
+      await checkPaymentCheckoutRateLimit({
+        userId:
+          user.id,
+
+        orderId:
+          order.id,
+
+        provider:
+          "stripe",
+      });
+
+
+    if (
+      !rateLimit.allowed
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "付款请求过于频繁，请稍后再试。",
+        },
+        {
+          status:
+            429,
+
+          headers: {
+            "Retry-After":
+              String(
+                rateLimit.retryAfterSeconds ??
+                  60
+              ),
+          },
         }
       );
     }

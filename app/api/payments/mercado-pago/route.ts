@@ -4,6 +4,10 @@ import { Preference } from "mercadopago";
 import { mercadoPagoClient } from "@/lib/payments/mercadoPago";
 import { createClient } from "@/lib/supabase/server";
 
+import {
+  checkPaymentCheckoutRateLimit,
+} from "@/lib/payments/checkPaymentCheckoutRateLimit";
+
 export async function POST(
   request: Request
 ) {
@@ -216,6 +220,42 @@ export async function POST(
       );
     }
 
+      const rateLimit =
+      await checkPaymentCheckoutRateLimit({
+        userId:
+          user.id,
+
+        orderId:
+          order.id,
+
+        provider:
+          "mercado_pago",
+      });
+
+
+    if (
+      !rateLimit.allowed
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "付款请求过于频繁，请稍后再试。",
+        },
+        {
+          status:
+            429,
+
+          headers: {
+            "Retry-After":
+              String(
+                rateLimit.retryAfterSeconds ??
+                  60
+              ),
+          },
+        }
+      );
+    }
+
     // ========================================
     // 9. 获取网站 URL
     // ========================================
@@ -321,14 +361,19 @@ export async function POST(
               `${normalizedSiteUrl}/account/orders/${order.id}/payment/success`,
 
             failure:
-              `${normalizedSiteUrl}/account/orders/${order.id}/payment/failure`,
+              `${normalizedSiteUrl}/account/orders/${order.id}/payment`,
 
             pending:
               `${normalizedSiteUrl}/account/orders/${order.id}/payment`,
           },
 
-          auto_return:
-            "approved",
+          ...(process.env.NODE_ENV ===
+            "production"
+              ? {
+                  auto_return:
+                    "approved" as const,
+                }
+              : {}),
         },
       });
 
@@ -362,20 +407,6 @@ export async function POST(
         }
       );
     }
-
-    console.log(
-      "Mercado Pago Preference created:",
-      {
-        preferenceId:
-          result.id,
-
-        orderId:
-          order.id,
-
-        notificationUrl:
-          `${normalizedSiteUrl}/api/webhooks/mercado-pago`,
-      }
-    );
 
     // ========================================
     // 13. 返回前端

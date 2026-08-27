@@ -557,10 +557,6 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(
-      `Order ${order.id} safely repaired from Stripe`
-    );
-
     /*
     * ========================================
     * Workspace Recovery

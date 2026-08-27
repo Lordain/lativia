@@ -8,16 +8,6 @@ export async function getMyOrders() {
     error: userError,
   } = await supabase.auth.getUser();
 
-  console.log(
-    "SERVER USER:",
-    user?.id
-  );
-
-  console.log(
-    "SERVER USER ERROR:",
-    userError?.message
-  );
-
   if (userError || !user) {
     return [];
   }

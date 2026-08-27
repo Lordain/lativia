@@ -337,8 +337,11 @@ export async function POST(
     // ========================================
 
     const checkoutUrl =
-      result.sandbox_init_point ??
-      result.init_point;
+      process.env.NODE_ENV ===
+      "production"
+        ? result.init_point
+        : result.sandbox_init_point ??
+          result.init_point;
 
     if (!checkoutUrl) {
       console.error(

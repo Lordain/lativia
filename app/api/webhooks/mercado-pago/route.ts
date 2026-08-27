@@ -433,9 +433,7 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Mercado Pago Webhook 处理失败",
+          "Mercado Pago Webhook 处理失败",
       },
       {
         status:

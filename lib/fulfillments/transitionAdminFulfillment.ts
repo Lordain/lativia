@@ -569,8 +569,8 @@ if (
         error:
           validatingError,
       } =
-        await supabase.rpc(
-          "transition_fulfillment_status",
+      await createAdminClient().rpc(
+        "transition_fulfillment_status",
           {
             p_fulfillment_id:
               input.fulfillmentId,
@@ -695,8 +695,8 @@ const {
   const {
     error,
   } =
-    await supabase.rpc(
-      "transition_fulfillment_status",
+  await createAdminClient().rpc(
+    "transition_fulfillment_status",
       {
         p_fulfillment_id:
           input.fulfillmentId,

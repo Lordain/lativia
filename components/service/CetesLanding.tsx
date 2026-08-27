@@ -797,7 +797,7 @@ const rateSourceDate =
                       : item.product ===
                           "BONOS"
                         ? "长期国债"
-                        : "流动性基金"}
+                        : "活期投资账户"}
                   </p>
 
                   <p className="mt-1 text-xs font-medium text-slate-500">

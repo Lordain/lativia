@@ -727,82 +727,6 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
   /*
    * =========================================
    * 06
-   * Tax
-   * =========================================
-   */
-
-  {
-    id: "tax-withholding",
-
-    section: "tax",
-
-    number: 6,
-
-    eyebrow: "TAX",
-
-    title: "国债收益的 ISR 自动预扣怎么理解？",
-
-    shortTitle: "自动扣税",
-
-    layout: "tax",
-
-    summary:
-      "Cetesdirecto 会记录利息和已经预扣的 ISR（Impuesto Sobre la Renta，所得税），并向 SAT 反映相关资料。预扣不是最终年度税额。",
-
-    source:
-      "官方依据：2026 Ley de Ingresos de la Federación Art. 24；SAT RMF Regla 3.5.4；Cetesdirecto FAQ。",
-
-    formula: {
-      title:
-        "2026 年简化预扣示意",
-
-      expression:
-        "预扣 ISR ≈ 投资本金 × 0.90% × 持有天数 ÷ 365",
-
-      example:
-        "例：MXN 100,000 × 0.90% × 90 ÷ 365 ≈ MXN 222",
-
-      footnote:
-        "0.90% 是 2026 年法定年度预扣率，并按持有天数比例计算。这是预扣 / provisional payment（预缴），不等于最终年度应缴 ISR。",
-    },
-
-    cards: [
-      {
-        icon: "tax",
-
-        title:
-          "平台会记录预扣",
-
-        description:
-          "Cetesdirecto 官方说明，会向税务机关反映已支付利息及已进行的 ISR 预扣。",
-      },
-
-      {
-        icon: "document",
-
-        title:
-          "年度申报会看到相关资料",
-
-        description:
-          "官方说明这些资料会出现在 SAT 建议的年度申报资料中。",
-      },
-
-      {
-        icon: "warning",
-
-        title:
-          "预扣 ≠ 最终税负",
-
-        description:
-          "实际年度税务结果仍与个人税务情况和当年规则有关。",
-      },
-    ],
-  },
-
-
-  /*
-   * =========================================
-   * 07
    * Requirements
    * =========================================
    */
@@ -812,7 +736,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "requirements",
 
-    number: 7,
+    number: 6,
 
     eyebrow: "REQUIREMENTS",
 
@@ -843,10 +767,10 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
         icon: "location",
 
         title:
-          "外国人需要在墨西哥有合法居留",
+          "外国人需持墨西哥合法居留身份",
 
         description:
-          "外国申请人需要具有墨西哥临时居留或永久居留身份，并提供相应证明；开户操作时本人不一定必须位于墨西哥境内。",
+          "外国申请人需具有墨西哥临时居留或永久居留身份，并准备相应的有效居留证明。",
       },
 
       {
@@ -873,10 +797,10 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
         icon: "location",
 
         title:
-          "本人在墨西哥境内完成",
+          "设备需开启地理定位",
 
         description:
-          "本咨询服务按本人在墨西哥境内完成开户作为实操条件；Cetesdirecto 数字渠道同时要求开启设备地理定位。",
+          "使用 Cetesdirecto 数字渠道登录和进行相关操作时，需要允许设备提供地理位置信息。",
       },
 
       {
@@ -894,7 +818,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 08
+   * 07
    * Auction
    * =========================================
    */
@@ -904,7 +828,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "auction",
 
-    number: 8,
+    number: 7,
 
     eyebrow: "SUBASTA",
 
@@ -976,7 +900,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   /*
    * =========================================
-   * 09
+   * 08
    * Risks
    * =========================================
    */
@@ -986,7 +910,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
     section: "risk",
 
-    number: 9,
+    number: 8,
 
     eyebrow: "RISK",
 
@@ -1067,7 +991,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 10
+ * 09
  * Opening Practice
  * =========================================
  */
@@ -1076,7 +1000,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 10,
+  number: 9,
 
   eyebrow: "PRACTICE",
 
@@ -1455,7 +1379,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
       /*
  * =========================================
- * 11
+ * 10
  * First Deposit
  * =========================================
  */
@@ -1465,7 +1389,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
       
         section: "practice",
       
-        number: 11,
+        number: 10,
       
         eyebrow: "PRACTICE",
       
@@ -1559,7 +1483,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 12
+ * 11
  * e.firma Upgrade
  * =========================================
  */
@@ -1569,7 +1493,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 12,
+  number: 11,
 
   eyebrow: "ACCOUNT UPGRADE",
 
@@ -1735,7 +1659,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 13
+ * 12
  * Government Bond Purchase - Mobile App
  * =========================================
  */
@@ -1745,7 +1669,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 13,
+  number: 12,
 
   eyebrow: "PRACTICE",
 
@@ -2006,7 +1930,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 14
+ * 13
  * Withdrawal
  * =========================================
  */
@@ -2016,7 +1940,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 14,
+  number: 13,
 
   eyebrow: "PRACTICE",
 
@@ -2135,7 +2059,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 15
+ * 14
  * Movements & Statement
  * =========================================
  */
@@ -2145,7 +2069,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 15,
+  number: 14,
 
   eyebrow: "ACCOUNT CHECK",
 
@@ -2245,7 +2169,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 16
+ * 15
  * Cetesdirecto Mobile App
  * =========================================
  */
@@ -2255,7 +2179,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 16,
+  number: 15,
 
   eyebrow: "MOBILE APP",
 
@@ -2510,7 +2434,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 17
+ * 16
  * Completion
  * =========================================
  */
@@ -2520,7 +2444,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 17,
+  number: 16,
 
   eyebrow: "COMPLETE",
 
@@ -2596,7 +2520,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
 /*
  * =========================================
- * 18
+ * 17
  * Why CETES Value Changes Every Day
  * =========================================
  */
@@ -2606,7 +2530,7 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
 
   section: "practice",
 
-  number: 18,
+  number: 17,
 
   eyebrow: "EXTRA",
 
@@ -2776,5 +2700,81 @@ export const cetesPresentationSlides: CetesPresentationSlide[] = [
     },
   ],
 },
+
+
+  /*
+   * =========================================
+   * 18
+   * Tax
+   * =========================================
+   */
+
+  {
+    id: "tax-withholding",
+
+    section: "tax",
+
+    number: 18,
+
+    eyebrow: "TAX",
+
+    title: "国债收益的 ISR 自动预扣怎么理解？",
+
+    shortTitle: "自动扣税",
+
+    layout: "tax",
+
+    summary:
+      "Cetesdirecto 会记录利息和已经预扣的 ISR（Impuesto Sobre la Renta，所得税），并向 SAT 反映相关资料。预扣不是最终年度税额。",
+
+    source:
+      "官方依据：2026 Ley de Ingresos de la Federación Art. 24；SAT RMF Regla 3.5.4；Cetesdirecto FAQ。",
+
+    formula: {
+      title:
+        "2026 年简化预扣示意",
+
+      expression:
+        "预扣 ISR ≈ 投资本金 × 0.90% × 持有天数 ÷ 365",
+
+      example:
+        "例：MXN 100,000 × 0.90% × 90 ÷ 365 ≈ MXN 222",
+
+      footnote:
+        "0.90% 是 2026 年法定年度预扣率，并按持有天数比例计算。这是预扣 / provisional payment（预缴），不等于最终年度应缴 ISR。",
+    },
+
+    cards: [
+      {
+        icon: "tax",
+
+        title:
+          "平台会记录预扣",
+
+        description:
+          "Cetesdirecto 官方说明，会向税务机关反映已支付利息及已进行的 ISR 预扣。",
+      },
+
+      {
+        icon: "document",
+
+        title:
+          "年度申报会看到相关资料",
+
+        description:
+          "官方说明这些资料会出现在 SAT 建议的年度申报资料中。",
+      },
+
+      {
+        icon: "warning",
+
+        title:
+          "预扣 ≠ 最终税负",
+
+        description:
+          "实际年度税务结果仍与个人税务情况和当年规则有关。",
+      },
+    ],
+  },
 
 ];

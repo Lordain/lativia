@@ -56,7 +56,7 @@ const securityHeaders = [
 
   {
     key:
-      "Content-Security-Policy-Report-Only",
+      "Content-Security-Policy",
 
     value: [
       "default-src 'self'",
@@ -81,6 +81,9 @@ const securityHeaders = [
 
 const nextConfig:
   NextConfig = {
+    poweredByHeader:
+      false,
+      
     allowedDevOrigins,
 
     experimental: {

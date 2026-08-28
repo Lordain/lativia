@@ -1,6 +1,14 @@
 "use server";
 
 import {
+  createHash,
+} from "node:crypto";
+
+import {
+  headers,
+} from "next/headers";
+
+import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
@@ -24,6 +32,96 @@ interface AdminSignInResult {
 
   error:
     string | null;
+}
+
+
+interface AdminLoginRateLimitContext {
+  identifierHash:
+    string;
+
+  sourceHash:
+    string;
+}
+
+
+function sha256(
+  value:
+    string
+) {
+  return createHash(
+    "sha256"
+  )
+    .update(
+      value
+    )
+    .digest(
+      "hex"
+    );
+}
+
+
+async function getAdminLoginRateLimitContext(
+  username:
+    string
+): Promise<
+  AdminLoginRateLimitContext
+> {
+  const requestHeaders =
+    await headers();
+
+
+  const forwardedFor =
+    requestHeaders
+      .get(
+        "x-forwarded-for"
+      )
+      ?.split(
+        ","
+      )[0]
+      ?.trim();
+
+
+  const realIp =
+    requestHeaders
+      .get(
+        "x-real-ip"
+      )
+      ?.trim();
+
+
+  const userAgent =
+    requestHeaders
+      .get(
+        "user-agent"
+      )
+      ?.trim() ??
+    "unknown";
+
+
+  /*
+   * Vercel normally supplies x-forwarded-for.
+   *
+   * User-Agent is only used as a fallback so that
+   * missing source headers do not put every request
+   * into one global "unknown" bucket.
+   */
+  const source =
+    forwardedFor ||
+    realIp ||
+    `unknown:${userAgent}`;
+
+
+  return {
+    identifierHash:
+      sha256(
+        username
+      ),
+
+    sourceHash:
+      sha256(
+        source
+      ),
+  };
 }
 
 
@@ -54,6 +152,85 @@ export async function signInAdmin(
   }
 
 
+  const rateLimitContext =
+    await getAdminLoginRateLimitContext(
+      username
+    );
+
+
+  const admin =
+    createAdminClient();
+
+
+  /*
+   * ========================================
+   * Admin Login Rate Limit
+   * ========================================
+   *
+   * Rate limit is consumed BEFORE resolving
+   * the username or calling Supabase Auth.
+   *
+   * This protects:
+   *
+   * - admin_login_identities
+   * - profiles
+   * - Supabase password authentication
+   */
+
+  const {
+    data:
+      retryAfterSeconds,
+
+    error:
+      rateLimitError,
+  } =
+    await admin.rpc(
+      "consume_admin_login_attempt",
+      {
+        p_identifier_hash:
+          rateLimitContext
+            .identifierHash,
+
+        p_source_hash:
+          rateLimitContext
+            .sourceHash,
+      }
+    );
+
+
+  if (
+    rateLimitError ||
+    typeof retryAfterSeconds !==
+      "number"
+  ) {
+    console.error(
+      "Admin login rate limit check failed"
+    );
+
+    return {
+      success:
+        false,
+
+      error:
+        "登录暂时不可用，请稍后再试",
+    };
+  }
+
+
+  if (
+    retryAfterSeconds >
+    0
+  ) {
+    return {
+      success:
+        false,
+
+      error:
+        "登录尝试过多，请稍后再试",
+    };
+  }
+
+
   /*
    * ========================================
    * Resolve Admin Identity
@@ -64,10 +241,6 @@ export async function signInAdmin(
    * This lookup uses the server-only
    * Supabase admin client.
    */
-
-  const admin =
-    createAdminClient();
-
 
   const {
     data:
@@ -228,6 +401,47 @@ export async function signInAdmin(
       error:
         "管理员用户名或密码错误",
     };
+  }
+
+
+  /*
+   * Successful login.
+   *
+   * Remove attempts for this username + source
+   * so legitimate future logins do not accumulate
+   * toward the rate limit.
+   */
+
+  const {
+    error:
+      clearRateLimitError,
+  } =
+    await admin.rpc(
+      "clear_admin_login_attempts",
+      {
+        p_identifier_hash:
+          rateLimitContext
+            .identifierHash,
+
+        p_source_hash:
+          rateLimitContext
+            .sourceHash,
+      }
+    );
+
+
+  /*
+   * Authentication already succeeded.
+   *
+   * Rate-limit cleanup must therefore never
+   * invalidate the successful login.
+   */
+  if (
+    clearRateLimitError
+  ) {
+    console.error(
+      "Admin login rate limit cleanup failed"
+    );
   }
 
 

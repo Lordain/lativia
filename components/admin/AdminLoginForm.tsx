@@ -101,12 +101,9 @@ export default function AdminLoginForm() {
 
       router.refresh();
 
-    } catch (
-      submitError
-    ) {
+    } catch {
       console.error(
-        "Admin login error:",
-        submitError
+        "Admin login failed"
       );
 
       setError(

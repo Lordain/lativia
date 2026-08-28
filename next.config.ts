@@ -53,6 +53,29 @@ const securityHeaders = [
     value:
       "camera=(), microphone=(), geolocation=()",
   },
+
+  {
+    key:
+      "Content-Security-Policy-Report-Only",
+
+    value: [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "frame-src 'none'",
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
+      "media-src 'self' blob:",
+      "upgrade-insecure-requests",
+    ].join("; "),
+  },
 ];
 
 

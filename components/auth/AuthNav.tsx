@@ -335,6 +335,7 @@ export default function AuthNav({
             {isAdmin && (
               <Link
                 href="/admin"
+                prefetch={false}
                 className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
                 管理后台
@@ -342,6 +343,7 @@ export default function AuthNav({
             )}
             <Link
               href="/account/orders"
+              prefetch={false}
               className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
             >
               我的订单
@@ -349,6 +351,7 @@ export default function AuthNav({
 
             <Link
               href="/account/notifications"
+              prefetch={false}
               className="flex items-center rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950"
             >
               通知
@@ -460,6 +463,7 @@ export default function AuthNav({
                 {isAdmin && (
                     <Link
                       href="/admin"
+                      prefetch={false}
                       onClick={
                         closeMenu
                       }
@@ -470,6 +474,7 @@ export default function AuthNav({
                   )}
                   <Link
                     href="/account/orders"
+              prefetch={false}
                     onClick={
                       closeMenu
                     }
@@ -480,6 +485,7 @@ export default function AuthNav({
 
                   <Link
                     href="/account/notifications"
+              prefetch={false}
                     onClick={
                       closeMenu
                     }

@@ -15,11 +15,11 @@ export default function robots():
           "/",
 
         disallow: [
-          "/account/",
-          "/admin/",
+          "/account",
+          "/admin",
           "/admin-login",
-          "/auth/",
-          "/api/",
+          "/auth",
+          "/api",
         ],
       },
     ],

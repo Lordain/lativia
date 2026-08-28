@@ -6,11 +6,6 @@ import type {
   ReactNode,
 } from "react";
 
-import {
-  requireAdmin,
-} from "@/lib/auth/requireAdmin";
-
-import AdminLayoutShell from "@/components/admin/AdminLayoutShell";
 
 export const metadata:
   Metadata = {
@@ -31,21 +26,15 @@ export const metadata:
     },
   };
 
+
 interface Props {
-  children: ReactNode;
+  children:
+    ReactNode;
 }
 
 
-export default async function AdminLayout({
+export default function AccountLayout({
   children,
 }: Props) {
-  await requireAdmin();
-
-  return (
-    <AdminLayoutShell
-      adminLabel="admin"
-    >
-      {children}
-    </AdminLayoutShell>
-  );
+  return children;
 }

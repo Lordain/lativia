@@ -37,6 +37,21 @@ interface Props {
   }>;
 }
 
+const SITE_URL =
+  "https://lativiaglobal.com";
+
+
+function serializeJsonLd(
+  value: unknown
+) {
+  return JSON.stringify(
+    value
+  ).replace(
+    /</g,
+    "\\u003c"
+  );
+}
+
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
@@ -168,6 +183,106 @@ export default async function ServicePage({
       service.id
     );
 
+    const canonicalUrl =
+    `${SITE_URL}/services/${service.slug}`;
+
+
+  const serviceJsonLd = {
+    "@context":
+      "https://schema.org",
+
+    "@type":
+      "Service",
+
+    "@id":
+      `${canonicalUrl}#service`,
+
+    name:
+      service.title,
+
+    description:
+      service.shortDescription ||
+      service.description,
+
+    url:
+      canonicalUrl,
+
+    areaServed: {
+      "@type":
+        "Country",
+
+      name:
+        "Mexico",
+    },
+
+    provider: {
+      "@type":
+        "Organization",
+
+      "@id":
+        `${SITE_URL}/#organization`,
+
+      name:
+        brandConfig.name,
+
+      url:
+        SITE_URL,
+    },
+  };
+
+
+  const breadcrumbJsonLd = {
+    "@context":
+      "https://schema.org",
+
+    "@type":
+      "BreadcrumbList",
+
+    itemListElement: [
+      {
+        "@type":
+          "ListItem",
+
+        position:
+          1,
+
+        name:
+          "首页",
+
+        item:
+          SITE_URL,
+      },
+
+      {
+        "@type":
+          "ListItem",
+
+        position:
+          2,
+
+        name:
+          "服务",
+
+        item:
+          `${SITE_URL}/services`,
+      },
+
+      {
+        "@type":
+          "ListItem",
+
+        position:
+          3,
+
+        name:
+          service.title,
+
+        item:
+          canonicalUrl,
+      },
+    ],
+  };
+
   /*
    * =====================================
    * CETES Dedicated Landing
@@ -181,23 +296,43 @@ export default async function ServicePage({
     const rates =
       await getCetesReferenceRates();
 
-    return (
-      <PublicShell>
-        <CetesLanding
-          service={
-            service
-          }
+        return (
+          <PublicShell>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html:
+                  serializeJsonLd(
+                    serviceJsonLd
+                  ),
+              }}
+            />
 
-          prices={
-            prices
-          }
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html:
+                  serializeJsonLd(
+                    breadcrumbJsonLd
+                  ),
+              }}
+            />
 
-          rates={
-            rates
-          }
-        />
-      </PublicShell>
-    );
+            <CetesLanding
+              service={
+                service
+              }
+
+              prices={
+                prices
+              }
+
+              rates={
+                rates
+              }
+            />
+          </PublicShell>
+        );
   }
 
   /*
@@ -377,6 +512,26 @@ const basePrice =
 
       return (
         <PublicShell>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html:
+                serializeJsonLd(
+                  serviceJsonLd
+                ),
+            }}
+          />
+
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html:
+                serializeJsonLd(
+                  breadcrumbJsonLd
+                ),
+            }}
+          />
+
           <main className="bg-slate-50">
             <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 md:py-8 lg:px-8">
               <ServiceHero

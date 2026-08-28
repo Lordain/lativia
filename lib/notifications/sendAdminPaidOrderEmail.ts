@@ -185,10 +185,7 @@ import {
         0
       ) {
         console.warn(
-          "Admin paid order email skipped: ADMIN_NOTIFICATION_EMAILS not configured",
-          {
-            orderId,
-          }
+          "Admin paid order email skipped: ADMIN_NOTIFICATION_EMAILS not configured"
         );
 
 
@@ -239,13 +236,7 @@ import {
         !orderData
       ) {
         console.error(
-          "Admin paid order email order lookup error:",
-          {
-            orderId,
-
-            error:
-              orderError,
-          }
+          "Admin paid order email order lookup failed"
         );
 
 
@@ -266,10 +257,7 @@ import {
         !order.paid_at
       ) {
         console.warn(
-          "Admin paid order email skipped: order is not paid",
-          {
-            orderId,
-          }
+          "Admin paid order email skipped: order is not paid"
         );
 
 
@@ -562,9 +550,7 @@ import {
 
       return results;
 
-    } catch (
-      error
-    ) {
+    } catch {
       /*
        * Email 永远只是 secondary side effect。
        *
@@ -573,12 +559,7 @@ import {
        */
 
       console.error(
-        "Admin paid order email error:",
-        {
-          orderId,
-
-          error,
-        }
+        "Admin paid order email failed"
       );
 
 

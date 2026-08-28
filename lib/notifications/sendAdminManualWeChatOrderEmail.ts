@@ -142,10 +142,7 @@ import {
         0
       ) {
         console.warn(
-          "Admin manual WeChat order email skipped: ADMIN_NOTIFICATION_EMAILS not configured",
-          {
-            orderId,
-          }
+          "Admin manual WeChat order email skipped: ADMIN_NOTIFICATION_EMAILS not configured"
         );
 
 
@@ -196,13 +193,7 @@ import {
         !orderData
       ) {
         console.error(
-          "Admin manual WeChat order email order lookup error:",
-          {
-            orderId,
-
-            error:
-              orderError,
-          }
+          "Admin manual WeChat order email order lookup failed"
         );
 
 
@@ -243,10 +234,7 @@ import {
         !isManualWeChatOrder
       ) {
         console.warn(
-          "Admin manual WeChat order email skipped: order is not an unpaid manual WeChat order",
-          {
-            orderId,
-          }
+          "Admin manual WeChat order email skipped: order is not an unpaid manual WeChat order"
         );
 
 
@@ -514,9 +502,7 @@ import {
 
       return results;
 
-    } catch (
-      error
-    ) {
+    } catch {
       /*
        * Email 是 secondary side effect。
        *
@@ -525,12 +511,7 @@ import {
        */
 
       console.error(
-        "Admin manual WeChat order email error:",
-        {
-          orderId,
-
-          error,
-        }
+        "Admin manual WeChat order email failed"
       );
 
 

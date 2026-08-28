@@ -125,8 +125,7 @@ import {
       error
     ) {
       console.error(
-        "Google OAuth callback error:",
-        error
+        "Google OAuth callback failed"
       );
 
       const errorUrl =

@@ -42,14 +42,7 @@ export async function sendNotificationEmail(
 
   if (!recipient) {
     console.warn(
-      "Email delivery skipped: recipient unavailable",
-      {
-        notificationId:
-          notification.id,
-
-        userId:
-          notification.userId,
-      }
+      "Email delivery skipped: recipient unavailable"
     );
 
 
@@ -95,8 +88,7 @@ export async function sendNotificationEmail(
     existingError
   ) {
     console.error(
-      "Email delivery lookup error:",
-      existingError
+      "Email delivery lookup failed"
     );
 
 
@@ -187,8 +179,7 @@ export async function sendNotificationEmail(
       !createdDelivery
     ) {
       console.error(
-        "Email delivery create error:",
-        createError
+        "Email delivery create failed"
       );
 
 
@@ -258,8 +249,7 @@ export async function sendNotificationEmail(
     processingError
   ) {
     console.error(
-      "Email delivery processing update error:",
-      processingError
+      "Email delivery processing update failed"
     );
 
 
@@ -341,20 +331,7 @@ export async function sendNotificationEmail(
           sentError
         ) {
           console.error(
-            "Email provider succeeded but local delivery sync failed:",
-            {
-              notificationId:
-                notification.id,
-        
-              deliveryId,
-        
-              providerMessageId:
-                result
-                  .providerMessageId,
-        
-              error:
-                sentError,
-            }
+            "Email provider succeeded but local delivery sync failed"
           );
         
         
@@ -405,20 +382,7 @@ export async function sendNotificationEmail(
             unknownError
           ) {
             console.error(
-              "Email unknown-state fallback update failed:",
-              {
-                notificationId:
-                  notification.id,
-        
-                deliveryId,
-        
-                providerMessageId:
-                  result
-                    .providerMessageId,
-        
-                error:
-                  unknownError,
-              }
+              "Email unknown-state fallback update failed"
             );
           }
         
@@ -448,17 +412,9 @@ export async function sendNotificationEmail(
     console.error(
       "Notification email send failed:",
       {
-        notificationId:
-          notification.id,
-
-        deliveryId,
-
         attempt:
           currentAttempts +
           1,
-
-        error:
-          message,
       }
     );
 
@@ -492,8 +448,7 @@ export async function sendNotificationEmail(
       failedUpdateError
     ) {
       console.error(
-        "Email failure state update error:",
-        failedUpdateError
+        "Email failure state update failed"
       );
     }
 

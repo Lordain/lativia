@@ -36,6 +36,11 @@ export const metadata:
         "https://lativiaglobal.com"
       ),
 
+    alternates: {
+      canonical:
+        "/",
+    },
+
     title: {
       default:
         "Lativia｜墨西哥华人办事与官方手续中文协助",
@@ -80,6 +85,9 @@ export const metadata:
       locale:
         "zh_CN",
 
+      url:
+        "https://lativiaglobal.com",
+
       siteName:
         "Lativia",
 
@@ -88,17 +96,37 @@ export const metadata:
 
       description:
         "面向中国用户提供墨西哥 RFC、e.firma、SAT、INM、Cetesdirecto 等官方流程的中文说明与办理协助。",
+
+      images: [
+        {
+          url:
+            "/og-image.png",
+
+          width:
+            1200,
+
+          height:
+            630,
+
+          alt:
+            "Lativia｜墨西哥华人办事与官方手续中文协助",
+        },
+      ],
     },
 
     twitter: {
       card:
-        "summary",
+        "summary_large_image",
 
       title:
         "Lativia｜墨西哥华人办事与官方手续中文协助",
 
       description:
         "面向中国用户提供墨西哥 RFC、e.firma、SAT、INM、Cetesdirecto 等官方流程的中文说明与办理协助。",
+
+      images: [
+        "/og-image.png",
+      ],
     },
   };
 

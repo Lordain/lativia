@@ -47,6 +47,7 @@ export default function DashboardStatCard({
         href={
           href
         }
+        prefetch={false}
         className="group block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
       >
         {content}

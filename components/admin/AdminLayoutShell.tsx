@@ -317,6 +317,7 @@ export default function AdminLayoutShell({
             <div className="px-6 pb-6 pt-7">
             <Link
                 href="/admin"
+                prefetch={false}
                 className="block"
                 aria-label={`${brandConfig.name} 管理后台`}
               >
@@ -367,6 +368,7 @@ export default function AdminLayoutShell({
                         href={
                           item.href
                         }
+                        prefetch={false}
                         className={`
                           flex
                           items-center
@@ -420,6 +422,7 @@ export default function AdminLayoutShell({
 
                 <Link
                   href="/help"
+                  prefetch={false}
                   className="mt-3 flex items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50"
                 >
                   帮助中心

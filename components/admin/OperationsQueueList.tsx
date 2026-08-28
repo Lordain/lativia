@@ -130,6 +130,7 @@ export default function OperationsQueueList({
             0 && (
           <Link
             href="/admin/operations"
+            prefetch={false}
             className="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50"
           >
             查看全部待办
@@ -272,6 +273,7 @@ export default function OperationsQueueList({
 
                   <Link
                     href={`/admin/orders/${item.orderId}`}
+                    prefetch={false}
                     className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
                   >
                     立即处理

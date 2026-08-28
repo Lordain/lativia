@@ -76,6 +76,7 @@ export default function RecentPaymentsList({
 
         <Link
           href="/admin/payments/reconciliation"
+          prefetch={false}
           className="text-sm font-semibold text-blue-600 transition hover:text-blue-700"
         >
           查看支付 →
@@ -96,6 +97,7 @@ export default function RecentPaymentsList({
                   payment.id
                 }
                 href={`/admin/orders/${payment.order_id}`}
+                prefetch={false}
                 className="group flex min-h-[110px] items-center px-5 py-4 transition hover:bg-slate-50"
               >
                 <div className="flex w-full items-center justify-between gap-5">

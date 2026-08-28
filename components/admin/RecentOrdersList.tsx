@@ -70,6 +70,7 @@ export default function RecentOrdersList({
 
         <Link
           href="/admin/orders"
+          prefetch={false}
           className="text-sm font-semibold text-blue-600 transition hover:text-blue-700"
         >
           查看全部 →
@@ -90,6 +91,7 @@ export default function RecentOrdersList({
                   order.id
                 }
                 href={`/admin/orders/${order.id}`}
+                prefetch={false}
                 className="group flex min-h-[110px] items-center px-5 py-4 transition hover:bg-slate-50"
               >
                 <div className="flex w-full items-center justify-between gap-5">

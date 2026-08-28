@@ -54,8 +54,7 @@ import {
   
     if (error) {
       console.error(
-        "payment checkout rate limit error:",
-        error
+        "Payment checkout rate limit check failed"
       );
   
       throw new Error(

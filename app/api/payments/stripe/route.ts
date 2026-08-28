@@ -283,10 +283,9 @@ export async function POST(
       sessionId:
         session.id,
     });
-  } catch (error) {
+  } catch {
     console.error(
-      "Stripe Checkout error:",
-      error
+      "Stripe Checkout failed"
     );
 
     return NextResponse.json(

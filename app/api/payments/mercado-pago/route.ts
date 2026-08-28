@@ -93,8 +93,7 @@ export async function POST(
       !order
     ) {
       console.error(
-        "Mercado Pago order error:",
-        orderError
+        "Mercado Pago order lookup failed"
       );
 
       return NextResponse.json(
@@ -418,10 +417,9 @@ export async function POST(
       preferenceId:
         result.id,
     });
-  } catch (error) {
+  } catch {
     console.error(
-      "Mercado Pago Checkout error:",
-      error
+      "Mercado Pago Checkout failed"
     );
 
     return NextResponse.json(

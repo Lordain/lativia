@@ -58,8 +58,7 @@ import type {
   
     if (error) {
       console.error(
-        "Create payment audit log error:",
-        error
+        "Create payment audit log failed"
       );
     }
   }

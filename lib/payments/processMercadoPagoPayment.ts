@@ -234,9 +234,6 @@ export async function processMercadoPagoPayment(
       "Mercado Pago payment order not found",
       {
         orderId,
-
-        error:
-          orderError,
       }
     );
 
@@ -388,8 +385,7 @@ export async function processMercadoPagoPayment(
     existingTransactionError
   ) {
     console.error(
-      "Mercado Pago transaction idempotency check failed",
-      existingTransactionError
+      "Mercado Pago transaction idempotency check failed"
     );
 
 
@@ -494,8 +490,7 @@ export async function processMercadoPagoPayment(
     confirmPaymentError
   ) {
     console.error(
-      "Mercado Pago confirm payment error",
-      confirmPaymentError
+      "Mercado Pago confirm payment failed"
     );
 
 

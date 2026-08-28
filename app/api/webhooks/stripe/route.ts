@@ -72,12 +72,9 @@ export async function POST(
           .STRIPE_WEBHOOK_SECRET!
       );
 
-  } catch (
-    error
-  ) {
+  } catch {
     console.error(
-      "Stripe webhook signature error:",
-      error
+      "Stripe webhook signature verification failed"
     );
 
 
@@ -221,8 +218,7 @@ export async function POST(
     existingTransactionError
   ) {
     console.error(
-      "Check existing transaction error:",
-      existingTransactionError
+      "Stripe transaction idempotency check failed"
     );
 
 
@@ -340,8 +336,7 @@ export async function POST(
     !order
   ) {
     console.error(
-      "Stripe webhook: order not found",
-      orderError
+      "Stripe webhook: order lookup failed"
     );
 
 
@@ -648,8 +643,7 @@ export async function POST(
     confirmPaymentError
   ) {
     console.error(
-      "Confirm payment transaction error:",
-      confirmPaymentError
+      "Stripe payment confirmation failed"
     );
 
 

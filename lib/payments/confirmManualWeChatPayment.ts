@@ -45,8 +45,7 @@ async function ensureManualPaymentFulfillment(
 
   if (error) {
     console.error(
-      "ensure_paid_order_fulfillment error:",
-      error
+      "Ensure paid order fulfillment failed"
     );
 
     throw new Error(
@@ -99,7 +98,7 @@ export async function confirmManualWeChatPayment(orderId: string) {
     .maybeSingle();
 
   if (orderError) {
-    console.error("confirmManualWeChatPayment order lookup error:", orderError);
+    console.error("Manual WeChat payment order lookup failed");
 
     throw new Error("读取订单失败");
   }
@@ -269,7 +268,7 @@ export async function confirmManualWeChatPayment(orderId: string) {
     .maybeSingle();
 
   if (updateError) {
-    console.error("confirmManualWeChatPayment update error:", updateError);
+    console.error("Manual WeChat payment update failed");
 
     await createPaymentAuditLog(admin, {
       orderId: order.id,

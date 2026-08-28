@@ -421,12 +421,9 @@ export async function POST(
         result.orderId,
     });
 
-  } catch (
-    error
-  ) {
+  } catch {
     console.error(
-      "Mercado Pago webhook error:",
-      error
+      "Mercado Pago webhook failed"
     );
 
 

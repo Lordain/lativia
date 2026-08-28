@@ -33,8 +33,7 @@ export async function getPaymentAuditLogs(
 
   if (error) {
     console.error(
-      "getPaymentAuditLogs error:",
-      error
+      "Get payment audit logs failed"
     );
 
     throw new Error(

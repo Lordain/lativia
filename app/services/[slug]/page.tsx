@@ -22,6 +22,12 @@ import {
   getCetesReferenceRates,
 } from "@/lib/cetes/getCetesReferenceRates";
 
+import {
+  getServiceSeo,
+} from "@/lib/seo/serviceSeo";
+
+import ServiceSeoContent from "@/components/service/ServiceSeoContent";
+
 import PublicShell from "@/components/layout/PublicShell";
 
 import RequirementList from "@/components/service/RequirementList";
@@ -76,44 +82,28 @@ export async function generateMetadata({
     `/services/${service.slug}`;
 
 
+  const serviceSeo =
+    getServiceSeo(
+      service.slug
+    );
+
+
   const baseDescription =
     service.shortDescription ||
     service.description;
 
 
-  const seoDescription =
-    `${baseDescription} 面向在墨西哥生活、工作或投资的中国用户，提供中文流程说明与办理协助。`
-      .slice(
-        0,
-        160
-      );
-
-
-  let seoTitle =
+  const seoTitle =
+    serviceSeo?.title ??
     service.title;
 
 
-  if (
-    service.slug ===
-    "cetesdirecto-consultation"
-  ) {
-    seoTitle =
-      "Cetesdirecto 中文开户与操作咨询｜墨西哥 CETES 政府债券";
-  } else if (
-    service.slug.includes(
-      "rfc"
-    )
-  ) {
-    seoTitle =
-      `${service.title}｜墨西哥 SAT 中文办理协助`;
-  } else if (
-    service.slug.includes(
-      "efirma"
-    )
-  ) {
-    seoTitle =
-      `${service.title}｜墨西哥 SAT 中文办理协助`;
-  }
+  const seoDescription =
+    serviceSeo?.description ??
+    baseDescription.slice(
+      0,
+      160
+    );
 
 
   return {
@@ -566,6 +556,12 @@ const basePrice =
                 requirements={
                   service.requirements ??
                   []
+                }
+              />
+
+              <ServiceSeoContent
+                slug={
+                  service.slug
                 }
               />
 

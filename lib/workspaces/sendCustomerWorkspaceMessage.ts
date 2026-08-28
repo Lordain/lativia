@@ -8,6 +8,10 @@ import {
   createClient,
 } from "@/lib/supabase/server";
 
+import {
+  createAdminClient,
+} from "@/lib/supabase/admin";
+
 
 export async function sendCustomerWorkspaceMessage(
   workspaceId:
@@ -114,11 +118,15 @@ export async function sendCustomerWorkspaceMessage(
   }
 
 
+  const admin =
+    createAdminClient();
+
+
   const {
     error:
       insertError,
   } =
-    await supabase
+    await admin
       .from(
         "workspace_messages"
       )
@@ -142,8 +150,7 @@ export async function sendCustomerWorkspaceMessage(
 
   if (insertError) {
     console.error(
-      "sendCustomerWorkspaceMessage insert error:",
-      insertError
+      "sendCustomerWorkspaceMessage failed"
     );
 
     throw new Error(

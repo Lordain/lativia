@@ -94,12 +94,9 @@ async function runCleanup(
       ...result,
     });
 
-  } catch (
-    error
-  ) {
+  } catch {
     console.error(
-      "Privacy cleanup cron failed:",
-      error
+      "Privacy cleanup cron failed"
     );
 
 

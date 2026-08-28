@@ -92,7 +92,7 @@ export async function cleanupDueOrderData(
     dueOrdersError
   ) {
     throw new Error(
-      `无法读取待清理订单：${dueOrdersError.message}`
+      "DUE_ORDERS_READ_FAILED"
     );
   }
 
@@ -159,7 +159,7 @@ export async function cleanupDueOrderData(
         documentsError
       ) {
         throw new Error(
-          documentsError.message
+          "ORDER_DOCUMENTS_READ_FAILED"
         );
       }
 
@@ -217,7 +217,7 @@ export async function cleanupDueOrderData(
           storageError
         ) {
           throw new Error(
-            `Storage 删除失败：${storageError.message}`
+            "STORAGE_DELETE_FAILED"
           );
         }
       }
@@ -285,7 +285,7 @@ export async function cleanupDueOrderData(
           metadataError
         ) {
           throw new Error(
-            `资料记录清理失败：${metadataError.message}`
+            "DOCUMENT_METADATA_CLEANUP_FAILED"
           );
         }
       }
@@ -318,7 +318,7 @@ export async function cleanupDueOrderData(
         cleanupError
       ) {
         throw new Error(
-          cleanupError.message
+          "DATABASE_CLEANUP_FAILED"
         );
       }
 

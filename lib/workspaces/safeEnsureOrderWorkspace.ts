@@ -32,12 +32,11 @@ import {
       return await ensureOrderWorkspace(
         orderId
       );
-    } catch (error) {
+    } catch {
       console.error(
-        "safeEnsureOrderWorkspace error:",
+        "safeEnsureOrderWorkspace failed",
         {
           orderId,
-          error,
         }
       );
   

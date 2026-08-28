@@ -233,8 +233,7 @@ import {
   
     if (existingError) {
       console.error(
-        "ensureWorkspaceWelcomeMessage existing check error:",
-        existingError
+        "ensureWorkspaceWelcomeMessage existing check failed"
       );
   
       throw new Error(
@@ -332,8 +331,7 @@ import {
   
   
       console.error(
-        "ensureWorkspaceWelcomeMessage insert error:",
-        insertError
+        "ensureWorkspaceWelcomeMessage insert failed"
       );
   
       throw new Error(
@@ -390,7 +388,7 @@ import {
             "workspace_welcome",
         },
       });
-    } catch (error) {
+    } catch {
       /*
        * Welcome Message is the primary operation.
        *
@@ -400,15 +398,13 @@ import {
        */
   
       console.error(
-        "ensureWorkspaceWelcomeMessage notification error:",
+        "ensureWorkspaceWelcomeMessage notification failed",
         {
           workspaceId:
             typedWorkspace.id,
-  
+
           messageId:
             insertedMessage.id,
-  
-          error,
         }
       );
     }

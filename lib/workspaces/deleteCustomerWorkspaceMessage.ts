@@ -8,6 +8,10 @@ import {
   createClient,
 } from "@/lib/supabase/server";
 
+import {
+  createAdminClient,
+} from "@/lib/supabase/admin";
+
 
 export async function deleteCustomerWorkspaceMessage(
   messageId:
@@ -57,6 +61,7 @@ export async function deleteCustomerWorkspaceMessage(
       )
       .select(`
         id,
+        workspace_id,
         order_id,
         sender_type,
         sender_user_id,
@@ -92,23 +97,70 @@ export async function deleteCustomerWorkspaceMessage(
     );
   }
 
+  const {
+    data:
+      workspace,
+
+    error:
+      workspaceError,
+  } =
+    await supabase
+      .from(
+        "order_workspaces"
+      )
+      .select(`
+        id,
+        status
+      `)
+      .eq(
+        "id",
+        currentMessage.workspace_id
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .maybeSingle();
+
 
   if (
-    currentMessage
-      .deleted_at
+    workspaceError ||
+    !workspace
   ) {
-    return {
-      success:
-        true,
-    };
+    throw new Error(
+      "找不到您的订单服务空间"
+    );
   }
 
+
+if (
+  currentMessage
+    .deleted_at
+) {
+  return {
+    success:
+      true,
+  };
+}
+
+
+if (
+  workspace.status !==
+    "active"
+) {
+  throw new Error(
+    "当前服务空间已经关闭"
+  );
+}
+
+  const admin =
+    createAdminClient();
 
   const {
     error:
       updateError,
   } =
-    await supabase
+    await admin
       .from(
         "workspace_messages"
       )
@@ -123,13 +175,24 @@ export async function deleteCustomerWorkspaceMessage(
       .eq(
         "id",
         currentMessage.id
+      )
+      .eq(
+        "sender_type",
+        "customer"
+      )
+      .eq(
+        "sender_user_id",
+        user.id
+      )
+      .is(
+        "deleted_at",
+        null
       );
 
 
   if (updateError) {
     console.error(
-      "deleteCustomerWorkspaceMessage error:",
-      updateError
+      "deleteCustomerWorkspaceMessage failed"
     );
 
     throw new Error(

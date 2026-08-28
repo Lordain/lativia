@@ -224,8 +224,7 @@ export async function editAdminWorkspaceMessage(
     revisionError
   ) {
     console.error(
-      "editAdminWorkspaceMessage revision error:",
-      revisionError
+      "editAdminWorkspaceMessage revision failed"
     );
 
     throw new Error(
@@ -278,8 +277,7 @@ export async function editAdminWorkspaceMessage(
     updateError
   ) {
     console.error(
-      "editAdminWorkspaceMessage update error:",
-      updateError
+      "editAdminWorkspaceMessage update failed"
     );
 
     throw new Error(

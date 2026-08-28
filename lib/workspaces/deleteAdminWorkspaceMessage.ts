@@ -187,8 +187,7 @@ export async function deleteAdminWorkspaceMessage(
     updateError
   ) {
     console.error(
-      "deleteAdminWorkspaceMessage error:",
-      updateError
+      "deleteAdminWorkspaceMessage failed"
     );
 
     throw new Error(

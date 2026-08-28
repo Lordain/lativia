@@ -166,8 +166,7 @@ export async function sendAdminWorkspaceMessage(
     !insertedMessage
   ) {
     console.error(
-      "sendAdminWorkspaceMessage insert error:",
-      insertError
+      "sendAdminWorkspaceMessage failed"
     );
 
     throw new Error(

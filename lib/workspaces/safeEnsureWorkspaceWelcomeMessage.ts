@@ -12,12 +12,11 @@ import {
         workspaceId
       );
   
-    } catch (error) {
+    } catch {
       console.error(
-        "safeEnsureWorkspaceWelcomeMessage error:",
+        "safeEnsureWorkspaceWelcomeMessage failed",
         {
           workspaceId,
-          error,
         }
       );
   

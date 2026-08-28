@@ -161,8 +161,7 @@ export default function ContinueOrderPage() {
         currentError
       ) {
         console.error(
-          "Continue OAuth order error:",
-          currentError
+          "Continue OAuth order failed"
         );
 
         /*

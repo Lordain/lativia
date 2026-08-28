@@ -5,6 +5,10 @@ import {
 } from "@/lib/supabase/server";
 
 import {
+  createAdminClient,
+} from "@/lib/supabase/admin";
+
+import {
   safeSendAdminManualWeChatOrderEmail,
 } from "@/lib/notifications/sendAdminManualWeChatOrderEmail";
 
@@ -1081,11 +1085,27 @@ if (
         return existingOrder;
       }
 
+      /*
+       * ========================================
+       * Trusted Order Insert
+       * ========================================
+       *
+       * 用户身份、服务、价格、资格与表单资料
+       * 已在上方使用普通用户 Session 完成验证。
+       *
+       * 最终订单建立使用 Server-only Admin Client，
+       * 避免必须向 authenticated 角色开放
+       * public.orders 的直接 INSERT 权限。
+       */
+
+      const admin =
+        createAdminClient();
+
       const {
         data,
         error,
       } =
-        await supabase
+        await admin
           .from(
             "orders"
           )

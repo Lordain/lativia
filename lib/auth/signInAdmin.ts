@@ -444,61 +444,6 @@ export async function signInAdmin(
     );
   }
 
-  if (
-    !clearRateLimitError
-  ) {
-    const {
-      count:
-        remainingAttempts,
-
-      error:
-        cleanupVerificationError,
-    } =
-      await admin
-        .from(
-          "admin_login_attempts"
-        )
-        .select(
-          "id",
-          {
-            count:
-              "exact",
-
-            head:
-              true,
-          }
-        )
-        .eq(
-          "identifier_hash",
-          rateLimitContext
-            .identifierHash
-        )
-        .eq(
-          "source_hash",
-          rateLimitContext
-            .sourceHash
-        );
-
-
-    if (
-      cleanupVerificationError
-    ) {
-      console.error(
-        "Admin login rate limit cleanup verification failed"
-      );
-
-    } else if (
-      remainingAttempts &&
-      remainingAttempts >
-        0
-    ) {
-      console.warn(
-        "Admin login rate limit cleanup left matching attempts"
-      );
-    }
-  }
-
-
   return {
     success:
       true,

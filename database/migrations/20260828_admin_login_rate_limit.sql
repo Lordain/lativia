@@ -201,9 +201,14 @@ end;
 $function$;
 
 
-/* =========================================================
- * Clear Successful Login Attempts
- * ========================================================= */
+/*
+ * Successful authentication clears previous
+ * attempts for this admin identifier across
+ * all request sources.
+ *
+ * This cleanup can only be reached after
+ * successful password authentication.
+ */
 
 create or replace function
 public.clear_admin_login_attempts(
@@ -217,13 +222,11 @@ set search_path to 'public'
 as $function$
 begin
 
-  delete from
-    public.admin_login_attempts
-  where
-    identifier_hash =
-      p_identifier_hash
-    and source_hash =
-      p_source_hash;
+delete from
+  public.admin_login_attempts
+where
+  identifier_hash =
+    p_identifier_hash;
 
 end;
 $function$;
